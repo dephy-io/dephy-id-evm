@@ -14,7 +14,7 @@ contract Product is Initializable, ERC721Upgradeable {
     mapping(address => uint256) internal _tokenIdByDevice;
     mapping(uint256 => address) internal _deviceByTokenId;
 
-    function __DePhy_init(
+    function __Product_init(
         string memory baseTokenURI,
         address administrator
     ) internal onlyInitializing {
@@ -29,7 +29,7 @@ contract Product is Initializable, ERC721Upgradeable {
         address administrator
     ) public initializer {
         __ERC721_init(name, symbol);
-        __DePhy_init(baseTokenURI, administrator);
+        __Product_init(baseTokenURI, administrator);
     }
 
     modifier onlyAdministrator() {
