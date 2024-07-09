@@ -1,64 +1,163 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
-import {Test, console} from "forge-std/Test.sol";
-import {Product} from "../src/Product.sol";
+import "forge-std/Test.sol";
 import {ProductFactory} from "../src/ProductFactory.sol";
+import {Product} from "../src/Product.sol";
 
 contract ProductFactoryTest is Test {
-    // ProductFactory product_factory;
-    // Product template_product;
-    // Product test_product;
+    ProductFactory public factory;
+    Product public productImplementation;
+    address public owner;
+    address public vendor;
+    address public user;
+    address public device;
+    uint256 public devicePK;
 
-    // address factory_owner;
-    // address product_owner;
+    function setUp() public {
+        owner = makeAddr("owner");
+        vendor = makeAddr("vendor");
+        user = makeAddr("user");
+        (device, devicePK) = makeAddrAndKey("device");
 
-    // function setUp() public {
-    //     factory_owner = vm.createWallet(0x42).addr;
+        productImplementation = new Product();
+        factory = new ProductFactory(owner);
+        vm.prank(owner);
+        factory.setProductImpl(address(productImplementation));
+    }
 
-    //     template_product = new Product();
+    function testCreateProduct() public {
+        vm.prank(vendor);
 
-    //     vm.prank(factory_owner);
-    //     product_factory = new ProductFactory(address(template_product));
-    //     assertEq(product_factory.owner(), factory_owner);
+        ProductFactory.CreateProductArgs memory args = ProductFactory.CreateProductArgs({
+            name: "Test Product",
+            symbol: "TP",
+            baseTokenURI: "https://example.com/token/"
+        });
 
-    //     product_owner = vm.createWallet(0x99).addr;
-    //     vm.prank(product_owner);
-    //     test_product = product_factory.createProduct("Test Product", "TEST");
-    // }
+        address product = factory.createProduct(args);
 
-    // function test_product_template() public {
-    //     assertEq(product_factory.product_template(), address(template_product));
+        assertEq(factory.getVendorByProduct(product), vendor);
+    }
 
-    //     Product product2 = new Product();
-    //     vm.prank(factory_owner);
-    //     product_factory.setProgramTemplate(address(product2));
-    //     assertEq(product_factory.product_template(), address(product2));
-    // }
+    function testCreateDevices() public {
+        vm.startPrank(vendor);
 
-    // function test_create_product() public {
-    //     test_product = product_factory.createProduct("Test Product", "TEST");
+        ProductFactory.CreateProductArgs memory args = ProductFactory.CreateProductArgs({
+            name: "Test Product",
+            symbol: "TP",
+            baseTokenURI: "https://example.com/token/"
+        });
 
-    //     assertEq(test_product.name(), "Test Product");
-    //     assertEq(test_product.symbol(), "TEST");
-    // }
+        address productAddress = factory.createProduct(args);
 
-    // function test_mint_product() public {
-    //     assertEq(test_product.owner(), product_owner);
+        ProductFactory.CreateDevicesArgs memory deviceArgs = ProductFactory.CreateDevicesArgs({
+            product: productAddress,
+            devices: new address[](1) 
+        });
+        deviceArgs.devices[0] = address(0x789);
 
-    //     vm.prank(product_owner);
-    //     test_product.mint(msg.sender, 2024);
-    //     assertEq(test_product.ownerOf(2024), msg.sender);
+        factory.createDevices(deviceArgs);
 
-    //     assertEq(test_product.tokenURI(2024), "");
-    //     vm.prank(product_owner);
-    //     test_product.setBaseURI("https://example.com/");
-    //     assertEq(test_product.tokenURI(2024), "https://example.com/2024");
-    // }
+        vm.stopPrank();
 
-    // function testFuzz_mint_product(address tokenOwner, uint256 tokenId) public {
-    //     vm.prank(product_owner);
-    //     test_product.mint(tokenOwner, tokenId);
-    //     assertEq(test_product.ownerOf(tokenId), tokenOwner);
-    // }
+        uint256 tokenId = factory.getDeviceTokenId(productAddress, deviceArgs.devices[0]);
+        assertEq(tokenId, 0);
+        assertEq(Product(productAddress).ownerOf(tokenId), address(factory));
+    }
+
+    function testCreateActivatedDevices() public {
+        vm.startPrank(vendor);
+
+        ProductFactory.CreateProductArgs memory args = ProductFactory.CreateProductArgs({
+            name: "Test Product",
+            symbol: "TP",
+            baseTokenURI: "https://example.com/token/"
+        });
+
+        address productAddress = factory.createProduct(args);
+
+        ProductFactory.CreateActivatedDevicesArgs memory activatedDeviceArgs = ProductFactory.CreateActivatedDevicesArgs({
+            product: productAddress,
+            devices: new address[](1) ,
+            receivers: new address[](1) 
+        });
+        activatedDeviceArgs.devices[0] = device;
+        activatedDeviceArgs.receivers[0] = user;
+
+        factory.createActivatedDevices(activatedDeviceArgs);
+
+        vm.stopPrank();
+
+        uint256 tokenId = factory.getDeviceTokenId(productAddress, activatedDeviceArgs.devices[0]);
+        assertEq(tokenId, 0);
+
+        assertEq(Product(productAddress).ownerOf(tokenId), user);
+    }
+
+    function testActivateDevice() public {
+        vm.startPrank(vendor);
+
+        ProductFactory.CreateProductArgs memory args = ProductFactory.CreateProductArgs({
+            name: "Test Product",
+            symbol: "TP",
+            baseTokenURI: "https://example.com/token/"
+        });
+
+        address productAddress = factory.createProduct(args);
+
+        ProductFactory.CreateDevicesArgs memory deviceArgs = ProductFactory.CreateDevicesArgs({
+            product: productAddress,
+            devices: new address[](1) 
+        });
+        deviceArgs.devices[0] = device;
+
+        factory.createDevices(deviceArgs);
+
+        vm.stopPrank();
+
+        uint256 tokenId = factory.getDeviceTokenId(productAddress, deviceArgs.devices[0]);
+        assertEq(tokenId, 0);
+
+        bytes32 domainSeparator = factory.getDomainSeparator();
+
+        bytes32 hashedMessage = keccak256(
+            abi.encode(
+                factory.ACTIVATE_DEVICE_TYPEHASH(),
+                user,
+                productAddress,
+                tokenId,
+                block.timestamp + 1 days
+            )
+        );
+
+        bytes32 digest = _calculateDigest(domainSeparator, hashedMessage);
+
+        (uint8 v, bytes32 r, bytes32 s) = vm.sign(devicePK, digest);
+
+        ProductFactory.EIP712Signature memory signature = ProductFactory.EIP712Signature({
+            signer: device,
+            v: v,
+            r: r,
+            s: s,
+            deadline: block.timestamp + 1 days
+        });
+
+        vm.prank(user);
+
+        ProductFactory.ActivateDeviceArgs memory activateArgs = ProductFactory.ActivateDeviceArgs({
+            receiver: user,
+            product: productAddress,
+            tokenId: tokenId
+        });
+
+        factory.activateDevice(activateArgs, signature);
+
+        assertEq(Product(productAddress).ownerOf(tokenId), user);
+    }
+
+    function _calculateDigest(bytes32 domainSeparator, bytes32 hashedMessage) internal pure returns (bytes32) {
+        bytes32 digest = keccak256(abi.encodePacked("\x19\x01", domainSeparator, hashedMessage));
+        return digest;
+    }
 }

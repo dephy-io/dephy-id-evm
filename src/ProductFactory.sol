@@ -39,7 +39,7 @@ contract ProductFactory is Ownable, EIP712 {
     error SignatureExpired();
     error TokenIdMismatch();
 
-    bytes32 constant ACTIVATE_DEVICE_TYPEHASH =
+    bytes32 constant public ACTIVATE_DEVICE_TYPEHASH =
         keccak256(
             bytes(
                 "ActivateDevice(address receiver,address product,uint256 tokenId,uint256 deadline)"
@@ -59,11 +59,15 @@ contract ProductFactory is Ownable, EIP712 {
         _;
     }
 
-    function setProfuctImpl(address _productImpl) public onlyOwner {
+    function getDomainSeparator() external view returns (bytes32) {
+        return _domainSeparatorV4();
+    }
+
+    function setProductImpl(address _productImpl) public onlyOwner {
         productImpl = _productImpl;
     }
 
-    function createProduct(CreateProductArgs memory args) public {
+    function createProduct(CreateProductArgs memory args) public returns (address) {
         address product = Clones.clone(productImpl);
         Product(product).initialize(
             args.name,
@@ -73,6 +77,8 @@ contract ProductFactory is Ownable, EIP712 {
         );
 
         _vendorByProduct[product] = msg.sender;
+
+        return product;
     }
 
     function createDevices(
@@ -119,6 +125,10 @@ contract ProductFactory is Ownable, EIP712 {
             revert TokenIdMismatch();
         }
         Product(args.product).transferFrom(address(this), args.receiver, args.tokenId);
+    }
+
+    function getVendorByProduct(address product) public view returns (address) {
+        return _vendorByProduct[product];
     }
 
     function getDeviceTokenId(address product, address device) public view returns (uint256) {

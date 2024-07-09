@@ -41,7 +41,7 @@ contract Product is Initializable, ERC721Upgradeable {
 
     function mint(address to) public onlyAdministrator returns (uint256) {
         uint256 tokenId = _tokenIdCount++;
-        _safeMint(to, tokenId);
+        _mint(to, tokenId);
         return tokenId;
     }
 
