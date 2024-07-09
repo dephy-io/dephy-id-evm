@@ -55,14 +55,14 @@ contract ProductFactoryTest is Test {
             product: productAddress,
             devices: new address[](1) 
         });
-        deviceArgs.devices[0] = address(0x789);
+        deviceArgs.devices[0] = device;
 
         factory.createDevices(deviceArgs);
 
         vm.stopPrank();
 
         uint256 tokenId = factory.getDeviceTokenId(productAddress, deviceArgs.devices[0]);
-        assertEq(tokenId, 0);
+        assertEq(tokenId, 1);
         assertEq(Product(productAddress).ownerOf(tokenId), address(factory));
     }
 
@@ -90,7 +90,7 @@ contract ProductFactoryTest is Test {
         vm.stopPrank();
 
         uint256 tokenId = factory.getDeviceTokenId(productAddress, activatedDeviceArgs.devices[0]);
-        assertEq(tokenId, 0);
+        assertEq(tokenId, 1);
 
         assertEq(Product(productAddress).ownerOf(tokenId), user);
     }
@@ -117,7 +117,7 @@ contract ProductFactoryTest is Test {
         vm.stopPrank();
 
         uint256 tokenId = factory.getDeviceTokenId(productAddress, deviceArgs.devices[0]);
-        assertEq(tokenId, 0);
+        assertEq(tokenId, 1);
 
         bytes32 domainSeparator = factory.getDomainSeparator();
 

@@ -10,7 +10,7 @@ contract Product is Initializable, ERC721Upgradeable {
 
     address public ADMINISTRATOR;
     string public BASE_TOKEN_URI;
-    uint256 private _tokenIdCount = 0;
+    uint256 private _tokenIdCount;
 
     constructor() {
         _disableInitializers();
@@ -32,6 +32,7 @@ contract Product is Initializable, ERC721Upgradeable {
         __ERC721_init(name, symbol);
         BASE_TOKEN_URI = baseTokenURI;
         ADMINISTRATOR = administrator;
+        _tokenIdCount = 1;
     }
 
     function mint(address to) public onlyAdministrator returns (uint256) {
