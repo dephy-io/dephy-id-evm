@@ -11,15 +11,16 @@ contract Product is Initializable, ERC721Upgradeable {
     address public ADMINISTRATOR;
     string public BASE_TOKEN_URI;
     uint256 private _tokenIdCount = 0;
-    mapping(address => uint256) internal _tokenIdByDevice;
-    mapping(uint256 => address) internal _deviceByTokenId;
 
-    function __Product_init(
-        string memory baseTokenURI,
-        address administrator
-    ) internal onlyInitializing {
-        BASE_TOKEN_URI = baseTokenURI;
-        ADMINISTRATOR = administrator;
+    constructor() {
+        _disableInitializers();
+    }
+
+    modifier onlyAdministrator() {
+        if (msg.sender != ADMINISTRATOR) {
+            revert NotAdministrator();
+        }
+        _;
     }
 
     function initialize(
@@ -29,14 +30,8 @@ contract Product is Initializable, ERC721Upgradeable {
         address administrator
     ) public initializer {
         __ERC721_init(name, symbol);
-        __Product_init(baseTokenURI, administrator);
-    }
-
-    modifier onlyAdministrator() {
-        if (msg.sender != ADMINISTRATOR) {
-            revert NotAdministrator();
-        }
-        _;
+        BASE_TOKEN_URI = baseTokenURI;
+        ADMINISTRATOR = administrator;
     }
 
     function mint(address to) public onlyAdministrator returns (uint256) {
