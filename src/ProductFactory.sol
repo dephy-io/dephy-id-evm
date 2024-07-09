@@ -31,11 +31,13 @@ contract ProductFactory is Ownable, EIP712 {
     struct ActivateDeviceArgs {
         address receiver;
         address product;
+        uint256 tokenId;
     }
 
     error NotVendor();
     error SignatureMismatch();
     error SignatureExpired();
+    error TokenIdMismatch();
 
     bytes32 constant ACTIVATE_DEVICE_TYPEHASH =
         keccak256(
@@ -46,6 +48,7 @@ contract ProductFactory is Ownable, EIP712 {
 
     address public productImpl;
     mapping(address => address) internal _vendorByProduct;
+    mapping(address => mapping(address => uint256)) internal _tokenIdByProductByDevice;
 
     constructor(address initialOwner) EIP712("ProductFactory", "1") Ownable(initialOwner) {}
 
@@ -75,15 +78,18 @@ contract ProductFactory is Ownable, EIP712 {
     function createDevices(
         CreateDevicesArgs memory args
     ) public onlyVendor(args.product) {
-        Product(args.product).registerDevices(args.devices);
+        for (uint256 i = 0; i < args.devices.length; ++i) {
+            uint256 tokenId = Product(args.product).mint(address(this));
+            _tokenIdByProductByDevice[args.product][args.devices[i]] = tokenId;
+        }
     }
 
     function createActivatedDevices(
         CreateActivatedDevicesArgs memory args
     ) public onlyVendor(args.product) {
-        Product(args.product).registerDevices(args.devices);
         for (uint256 i = 0; i < args.devices.length; ++i) {
-            Product(args.product).mint(args.receivers[i], args.devices[i]);
+            uint256 tokenId = Product(args.product).mint(args.receivers[i]);
+            _tokenIdByProductByDevice[args.product][args.devices[i]] = tokenId;
         }
     }
 
@@ -91,7 +97,7 @@ contract ProductFactory is Ownable, EIP712 {
         ActivateDeviceArgs memory args,
         EIP712Signature memory signature
     ) public {
-        address recoveredAddr = _recoverSigner(
+        address recoveredDeviceAddr = _recoverSigner(
             _hashTypedDataV4(
                 keccak256(
                     abi.encode(
@@ -105,11 +111,17 @@ contract ProductFactory is Ownable, EIP712 {
             signature
         );
 
-        if (signature.signer != recoveredAddr) {
+        if (signature.signer != recoveredDeviceAddr) {
             revert SignatureMismatch();
         }
+        if(_tokenIdByProductByDevice[args.product][recoveredDeviceAddr] != args.tokenId) {
+            revert TokenIdMismatch();
+        }
+        Product(args.product).transferFrom(address(this), args.receiver, args.tokenId);
+    }
 
-        Product(args.product).mint(args.receiver, recoveredAddr);
+    function getDeviceTokenId(address product, address device) public view returns (uint256) {
+        return _tokenIdByProductByDevice[product][device];
     }
 
     function _recoverSigner(
