@@ -6,6 +6,7 @@ import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {Clones} from "@openzeppelin/contracts/proxy/Clones.sol";
 import {Product} from "./Product.sol";
 
+
 contract ProductFactory is Ownable, EIP712 {
     struct EIP712Signature {
         address signer;
@@ -37,6 +38,7 @@ contract ProductFactory is Ownable, EIP712 {
     error NotVendor();
     error SignatureMismatch();
     error SignatureExpired();
+    error DeviceAlreadyCreated();
     error TokenIdMismatch();
 
     bytes32 constant public ACTIVATE_DEVICE_TYPEHASH =
@@ -85,6 +87,9 @@ contract ProductFactory is Ownable, EIP712 {
         CreateDevicesArgs memory args
     ) public onlyVendor(args.product) {
         for (uint256 i = 0; i < args.devices.length; ++i) {
+            if(_tokenIdByProductByDevice[args.product][args.devices[i]] > 0) {
+                revert DeviceAlreadyCreated();
+            }
             uint256 tokenId = Product(args.product).mint(address(this));
             _tokenIdByProductByDevice[args.product][args.devices[i]] = tokenId;
         }
@@ -94,6 +99,9 @@ contract ProductFactory is Ownable, EIP712 {
         CreateActivatedDevicesArgs memory args
     ) public onlyVendor(args.product) {
         for (uint256 i = 0; i < args.devices.length; ++i) {
+            if(_tokenIdByProductByDevice[args.product][args.devices[i]] > 0) {
+                revert DeviceAlreadyCreated();
+            }
             uint256 tokenId = Product(args.product).mint(args.receivers[i]);
             _tokenIdByProductByDevice[args.product][args.devices[i]] = tokenId;
         }
