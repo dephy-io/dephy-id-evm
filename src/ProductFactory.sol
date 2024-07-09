@@ -42,7 +42,7 @@ contract ProductFactory is Ownable, EIP712 {
     bytes32 constant ACTIVATE_DEVICE_TYPEHASH =
         keccak256(
             bytes(
-                "ActivateDevice(address receiver,address product,uint256 deadline)"
+                "ActivateDevice(address receiver,address product,uint256 tokenId,uint256 deadline)"
             )
         );
 
@@ -104,6 +104,7 @@ contract ProductFactory is Ownable, EIP712 {
                         ACTIVATE_DEVICE_TYPEHASH,
                         args.receiver,
                         args.product,
+                        args.tokenId,
                         signature.deadline
                     )
                 )
