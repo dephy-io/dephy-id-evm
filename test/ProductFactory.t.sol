@@ -2,8 +2,8 @@
 pragma solidity ^0.8.24;
 
 import "forge-std/Test.sol";
-import {ProductFactory} from "../src/ProductFactory.sol";
-import {Product} from "../src/Product.sol";
+import {ProductFactory} from "../contracts/ProductFactory.sol";
+import {Product} from "../contracts/Product.sol";
 
 contract ProductFactoryTest is Test {
     ProductFactory public factory;
