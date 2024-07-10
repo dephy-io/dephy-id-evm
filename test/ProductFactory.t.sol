@@ -126,9 +126,7 @@ contract ProductFactoryTest is Test {
         bytes32 hashedMessage = keccak256(
             abi.encode(
                 factory.ACTIVATE_DEVICE_TYPEHASH(),
-                user,
                 productAddress,
-                tokenId,
                 block.timestamp + 1 days
             )
         );
