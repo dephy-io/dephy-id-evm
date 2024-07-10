@@ -22,14 +22,13 @@ contract ProductFactoryTest is Test {
 
         productImplementation = new Product();
         factory = new ProductFactory(owner);
-        vm.prank(owner);
-        factory.setProductImpl(address(productImplementation));
     }
 
     function testCreateProduct() public {
         vm.prank(vendor);
 
         ProductFactory.CreateProductArgs memory args = ProductFactory.CreateProductArgs({
+            productImpl: address(productImplementation),
             name: "Test Product",
             symbol: "TP",
             baseTokenURI: "https://example.com/token/"
@@ -44,6 +43,7 @@ contract ProductFactoryTest is Test {
         vm.startPrank(vendor);
 
         ProductFactory.CreateProductArgs memory args = ProductFactory.CreateProductArgs({
+            productImpl: address(productImplementation),
             name: "Test Product",
             symbol: "TP",
             baseTokenURI: "https://example.com/token/"
@@ -70,6 +70,7 @@ contract ProductFactoryTest is Test {
         vm.startPrank(vendor);
 
         ProductFactory.CreateProductArgs memory args = ProductFactory.CreateProductArgs({
+            productImpl: address(productImplementation),
             name: "Test Product",
             symbol: "TP",
             baseTokenURI: "https://example.com/token/"
@@ -99,6 +100,7 @@ contract ProductFactoryTest is Test {
         vm.startPrank(vendor);
 
         ProductFactory.CreateProductArgs memory args = ProductFactory.CreateProductArgs({
+            productImpl: address(productImplementation),
             name: "Test Product",
             symbol: "TP",
             baseTokenURI: "https://example.com/token/"
