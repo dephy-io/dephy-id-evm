@@ -5,7 +5,7 @@ import {EIP712} from "@openzeppelin/contracts/utils/cryptography/EIP712.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {Clones} from "@openzeppelin/contracts/proxy/Clones.sol";
 import {Product} from "./Product.sol";
-
+import {IProduct} from "./IProduct.sol";
 
 contract ProductFactory is Ownable, EIP712 {
     struct EIP712Signature {
@@ -16,6 +16,7 @@ contract ProductFactory is Ownable, EIP712 {
         uint256 deadline;
     }
     struct CreateProductArgs {
+        address productImpl;
         string name;
         string symbol;
         string baseTokenURI;
@@ -40,15 +41,15 @@ contract ProductFactory is Ownable, EIP712 {
     error SignatureExpired();
     error DeviceAlreadyCreated();
     error TokenIdMismatch();
+    error NotProductTemplate();
 
-    bytes32 constant public ACTIVATE_DEVICE_TYPEHASH =
+    bytes32 public constant ACTIVATE_DEVICE_TYPEHASH =
         keccak256(
             bytes(
                 "ActivateDevice(address receiver,address product,uint256 tokenId,uint256 deadline)"
             )
         );
 
-    address public productImpl;
     mapping(address => address) internal _vendorByProduct;
     mapping(address => mapping(address => uint256)) internal _tokenIdByProductByDevice;
 
@@ -65,12 +66,16 @@ contract ProductFactory is Ownable, EIP712 {
         return _domainSeparatorV4();
     }
 
-    function setProductImpl(address _productImpl) public onlyOwner {
-        productImpl = _productImpl;
-    }
-
     function createProduct(CreateProductArgs memory args) public returns (address) {
-        address product = Clones.clone(productImpl);
+        if (
+            !IProduct(args.productImpl).supportsInterface(
+                type(IProduct).interfaceId
+            )
+        ) {
+            revert NotProductTemplate();
+        }
+
+        address product = Clones.clone(args.productImpl);
         Product(product).initialize(
             args.name,
             args.symbol,
@@ -87,7 +92,7 @@ contract ProductFactory is Ownable, EIP712 {
         CreateDevicesArgs memory args
     ) public onlyVendor(args.product) {
         for (uint256 i = 0; i < args.devices.length; ++i) {
-            if(_tokenIdByProductByDevice[args.product][args.devices[i]] > 0) {
+            if (_tokenIdByProductByDevice[args.product][args.devices[i]] > 0) {
                 revert DeviceAlreadyCreated();
             }
             uint256 tokenId = Product(args.product).mint(address(this));
@@ -99,7 +104,7 @@ contract ProductFactory is Ownable, EIP712 {
         CreateActivatedDevicesArgs memory args
     ) public onlyVendor(args.product) {
         for (uint256 i = 0; i < args.devices.length; ++i) {
-            if(_tokenIdByProductByDevice[args.product][args.devices[i]] > 0) {
+            if (_tokenIdByProductByDevice[args.product][args.devices[i]] > 0) {
                 revert DeviceAlreadyCreated();
             }
             uint256 tokenId = Product(args.product).mint(args.receivers[i]);
@@ -129,7 +134,7 @@ contract ProductFactory is Ownable, EIP712 {
         if (signature.signer != recoveredDeviceAddr) {
             revert SignatureMismatch();
         }
-        if(_tokenIdByProductByDevice[args.product][recoveredDeviceAddr] != args.tokenId) {
+        if (_tokenIdByProductByDevice[args.product][recoveredDeviceAddr] != args.tokenId) {
             revert TokenIdMismatch();
         }
         Product(args.product).transferFrom(address(this), args.receiver, args.tokenId);
