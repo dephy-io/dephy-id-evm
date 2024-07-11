@@ -4,7 +4,7 @@ import {
 } from "./typechain";
 import { Signer, Wallet, ethers } from "ethers";
 import { ChainId } from "./types";
-import { oneDayLater } from "./utils/timestamp";
+import { oneDayLater, oneHourLater } from "./utils/timestamp";
 
 export class ProductFactory {
   private signer: Signer;
@@ -96,32 +96,25 @@ export class ProductFactory {
   }
 
   public async activateDevice({
-    receiver,
     product,
     devicePrivatekey,
   }: {
-    receiver?: string;
     product: string;
     devicePrivatekey: string;
   }) {
-    if (!receiver) {
-      receiver = await this.signer.getAddress();
-    }
     const deviceWallet = new ethers.Wallet(devicePrivatekey);
-    const tokenId = await this.getDeviceTokenId({
+    const deviceSignedParams = await this._generateDeviceSignature(deviceWallet);
+    const activateDeviceArgs: ProductFactoryRaw.ActivateDeviceArgsStruct = {
       product,
       device: deviceWallet.address,
-    });
-    const args: ProductFactoryRaw.ActivateDeviceArgsStruct = {
-      receiver,
-      product,
-      tokenId,
+      ...deviceSignedParams
     };
+
     const signature = await this._generateActivateDeviceSignature({
-      wallet: deviceWallet,
-      product,
+      wallet: this.signer as Wallet,
+      activateDeviceArgs,
     });
-    const tx = await this.instance.activateDevice(args, signature);
+    const tx = await this.instance.activateDevice(activateDeviceArgs, signature);
     await tx.wait();
   }
 
@@ -139,12 +132,28 @@ export class ProductFactory {
     return this.instance.getDeviceTokenId(product, device);
   }
 
+  private async _generateDeviceSignature(wallet: Wallet) {
+    const deviceDeadline = oneHourLater();
+
+    const hashedMessage = ethers.utils.keccak256(ethers.utils.defaultAbiCoder.encode(["uint256"], [deviceDeadline]));
+    const digest = ethers.utils.keccak256(
+      ethers.utils.solidityPack(["string", "bytes32"], ["DEPHY_ID_SIGNED_MESSAGE:", hashedMessage])
+    )
+    const {v, r, s} = wallet._signingKey().signDigest(digest);
+    const deviceSignature = ethers.utils.solidityPack(["bytes32", "bytes32", "uint8"], [r, s, v])
+
+    return {
+      deviceDeadline,
+      deviceSignature
+    };
+  }
+
   private async _generateActivateDeviceSignature({
     wallet,
-    product,
+    activateDeviceArgs,
   }: {
     wallet: Wallet;
-    product: string;
+    activateDeviceArgs: ProductFactoryRaw.ActivateDeviceArgsStruct;
   }) {
     const { name, version } = await this.instance.eip712Domain();
     const deadline = oneDayLater();
@@ -153,6 +162,9 @@ export class ProductFactory {
       types: {
         ActivateDevice: [
           { name: "product", type: "address" },
+          { name: "device", type: "address" },
+          { name: "deviceSignature", type: "bytes" },
+          { name: "deviceDeadline", type: "uint256" },
           { name: "deadline", type: "uint256" },
         ],
       },
@@ -163,7 +175,10 @@ export class ProductFactory {
         verifyingContract: this.instance.address,
       },
       value: {
-        product,
+        product: activateDeviceArgs.product,
+        device: activateDeviceArgs.device,
+        deviceSignature: activateDeviceArgs.deviceSignature,
+        deviceDeadline: activateDeviceArgs.deviceDeadline,
         deadline,
       },
     };

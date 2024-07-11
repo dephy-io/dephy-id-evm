@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 import { ProductFactory__factory, } from "./typechain";
 import { ethers } from "ethers";
-import { oneDayLater } from "./utils/timestamp";
+import { oneDayLater, oneHourLater } from "./utils/timestamp";
 export class ProductFactory {
     constructor({ signer, chainId, address, }) {
         this.signer = signer;
@@ -64,26 +64,16 @@ export class ProductFactory {
             yield tx.wait();
         });
     }
-    activateDevice({ receiver, product, devicePrivatekey, }) {
+    activateDevice({ product, devicePrivatekey, }) {
         return __awaiter(this, void 0, void 0, function* () {
-            if (!receiver) {
-                receiver = yield this.signer.getAddress();
-            }
             const deviceWallet = new ethers.Wallet(devicePrivatekey);
-            const tokenId = yield this.getDeviceTokenId({
-                product,
-                device: deviceWallet.address,
-            });
-            const args = {
-                receiver,
-                product,
-                tokenId,
-            };
+            const deviceSignedParams = yield this._generateDeviceSignature(deviceWallet);
+            const activateDeviceArgs = Object.assign({ product, device: deviceWallet.address }, deviceSignedParams);
             const signature = yield this._generateActivateDeviceSignature({
-                wallet: deviceWallet,
-                product,
+                wallet: this.signer,
+                activateDeviceArgs,
             });
-            const tx = yield this.instance.activateDevice(args, signature);
+            const tx = yield this.instance.activateDevice(activateDeviceArgs, signature);
             yield tx.wait();
         });
     }
@@ -97,7 +87,20 @@ export class ProductFactory {
             return this.instance.getDeviceTokenId(product, device);
         });
     }
-    _generateActivateDeviceSignature({ wallet, product, }) {
+    _generateDeviceSignature(wallet) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const deviceDeadline = oneHourLater();
+            const hashedMessage = ethers.utils.keccak256(ethers.utils.defaultAbiCoder.encode(["uint256"], [deviceDeadline]));
+            const digest = ethers.utils.keccak256(ethers.utils.solidityPack(["string", "bytes32"], ["DEPHY_ID_SIGNED_MESSAGE:", hashedMessage]));
+            const { v, r, s } = wallet._signingKey().signDigest(digest);
+            const deviceSignature = ethers.utils.solidityPack(["bytes32", "bytes32", "uint8"], [r, s, v]);
+            return {
+                deviceDeadline,
+                deviceSignature
+            };
+        });
+    }
+    _generateActivateDeviceSignature({ wallet, activateDeviceArgs, }) {
         return __awaiter(this, void 0, void 0, function* () {
             const { name, version } = yield this.instance.eip712Domain();
             const deadline = oneDayLater();
@@ -105,6 +108,9 @@ export class ProductFactory {
                 types: {
                     ActivateDevice: [
                         { name: "product", type: "address" },
+                        { name: "device", type: "address" },
+                        { name: "deviceSignature", type: "bytes" },
+                        { name: "deviceDeadline", type: "uint256" },
                         { name: "deadline", type: "uint256" },
                     ],
                 },
@@ -115,7 +121,10 @@ export class ProductFactory {
                     verifyingContract: this.instance.address,
                 },
                 value: {
-                    product,
+                    product: activateDeviceArgs.product,
+                    device: activateDeviceArgs.device,
+                    deviceSignature: activateDeviceArgs.deviceSignature,
+                    deviceDeadline: activateDeviceArgs.deviceDeadline,
                     deadline,
                 },
             };

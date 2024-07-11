@@ -4,6 +4,7 @@ pragma solidity ^0.8.24;
 import "forge-std/Test.sol";
 import {ProductFactory} from "../contracts/ProductFactory.sol";
 import {Product} from "../contracts/Product.sol";
+import "forge-std/console.sol";
 
 contract ProductFactoryTest is Test {
     ProductFactory public factory;
@@ -139,9 +140,9 @@ contract ProductFactoryTest is Test {
         );
         assertEq(tokenId, 1);
 
-        uint256 deviceSigDeadline = block.timestamp + 12 hours;
+        uint256 deviceDeadline = block.timestamp + 12 hours;
         bytes memory deviceSignature = _generateDeviceSignature(
-            deviceSigDeadline,
+            deviceDeadline,
             devicePK
         );
 
@@ -149,8 +150,8 @@ contract ProductFactoryTest is Test {
             .ActivateDeviceArgs({
                 product: productAddress,
                 device: device,
-                signature: deviceSignature,
-                deadline: deviceSigDeadline
+                deviceSignature: deviceSignature,
+                deviceDeadline: deviceDeadline
             });
 
         ProductFactory.EIP712Signature
@@ -198,8 +199,8 @@ contract ProductFactoryTest is Test {
                 factory.ACTIVATE_DEVICE_TYPEHASH(),
                 activateArgs.product,
                 activateArgs.device,
-                keccak256(activateArgs.signature),
-                activateArgs.deadline,
+                keccak256(activateArgs.deviceSignature),
+                activateArgs.deviceDeadline,
                 block.timestamp + 1 days
             )
         );

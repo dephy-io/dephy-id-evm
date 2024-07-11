@@ -24,8 +24,7 @@ export declare class ProductFactory {
         devices: string[];
         receivers: string[];
     }): Promise<void>;
-    activateDevice({ receiver, product, devicePrivatekey, }: {
-        receiver?: string;
+    activateDevice({ product, devicePrivatekey, }: {
         product: string;
         devicePrivatekey: string;
     }): Promise<void>;
@@ -34,5 +33,6 @@ export declare class ProductFactory {
         product: string;
         device: string;
     }): Promise<ethers.BigNumber>;
+    private _generateDeviceSignature;
     private _generateActivateDeviceSignature;
 }

@@ -4,14 +4,21 @@ import type { Listener, Provider } from "@ethersproject/providers";
 import type { TypedEventFilter, TypedEvent, TypedListener, OnEvent } from "./common";
 export declare namespace ProductFactory {
     type ActivateDeviceArgsStruct = {
-        receiver: string;
         product: string;
-        tokenId: BigNumberish;
+        device: string;
+        deviceSignature: BytesLike;
+        deviceDeadline: BigNumberish;
     };
-    type ActivateDeviceArgsStructOutput = [string, string, BigNumber] & {
-        receiver: string;
+    type ActivateDeviceArgsStructOutput = [
+        string,
+        string,
+        string,
+        BigNumber
+    ] & {
         product: string;
-        tokenId: BigNumber;
+        device: string;
+        deviceSignature: string;
+        deviceDeadline: BigNumber;
     };
     type EIP712SignatureStruct = {
         signer: string;
@@ -76,7 +83,7 @@ export declare namespace ProductFactory {
 export interface ProductFactoryInterface extends utils.Interface {
     functions: {
         "ACTIVATE_DEVICE_TYPEHASH()": FunctionFragment;
-        "activateDevice((address,address,uint256),(address,uint8,bytes32,bytes32,uint256))": FunctionFragment;
+        "activateDevice((address,address,bytes,uint256),(address,uint8,bytes32,bytes32,uint256))": FunctionFragment;
         "createActivatedDevices((address,address[],address[]))": FunctionFragment;
         "createDevices((address,address[]))": FunctionFragment;
         "createProduct((address,string,string,string))": FunctionFragment;

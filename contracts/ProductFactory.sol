@@ -33,8 +33,8 @@ contract ProductFactory is Ownable, EIP712 {
     struct ActivateDeviceArgs {
         address product;
         address device;
-        bytes signature;
-        uint256 deadline;
+        bytes deviceSignature;
+        uint256 deviceDeadline;
     }
 
     error NotVendor();
@@ -61,7 +61,7 @@ contract ProductFactory is Ownable, EIP712 {
     bytes32 public constant ACTIVATE_DEVICE_TYPEHASH =
         keccak256(
             bytes(
-                "ActivateDevice(address product,address device,bytes signature,uint256 deadline,uint256 deadline)"
+                "ActivateDevice(address product,address device,bytes deviceSignature,uint256 deviceDeadline,uint256 deadline)"
             )
         );
 
@@ -148,8 +148,8 @@ contract ProductFactory is Ownable, EIP712 {
                         ACTIVATE_DEVICE_TYPEHASH,
                         args.product,
                         args.device,
-                        keccak256(args.signature),
-                        args.deadline,
+                        keccak256(args.deviceSignature),
+                        args.deviceDeadline,
                         signature.deadline
                     )
                 )
@@ -162,9 +162,9 @@ contract ProductFactory is Ownable, EIP712 {
         }
 
         address recoveredDeviceAddr = _recoverDeviceSigner(
-            _hashTypedDeviceMessage(keccak256(abi.encode(args.deadline))),
-            args.signature,
-            args.deadline
+            _hashTypedDeviceMessage(keccak256(abi.encode(args.deviceDeadline))),
+            args.deviceSignature,
+            args.deviceDeadline
         );
 
         if (args.device != recoveredDeviceAddr) {
