@@ -139,24 +139,16 @@ contract ProductFactoryTest is Test {
         );
         assertEq(tokenId, 1);
 
-        // bytes32 deviceHash = keccak256(abi.encode(device));
-        // (uint8 deviceV, bytes32 deviceR, bytes32 deviceS) = vm.sign(
-        //     devicePK,
-        //     deviceHash
-        // );
-        // bytes memory deviceSignature = abi.encodePacked(
-        //     deviceR,
-        //     deviceS,
-        //     deviceV
-        // );
-
-        (bytes32 deviceHash, bytes memory deviceSignature) = _generateDeviceSignature(device, devicePK);
+        bytes memory deviceSignature = _generateDeviceMessageHashAndSignature(
+            device,
+            devicePK
+        );
 
         ProductFactory.ActivateDeviceArgs memory activateArgs = ProductFactory
             .ActivateDeviceArgs({
                 product: productAddress,
                 tokenId: tokenId,
-                messageHash: deviceHash,
+                device: device,
                 signature: deviceSignature
             });
 
@@ -173,27 +165,26 @@ contract ProductFactoryTest is Test {
         assertEq(Product(productAddress).ownerOf(tokenId), user);
     }
 
-    function _generateDeviceSignature(address _device, uint256 _devicePK)
-        internal
-        pure
-        returns (bytes32, bytes memory)
-    {
+    function _generateDeviceMessageHashAndSignature(
+        address _device,
+        uint256 _devicePK
+    ) internal pure returns (bytes memory) {
         bytes32 hashedMessage = keccak256(abi.encode(_device));
-        // bytes32 digest = _calculateDeviceDigest(hashedMessage);
-        
-        (uint8 v, bytes32 r, bytes32 s) = vm.sign(_devicePK, hashedMessage);
+        bytes32 digest = _calculateDeviceDigest(hashedMessage);
+
+        (uint8 v, bytes32 r, bytes32 s) = vm.sign(_devicePK, digest);
         bytes memory signature = abi.encodePacked(r, s, v);
-        return (hashedMessage, signature);
+        return signature;
     }
 
-    // function _calculateDeviceDigest(
-    //     bytes32 hashedMessage
-    // ) internal pure returns (bytes32) {
-    //     bytes32 digest = keccak256(
-    //         abi.encodePacked("Signed by: ", hashedMessage)
-    //     );
-    //     return digest;
-    // }
+    function _calculateDeviceDigest(
+        bytes32 hashedMessage
+    ) internal pure returns (bytes32) {
+        bytes32 digest = keccak256(
+            abi.encodePacked("DEPHY_ID_SIGNED_MESSAGE:", hashedMessage)
+        );
+        return digest;
+    }
 
     function _generateEIP712Signature(
         ProductFactory.ActivateDeviceArgs memory activateArgs,
@@ -206,7 +197,7 @@ contract ProductFactoryTest is Test {
                 factory.ACTIVATE_DEVICE_TYPEHASH(),
                 activateArgs.product,
                 activateArgs.tokenId,
-                activateArgs.messageHash,
+                activateArgs.device,
                 keccak256(activateArgs.signature),
                 block.timestamp + 1 days
             )
