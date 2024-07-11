@@ -2,6 +2,7 @@
 pragma solidity ^0.8.24;
 
 import {EIP712} from "@openzeppelin/contracts/utils/cryptography/EIP712.sol";
+import {ECDSA} from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {Clones} from "@openzeppelin/contracts/proxy/Clones.sol";
 import {IProduct} from "./IProduct.sol";
@@ -30,9 +31,10 @@ contract ProductFactory is Ownable, EIP712 {
         address[] receivers;
     }
     struct ActivateDeviceArgs {
-        address receiver;
         address product;
         uint256 tokenId;
+        bytes32 messageHash;
+        bytes signature;
     }
 
     error NotVendor();
@@ -46,10 +48,14 @@ contract ProductFactory is Ownable, EIP712 {
     event DeviceCreated(address indexed product, address indexed device, uint256 indexed tokenId);
     event DeviceActivated(address indexed product, address indexed device);
 
+    // bytes32 public constant DEVICE_TYPEHASH = keccak256(bytes(
+    //     ""
+    // ))
+
     bytes32 public constant ACTIVATE_DEVICE_TYPEHASH =
         keccak256(
             bytes(
-                "ActivateDevice(address product,uint256 deadline)"
+                "ActivateDevice(address product,uint256 tokenId,byte32 hash,bytes signature,uint256 deadline)"
             )
         );
 
@@ -124,12 +130,15 @@ contract ProductFactory is Ownable, EIP712 {
         ActivateDeviceArgs memory args,
         EIP712Signature memory signature
     ) public {
-        address recoveredDeviceAddr = _recoverSigner(
+        address recoveredAddr = _recoverSigner(
             _hashTypedDataV4(
                 keccak256(
                     abi.encode(
                         ACTIVATE_DEVICE_TYPEHASH,
                         args.product,
+                        args.tokenId,
+                        args.messageHash,
+                        keccak256(args.signature),
                         signature.deadline
                     )
                 )
@@ -137,13 +146,17 @@ contract ProductFactory is Ownable, EIP712 {
             signature
         );
 
-        if (signature.signer != recoveredDeviceAddr) {
+        if (signature.signer != recoveredAddr) {
             revert SignatureMismatch();
         }
+
+        address recoveredDeviceAddr = ECDSA.recover(args.messageHash, args.signature);
         if (_tokenIdByProductByDevice[args.product][recoveredDeviceAddr] != args.tokenId) {
             revert TokenIdMismatch();
         }
-        IProduct(args.product).transferFrom(address(this), args.receiver, args.tokenId);
+
+        IProduct(args.product).transferFrom(address(this), recoveredAddr, args.tokenId);
+
         emit DeviceActivated(args.product, recoveredDeviceAddr);
     }
 
