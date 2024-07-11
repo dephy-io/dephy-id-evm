@@ -1,0 +1,26 @@
+{
+  "name": "dephy-id-evm-tool-demo",
+  "private": true,
+  "version": "0.0.0",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build && vite preview",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "ethers": "^5.7.2",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "sass": "^1.70.0",
+    "dephy-id-evm-tool": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/react": "^18.0.17",
+    "@types/react-dom": "^18.0.6",
+    "@vitejs/plugin-react-refresh": "^1.3.6",
+    "env-cmd": "^10.1.0",
+    "esbuild": "^0.21.3",
+    "rollup-plugin-node-polyfills": "^0.2.1",
+    "vite": "^2.4.4"
+  }
+}

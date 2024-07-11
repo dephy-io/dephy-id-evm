@@ -222,13 +222,42 @@ export interface ProductFactoryInterface extends utils.Interface {
   ): Result;
 
   events: {
+    "DeviceActivated(address,address)": EventFragment;
+    "DeviceCreated(address,address,uint256)": EventFragment;
     "EIP712DomainChanged()": EventFragment;
     "OwnershipTransferred(address,address)": EventFragment;
+    "ProductCreated(address,address,address)": EventFragment;
   };
 
+  getEvent(nameOrSignatureOrTopic: "DeviceActivated"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "DeviceCreated"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "EIP712DomainChanged"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "OwnershipTransferred"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "ProductCreated"): EventFragment;
 }
+
+export interface DeviceActivatedEventObject {
+  product: string;
+  device: string;
+}
+export type DeviceActivatedEvent = TypedEvent<
+  [string, string],
+  DeviceActivatedEventObject
+>;
+
+export type DeviceActivatedEventFilter = TypedEventFilter<DeviceActivatedEvent>;
+
+export interface DeviceCreatedEventObject {
+  product: string;
+  device: string;
+  tokenId: BigNumber;
+}
+export type DeviceCreatedEvent = TypedEvent<
+  [string, string, BigNumber],
+  DeviceCreatedEventObject
+>;
+
+export type DeviceCreatedEventFilter = TypedEventFilter<DeviceCreatedEvent>;
 
 export interface EIP712DomainChangedEventObject {}
 export type EIP712DomainChangedEvent = TypedEvent<
@@ -250,6 +279,18 @@ export type OwnershipTransferredEvent = TypedEvent<
 
 export type OwnershipTransferredEventFilter =
   TypedEventFilter<OwnershipTransferredEvent>;
+
+export interface ProductCreatedEventObject {
+  vendor: string;
+  productImpl: string;
+  product: string;
+}
+export type ProductCreatedEvent = TypedEvent<
+  [string, string, string],
+  ProductCreatedEventObject
+>;
+
+export type ProductCreatedEventFilter = TypedEventFilter<ProductCreatedEvent>;
 
 export interface ProductFactory extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
@@ -463,6 +504,26 @@ export interface ProductFactory extends BaseContract {
   };
 
   filters: {
+    "DeviceActivated(address,address)"(
+      product?: string | null,
+      device?: string | null
+    ): DeviceActivatedEventFilter;
+    DeviceActivated(
+      product?: string | null,
+      device?: string | null
+    ): DeviceActivatedEventFilter;
+
+    "DeviceCreated(address,address,uint256)"(
+      product?: string | null,
+      device?: string | null,
+      tokenId?: BigNumberish | null
+    ): DeviceCreatedEventFilter;
+    DeviceCreated(
+      product?: string | null,
+      device?: string | null,
+      tokenId?: BigNumberish | null
+    ): DeviceCreatedEventFilter;
+
     "EIP712DomainChanged()"(): EIP712DomainChangedEventFilter;
     EIP712DomainChanged(): EIP712DomainChangedEventFilter;
 
@@ -474,6 +535,17 @@ export interface ProductFactory extends BaseContract {
       previousOwner?: string | null,
       newOwner?: string | null
     ): OwnershipTransferredEventFilter;
+
+    "ProductCreated(address,address,address)"(
+      vendor?: string | null,
+      productImpl?: string | null,
+      product?: string | null
+    ): ProductCreatedEventFilter;
+    ProductCreated(
+      vendor?: string | null,
+      productImpl?: string | null,
+      product?: string | null
+    ): ProductCreatedEventFilter;
   };
 
   estimateGas: {

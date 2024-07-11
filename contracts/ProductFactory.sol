@@ -4,7 +4,6 @@ pragma solidity ^0.8.24;
 import {EIP712} from "@openzeppelin/contracts/utils/cryptography/EIP712.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {Clones} from "@openzeppelin/contracts/proxy/Clones.sol";
-import {Product} from "./Product.sol";
 import {IProduct} from "./IProduct.sol";
 
 contract ProductFactory is Ownable, EIP712 {
@@ -43,6 +42,10 @@ contract ProductFactory is Ownable, EIP712 {
     error TokenIdMismatch();
     error NotProductTemplate();
 
+    event ProductCreated(address indexed vendor, address indexed productImpl, address indexed product);
+    event DeviceCreated(address indexed product, address indexed device, uint256 indexed tokenId);
+    event DeviceActivated(address indexed product, address indexed device);
+
     bytes32 public constant ACTIVATE_DEVICE_TYPEHASH =
         keccak256(
             bytes(
@@ -76,7 +79,7 @@ contract ProductFactory is Ownable, EIP712 {
         }
 
         address product = Clones.clone(args.productImpl);
-        Product(product).initialize(
+        IProduct(product).initialize(
             args.name,
             args.symbol,
             args.baseTokenURI,
@@ -84,6 +87,8 @@ contract ProductFactory is Ownable, EIP712 {
         );
 
         _vendorByProduct[product] = msg.sender;
+
+        emit ProductCreated(msg.sender, args.productImpl, product);
 
         return product;
     }
@@ -95,8 +100,9 @@ contract ProductFactory is Ownable, EIP712 {
             if (_tokenIdByProductByDevice[args.product][args.devices[i]] > 0) {
                 revert DeviceAlreadyCreated();
             }
-            uint256 tokenId = Product(args.product).mint(address(this));
+            uint256 tokenId = IProduct(args.product).mint(address(this));
             _tokenIdByProductByDevice[args.product][args.devices[i]] = tokenId;
+            emit DeviceCreated(args.product, args.devices[i], tokenId);
         }
     }
 
@@ -107,8 +113,10 @@ contract ProductFactory is Ownable, EIP712 {
             if (_tokenIdByProductByDevice[args.product][args.devices[i]] > 0) {
                 revert DeviceAlreadyCreated();
             }
-            uint256 tokenId = Product(args.product).mint(args.receivers[i]);
+            uint256 tokenId = IProduct(args.product).mint(args.receivers[i]);
             _tokenIdByProductByDevice[args.product][args.devices[i]] = tokenId;
+            emit DeviceCreated(args.product, args.devices[i], tokenId);
+            emit DeviceActivated(args.product, args.receivers[i]);
         }
     }
 
@@ -135,7 +143,8 @@ contract ProductFactory is Ownable, EIP712 {
         if (_tokenIdByProductByDevice[args.product][recoveredDeviceAddr] != args.tokenId) {
             revert TokenIdMismatch();
         }
-        Product(args.product).transferFrom(address(this), args.receiver, args.tokenId);
+        IProduct(args.product).transferFrom(address(this), args.receiver, args.tokenId);
+        emit DeviceActivated(args.product, recoveredDeviceAddr);
     }
 
     function getVendorByProduct(address product) public view returns (address) {
