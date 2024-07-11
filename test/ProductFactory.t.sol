@@ -139,17 +139,18 @@ contract ProductFactoryTest is Test {
         );
         assertEq(tokenId, 1);
 
+        uint256 deviceSigDeadline = block.timestamp + 12 hours;
         bytes memory deviceSignature = _generateDeviceMessageHashAndSignature(
-            device,
+            deviceSigDeadline,
             devicePK
         );
 
         ProductFactory.ActivateDeviceArgs memory activateArgs = ProductFactory
             .ActivateDeviceArgs({
                 product: productAddress,
-                tokenId: tokenId,
                 device: device,
-                signature: deviceSignature
+                signature: deviceSignature,
+                deadline: deviceSigDeadline
             });
 
         ProductFactory.EIP712Signature
@@ -166,10 +167,10 @@ contract ProductFactoryTest is Test {
     }
 
     function _generateDeviceMessageHashAndSignature(
-        address _device,
+        uint256 deadline,
         uint256 _devicePK
     ) internal pure returns (bytes memory) {
-        bytes32 hashedMessage = keccak256(abi.encode(_device));
+        bytes32 hashedMessage = keccak256(abi.encode(deadline));
         bytes32 digest = _calculateDeviceDigest(hashedMessage);
 
         (uint8 v, bytes32 r, bytes32 s) = vm.sign(_devicePK, digest);
@@ -196,9 +197,9 @@ contract ProductFactoryTest is Test {
             abi.encode(
                 factory.ACTIVATE_DEVICE_TYPEHASH(),
                 activateArgs.product,
-                activateArgs.tokenId,
                 activateArgs.device,
                 keccak256(activateArgs.signature),
+                activateArgs.deadline,
                 block.timestamp + 1 days
             )
         );

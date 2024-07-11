@@ -32,15 +32,16 @@ contract ProductFactory is Ownable, EIP712 {
     }
     struct ActivateDeviceArgs {
         address product;
-        uint256 tokenId;
-        // bytes32 messageHash;
         address device;
         bytes signature;
+        uint256 deadline;
     }
 
     error NotVendor();
-    error SignatureMismatch();
-    error SignatureExpired();
+    error EIP712SignatureMismatch();
+    error EIP712SignatureExpired();
+    error DeviceSignatureMismatch();
+    error DeviceSignatureExpired();
     error DeviceAlreadyCreated();
     error TokenIdMismatch();
     error NotProductTemplate();
@@ -57,14 +58,10 @@ contract ProductFactory is Ownable, EIP712 {
     );
     event DeviceActivated(address indexed product, address indexed device);
 
-    // bytes32 public constant DEVICE_TYPEHASH = keccak256(bytes(
-    //     ""
-    // ))
-
     bytes32 public constant ACTIVATE_DEVICE_TYPEHASH =
         keccak256(
             bytes(
-                "ActivateDevice(address product,uint256 tokenId,address device,bytes signature,uint256 deadline)"
+                "ActivateDevice(address product,address device,bytes signature,uint256 deadline,uint256 deadline)"
             )
         );
 
@@ -144,15 +141,15 @@ contract ProductFactory is Ownable, EIP712 {
         ActivateDeviceArgs memory args,
         EIP712Signature memory signature
     ) public {
-        address recoveredAddr = _recoverSigner(
+        address recoveredAddr = _recoverEIP712Signer(
             _hashTypedDataV4(
                 keccak256(
                     abi.encode(
                         ACTIVATE_DEVICE_TYPEHASH,
                         args.product,
-                        args.tokenId,
                         args.device,
                         keccak256(args.signature),
+                        args.deadline,
                         signature.deadline
                     )
                 )
@@ -161,27 +158,26 @@ contract ProductFactory is Ownable, EIP712 {
         );
 
         if (signature.signer != recoveredAddr) {
-            revert SignatureMismatch();
+            revert EIP712SignatureMismatch();
         }
 
-        address recoveredDeviceAddr = ECDSA.recover(
-            _hashTypedDeviceMessage(keccak256(abi.encode(args.device))),
-            args.signature
+        address recoveredDeviceAddr = _recoverDeviceSigner(
+            _hashTypedDeviceMessage(keccak256(abi.encode(args.deadline))),
+            args.signature,
+            args.deadline
         );
-        if (
-            _tokenIdByProductByDevice[args.product][recoveredDeviceAddr] !=
-            args.tokenId
-        ) {
-            revert TokenIdMismatch();
+
+        if (args.device != recoveredDeviceAddr) {
+            revert DeviceSignatureMismatch();
         }
 
         IProduct(args.product).transferFrom(
             address(this),
             recoveredAddr,
-            args.tokenId
+            _tokenIdByProductByDevice[args.product][args.device]
         );
 
-        emit DeviceActivated(args.product, recoveredDeviceAddr);
+        emit DeviceActivated(args.product, args.device);
     }
 
     function getVendorByProduct(address product) public view returns (address) {
@@ -204,11 +200,21 @@ contract ProductFactory is Ownable, EIP712 {
             );
     }
 
-    function _recoverSigner(
+    function _recoverDeviceSigner(
+        bytes32 digest,
+        bytes memory signature,
+        uint256 deadline
+    ) internal view returns (address) {
+        if (deadline < block.timestamp) revert DeviceSignatureExpired();
+        return ECDSA.recover(digest, signature);
+    }
+
+    function _recoverEIP712Signer(
         bytes32 digest,
         EIP712Signature memory signature
     ) internal view returns (address) {
-        if (signature.deadline < block.timestamp) revert SignatureExpired();
+        if (signature.deadline < block.timestamp)
+            revert EIP712SignatureExpired();
         address recoveredAddress = ecrecover(
             digest,
             signature.v,
