@@ -1,15 +1,26 @@
 # dephy-id-evm-tool
 
-To install dependencies:
+This project was created using pnpm workspace.
+
+## Prerequisites
+
+- [Node.js](https://nodejs.org/en/)
+- [pnpm](https://pnpm.io/)
+
+## install
 
 ```bash
-bun install
+pnpm i
 ```
 
-To run:
+## build
 
 ```bash
-bun run index.ts
+pnpm run build
 ```
 
-This project was created using `bun init` in bun v1.0.1. [Bun](https://bun.sh) is a fast all-in-one JavaScript runtime.
+## run demo
+
+```bash
+pnpm run demo
+```
