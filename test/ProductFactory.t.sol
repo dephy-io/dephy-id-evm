@@ -140,7 +140,7 @@ contract ProductFactoryTest is Test {
         assertEq(tokenId, 1);
 
         uint256 deviceSigDeadline = block.timestamp + 12 hours;
-        bytes memory deviceSignature = _generateDeviceMessageHashAndSignature(
+        bytes memory deviceSignature = _generateDeviceSignature(
             deviceSigDeadline,
             devicePK
         );
@@ -166,7 +166,7 @@ contract ProductFactoryTest is Test {
         assertEq(Product(productAddress).ownerOf(tokenId), user);
     }
 
-    function _generateDeviceMessageHashAndSignature(
+    function _generateDeviceSignature(
         uint256 deadline,
         uint256 _devicePK
     ) internal pure returns (bytes memory) {
