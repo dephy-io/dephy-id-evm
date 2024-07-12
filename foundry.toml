@@ -3,12 +3,15 @@
 [profile.default]
 script = "script"
 solc = "0.8.26"
-src = "src"
+src = "contracts"
 test = "test"
 libs = ["dependencies"]
 
 [dependencies]
-forge-std = { version = "1.9.1"}
+forge-std = { version = "1.9.1" }
 "@openzeppelin-contracts" = { version = "5.0.2" }
 "@openzeppelin-contracts-upgradeable" = { version = "5.0.2" }
 
+[rpc_endpoints]
+base = "${BASE_RPC_URL}"
+base_sepolia = "${BASE_SEPOLIA_RPC_URL}"

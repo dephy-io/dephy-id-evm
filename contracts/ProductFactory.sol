@@ -2,9 +2,9 @@
 pragma solidity ^0.8.24;
 
 import {EIP712} from "@openzeppelin/contracts/utils/cryptography/EIP712.sol";
+import {ECDSA} from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {Clones} from "@openzeppelin/contracts/proxy/Clones.sol";
-import {Product} from "./Product.sol";
 import {IProduct} from "./IProduct.sol";
 
 contract ProductFactory is Ownable, EIP712 {
@@ -31,29 +31,47 @@ contract ProductFactory is Ownable, EIP712 {
         address[] receivers;
     }
     struct ActivateDeviceArgs {
-        address receiver;
         address product;
-        uint256 tokenId;
+        address device;
+        bytes deviceSignature;
+        uint256 deviceDeadline;
     }
 
     error NotVendor();
-    error SignatureMismatch();
-    error SignatureExpired();
+    error EIP712SignatureMismatch();
+    error EIP712SignatureExpired();
+    error DeviceSignatureMismatch();
+    error DeviceSignatureExpired();
     error DeviceAlreadyCreated();
     error TokenIdMismatch();
     error NotProductTemplate();
 
+    event ProductCreated(
+        address indexed vendor,
+        address indexed productImpl,
+        address indexed product
+    );
+    event DeviceCreated(
+        address indexed product,
+        address indexed device,
+        uint256 indexed tokenId
+    );
+    event DeviceActivated(address indexed product, address indexed device);
+
     bytes32 public constant ACTIVATE_DEVICE_TYPEHASH =
         keccak256(
             bytes(
-                "ActivateDevice(address product,uint256 deadline)"
+                "ActivateDevice(address product,address device,bytes deviceSignature,uint256 deviceDeadline,uint256 deadline)"
             )
         );
 
     mapping(address => address) internal _vendorByProduct;
-    mapping(address => mapping(address => uint256)) internal _tokenIdByProductByDevice;
+    mapping(address => mapping(address => uint256))
+        internal _tokenIdByProductByDevice;
 
-    constructor(address initialOwner) EIP712("ProductFactory", "1") Ownable(initialOwner) {}
+    constructor(
+        address initialOwner
+    ) EIP712("ProductFactory", "1") Ownable(initialOwner) {}
 
     modifier onlyVendor(address product) {
         if (msg.sender != _vendorByProduct[product]) {
@@ -66,7 +84,9 @@ contract ProductFactory is Ownable, EIP712 {
         return _domainSeparatorV4();
     }
 
-    function createProduct(CreateProductArgs memory args) public returns (address) {
+    function createProduct(
+        CreateProductArgs memory args
+    ) public returns (address) {
         if (
             !IProduct(args.productImpl).supportsInterface(
                 type(IProduct).interfaceId
@@ -76,7 +96,7 @@ contract ProductFactory is Ownable, EIP712 {
         }
 
         address product = Clones.clone(args.productImpl);
-        Product(product).initialize(
+        IProduct(product).initialize(
             args.name,
             args.symbol,
             args.baseTokenURI,
@@ -84,6 +104,8 @@ contract ProductFactory is Ownable, EIP712 {
         );
 
         _vendorByProduct[product] = msg.sender;
+
+        emit ProductCreated(msg.sender, args.productImpl, product);
 
         return product;
     }
@@ -95,8 +117,9 @@ contract ProductFactory is Ownable, EIP712 {
             if (_tokenIdByProductByDevice[args.product][args.devices[i]] > 0) {
                 revert DeviceAlreadyCreated();
             }
-            uint256 tokenId = Product(args.product).mint(address(this));
+            uint256 tokenId = IProduct(args.product).mint(address(this));
             _tokenIdByProductByDevice[args.product][args.devices[i]] = tokenId;
+            emit DeviceCreated(args.product, args.devices[i], tokenId);
         }
     }
 
@@ -107,8 +130,10 @@ contract ProductFactory is Ownable, EIP712 {
             if (_tokenIdByProductByDevice[args.product][args.devices[i]] > 0) {
                 revert DeviceAlreadyCreated();
             }
-            uint256 tokenId = Product(args.product).mint(args.receivers[i]);
+            uint256 tokenId = IProduct(args.product).mint(args.receivers[i]);
             _tokenIdByProductByDevice[args.product][args.devices[i]] = tokenId;
+            emit DeviceCreated(args.product, args.devices[i], tokenId);
+            emit DeviceActivated(args.product, args.devices[i]);
         }
     }
 
@@ -116,12 +141,15 @@ contract ProductFactory is Ownable, EIP712 {
         ActivateDeviceArgs memory args,
         EIP712Signature memory signature
     ) public {
-        address recoveredDeviceAddr = _recoverSigner(
+        address recoveredAddr = _recoverEIP712Signer(
             _hashTypedDataV4(
                 keccak256(
                     abi.encode(
                         ACTIVATE_DEVICE_TYPEHASH,
                         args.product,
+                        args.device,
+                        keccak256(args.deviceSignature),
+                        args.deviceDeadline,
                         signature.deadline
                     )
                 )
@@ -129,28 +157,64 @@ contract ProductFactory is Ownable, EIP712 {
             signature
         );
 
-        if (signature.signer != recoveredDeviceAddr) {
-            revert SignatureMismatch();
+        if (signature.signer != recoveredAddr) {
+            revert EIP712SignatureMismatch();
         }
-        if (_tokenIdByProductByDevice[args.product][recoveredDeviceAddr] != args.tokenId) {
-            revert TokenIdMismatch();
+
+        address recoveredDeviceAddr = _recoverDeviceSigner(
+            _hashTypedDeviceMessage(keccak256(abi.encode(args.deviceDeadline))),
+            args.deviceSignature,
+            args.deviceDeadline
+        );
+
+        if (args.device != recoveredDeviceAddr) {
+            revert DeviceSignatureMismatch();
         }
-        Product(args.product).transferFrom(address(this), args.receiver, args.tokenId);
+
+        IProduct(args.product).transferFrom(
+            address(this),
+            recoveredAddr,
+            _tokenIdByProductByDevice[args.product][args.device]
+        );
+
+        emit DeviceActivated(args.product, args.device);
     }
 
     function getVendorByProduct(address product) public view returns (address) {
         return _vendorByProduct[product];
     }
 
-    function getDeviceTokenId(address product, address device) public view returns (uint256) {
+    function getDeviceTokenId(
+        address product,
+        address device
+    ) public view returns (uint256) {
         return _tokenIdByProductByDevice[product][device];
     }
 
-    function _recoverSigner(
+    function _hashTypedDeviceMessage(
+        bytes32 hashedMessage
+    ) internal pure returns (bytes32) {
+        return
+            keccak256(
+                abi.encodePacked("DEPHY_ID_SIGNED_MESSAGE:", hashedMessage)
+            );
+    }
+
+    function _recoverDeviceSigner(
+        bytes32 digest,
+        bytes memory signature,
+        uint256 deadline
+    ) internal view returns (address) {
+        if (deadline < block.timestamp) revert DeviceSignatureExpired();
+        return ECDSA.recover(digest, signature);
+    }
+
+    function _recoverEIP712Signer(
         bytes32 digest,
         EIP712Signature memory signature
     ) internal view returns (address) {
-        if (signature.deadline < block.timestamp) revert SignatureExpired();
+        if (signature.deadline < block.timestamp)
+            revert EIP712SignatureExpired();
         address recoveredAddress = ecrecover(
             digest,
             signature.v,
