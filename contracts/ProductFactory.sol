@@ -127,14 +127,34 @@ contract ProductFactory is Ownable, EIP712 {
         CreateActivatedDevicesArgs memory args
     ) public onlyVendor(args.product) {
         for (uint256 i = 0; i < args.devices.length; ++i) {
-            if (_tokenIdByProductByDevice[args.product][args.devices[i]] > 0) {
-                revert DeviceAlreadyCreated();
-            }
-            uint256 tokenId = IProduct(args.product).mint(args.receivers[i]);
-            _tokenIdByProductByDevice[args.product][args.devices[i]] = tokenId;
-            emit DeviceCreated(args.product, args.devices[i], tokenId);
-            emit DeviceActivated(args.product, args.devices[i]);
+            _createActivatedDevice(
+                args.product,
+                args.devices[i],
+                args.receivers[i]
+            );
         }
+    }
+
+    function createActivatedDevice(
+        address product,
+        address device,
+        address receiver
+    ) public onlyVendor(product) returns (uint256) {
+        return _createActivatedDevice(product, device, receiver);
+    }
+
+    function _createActivatedDevice(
+        address product,
+        address device,
+        address receiver
+    ) internal returns (uint256 tokenId) {
+        if (_tokenIdByProductByDevice[product][device] > 0) {
+            revert DeviceAlreadyCreated();
+        }
+        tokenId = IProduct(product).mint(receiver);
+        _tokenIdByProductByDevice[product][device] = tokenId;
+        emit DeviceCreated(product, device, tokenId);
+        emit DeviceActivated(product, device);
     }
 
     function activateDevice(
