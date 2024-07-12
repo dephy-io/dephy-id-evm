@@ -62,6 +62,9 @@ contract ProductFactoryTest is Test {
             });
         deviceArgs.devices[0] = device;
 
+        vm.expectEmit(true, true, false, false, address(factory));
+        emit ProductFactory.DeviceCreated(productAddress, device, 0);
+
         factory.createDevices(deviceArgs);
 
         vm.stopPrank();
@@ -96,6 +99,12 @@ contract ProductFactoryTest is Test {
                 });
         activatedDeviceArgs.devices[0] = device;
         activatedDeviceArgs.receivers[0] = user;
+
+        vm.expectEmit(true, true, false, false, address(factory));
+        emit ProductFactory.DeviceCreated(productAddress, device, 0);
+
+        vm.expectEmit(true, true, false, false, address(factory));
+        emit ProductFactory.DeviceActivated(productAddress, device);
 
         factory.createActivatedDevices(activatedDeviceArgs);
 
@@ -161,6 +170,9 @@ contract ProductFactoryTest is Test {
             );
 
         vm.prank(user);
+
+        vm.expectEmit(true, true, false, false, address(factory));
+        emit ProductFactory.DeviceActivated(productAddress, device);
 
         factory.activateDevice(activateArgs, userSignature);
 

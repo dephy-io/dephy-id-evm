@@ -133,7 +133,7 @@ contract ProductFactory is Ownable, EIP712 {
             uint256 tokenId = IProduct(args.product).mint(args.receivers[i]);
             _tokenIdByProductByDevice[args.product][args.devices[i]] = tokenId;
             emit DeviceCreated(args.product, args.devices[i], tokenId);
-            emit DeviceActivated(args.product, args.receivers[i]);
+            emit DeviceActivated(args.product, args.devices[i]);
         }
     }
 
