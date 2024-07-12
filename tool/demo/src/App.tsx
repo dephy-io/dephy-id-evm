@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import "./App.scss";
-import { Signer, ethers } from "ethers";
+import { ContractTransaction, Signer, ethers } from "ethers";
 import { ProductFactory, ChainId } from "../../dist";
 import ADDRESS_JSON from "../../../addresses.json";
 
@@ -28,6 +28,11 @@ function App() {
   const [deviceAddresses, setDeviceAddresses] = useState<string[]>([]);
   const [receiverAddresses, setReceiverAddresses] = useState<string[]>([]);
   const [devicePrivateKey, setDevicePrivateKey] = useState("");
+
+  const [createProductTx, setCreateProductTx] = useState("");
+  const [createDevicesTx, setCreateDevicesTx] = useState("");
+  const [createActivatedDevicesTx, setCreateActivatedDevicesTx] = useState("");
+  const [activatedDeviceTx, setActivatedDeviceTx] = useState("");
 
   useEffect(() => {
     (async () => {
@@ -64,7 +69,8 @@ function App() {
 
   const connectWallet = async () => {
     if (!(window as any).ethereum) {
-      throw new Error("Please install MetaMask first!");
+      alert("Please install MetaMask first!");
+      return
     }
     const provider = new ethers.providers.Web3Provider(
       (window as any).ethereum
@@ -78,12 +84,18 @@ function App() {
 
   const createProduct = async () => {
     if (productFactory) {
-      const product = await productFactory.createProduct({
-        productImpl: ADDRESS_JSON.BaseSepolia.ProductImpl,
-        name: productName,
-        symbol: productSymbol,
-        baseTokenURI,
-      });
+      const onPending = (tx: ContractTransaction) => {
+        setCreateProductTx(tx.hash);
+      };
+      const product = await productFactory.createProduct(
+        {
+          productImpl: ADDRESS_JSON.BaseSepolia.ProductImpl,
+          name: productName,
+          symbol: productSymbol,
+          baseTokenURI,
+        },
+        onPending
+      );
       setProductAddress(product);
       alert("Product created!");
     }
@@ -91,31 +103,49 @@ function App() {
 
   const createDevices = async () => {
     if (productFactory) {
-      await productFactory.createDevices({
-        product: productAddress,
-        devices: deviceAddresses,
-      });
+      const onPending = (tx: ContractTransaction) => {
+        setCreateDevicesTx(tx.hash);
+      };
+      await productFactory.createDevices(
+        {
+          product: productAddress,
+          devices: deviceAddresses,
+        },
+        onPending
+      );
       alert("Devices created!");
     }
   };
 
   const createActivatedDevices = async () => {
     if (productFactory) {
-      await productFactory.createActivatedDevices({
-        product: productAddress,
-        devices: deviceAddresses,
-        receivers: receiverAddresses,
-      });
-      alert("Devices created!");
+      const onPending = (tx: ContractTransaction) => {
+        setCreateActivatedDevicesTx(tx.hash);
+      };
+      await productFactory.createActivatedDevices(
+        {
+          product: productAddress,
+          devices: deviceAddresses,
+          receivers: receiverAddresses,
+        },
+        onPending
+      );
+      alert("Activated devices created!");
     }
   };
 
   const activateDevice = async () => {
     if (productFactory) {
-      await productFactory.activateDevice({
-        product: productAddress,
-        devicePrivatekey: devicePrivateKey,
-      });
+      const onPending = (tx: ContractTransaction) => {
+        setActivatedDeviceTx(tx.hash);
+      };
+      await productFactory.activateDevice(
+        {
+          product: productAddress,
+          devicePrivatekey: devicePrivateKey,
+        },
+        onPending
+      );
       alert("Device activated!");
     }
   };
@@ -145,6 +175,13 @@ function App() {
           onChange={(e) => setBaseTokenURI(e.target.value)}
         />
         <button onClick={createProduct}>Create Product</button>
+        <a
+          className="blackText"
+          target="_blank"
+          href={`https://sepolia.basescan.org/tx/${createProductTx}`}
+        >
+          {createProductTx}
+        </a>
       </div>
       <br />
       <div>
@@ -161,6 +198,13 @@ function App() {
           onChange={(e) => setDeviceAddresses(e.target.value.split(","))}
         />
         <button onClick={createDevices}>Create Devices</button>
+        <a
+          className="blackText"
+          target="_blank"
+          href={`https://sepolia.basescan.org/tx/${createDevicesTx}`}
+        >
+          {createDevicesTx}
+        </a>
         <input
           type="text"
           placeholder="Receiver Addresses"
@@ -170,6 +214,13 @@ function App() {
         <button onClick={createActivatedDevices}>
           Create Activated Devices
         </button>
+        <a
+          className="blackText"
+          target="_blank"
+          href={`https://sepolia.basescan.org/tx/${createActivatedDevicesTx}`}
+        >
+          {createActivatedDevicesTx}
+        </a>
       </div>
       <br />
 
@@ -187,6 +238,13 @@ function App() {
           onChange={(e) => setDevicePrivateKey(e.target.value)}
         />
         <button onClick={activateDevice}>Activate Device</button>
+        <a
+          className="blackText"
+          target="_blank"
+          href={`https://sepolia.basescan.org/tx/${activatedDeviceTx}`}
+        >
+          {activatedDeviceTx}
+        </a>
       </div>
       <br />
     </div>
