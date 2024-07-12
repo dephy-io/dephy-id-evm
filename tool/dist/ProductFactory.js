@@ -16,7 +16,7 @@ export class ProductFactory {
         this.chainId = chainId;
         this.instance = ProductFactory__factory.connect(address, signer);
     }
-    createProduct({ productImpl, name, symbol, baseTokenURI, }) {
+    createProduct({ productImpl, name, symbol, baseTokenURI, }, onPending) {
         var _a;
         return __awaiter(this, void 0, void 0, function* () {
             const args = {
@@ -26,6 +26,9 @@ export class ProductFactory {
                 baseTokenURI,
             };
             const tx = yield this.instance.createProduct(args);
+            if (onPending) {
+                onPending(tx);
+            }
             const receipt = yield tx.wait();
             const targetEvents = (_a = receipt.events) === null || _a === void 0 ? void 0 : _a.filter((e) => e.event === "ProductCreated");
             if (!targetEvents || targetEvents.length === 0 || !targetEvents[0].args) {
@@ -35,7 +38,7 @@ export class ProductFactory {
             return product;
         });
     }
-    createDevices({ product, devices, }) {
+    createDevices({ product, devices, }, onPending) {
         return __awaiter(this, void 0, void 0, function* () {
             const vendor = yield this.getVendorByProduct(product);
             if (vendor !== (yield this.signer.getAddress())) {
@@ -46,10 +49,13 @@ export class ProductFactory {
                 devices,
             };
             const tx = yield this.instance.createDevices(args);
+            if (onPending) {
+                onPending(tx);
+            }
             yield tx.wait();
         });
     }
-    createActivatedDevices({ product, devices, receivers, }) {
+    createActivatedDevices({ product, devices, receivers, }, onPending) {
         return __awaiter(this, void 0, void 0, function* () {
             const vendor = yield this.getVendorByProduct(product);
             if (vendor !== (yield this.signer.getAddress())) {
@@ -61,10 +67,13 @@ export class ProductFactory {
                 receivers,
             };
             const tx = yield this.instance.createActivatedDevices(args);
+            if (onPending) {
+                onPending(tx);
+            }
             yield tx.wait();
         });
     }
-    activateDevice({ product, devicePrivatekey, }) {
+    activateDevice({ product, devicePrivatekey, }, onPending) {
         return __awaiter(this, void 0, void 0, function* () {
             const deviceWallet = new ethers.Wallet(devicePrivatekey);
             const deviceSignedParams = yield this._generateDeviceSignature(deviceWallet);
@@ -74,6 +83,9 @@ export class ProductFactory {
                 activateDeviceArgs,
             });
             const tx = yield this.instance.activateDevice(activateDeviceArgs, signature);
+            if (onPending) {
+                onPending(tx);
+            }
             yield tx.wait();
         });
     }
@@ -96,7 +108,7 @@ export class ProductFactory {
             const deviceSignature = ethers.utils.solidityPack(["bytes32", "bytes32", "uint8"], [r, s, v]);
             return {
                 deviceDeadline,
-                deviceSignature
+                deviceSignature,
             };
         });
     }

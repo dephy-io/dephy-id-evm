@@ -8,7 +8,7 @@ test = "test"
 libs = ["dependencies"]
 
 [dependencies]
-forge-std = { version = "1.9.1"}
+forge-std = { version = "1.9.1" }
 "@openzeppelin-contracts" = { version = "5.0.2" }
 "@openzeppelin-contracts-upgradeable" = { version = "5.0.2" }
 
