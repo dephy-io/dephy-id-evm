@@ -1,0 +1,9 @@
+{
+  "scripts": {
+    "e2e": "forge test && bun run e2e/testAll.ts"
+  },
+  "devDependencies": {
+    "bun-types": "^1.1.18",
+    "viem": "^2.17.3"
+  }
+}
