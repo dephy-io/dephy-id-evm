@@ -4,11 +4,19 @@ pragma solidity ^0.8.24;
 import {EIP712} from "@openzeppelin/contracts/utils/cryptography/EIP712.sol";
 import {ECDSA} from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
+import {ReentrancyGuard} from "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
+import {Pausable} from "@openzeppelin/contracts/utils/Pausable.sol";
 import {Clones} from "@openzeppelin/contracts/proxy/Clones.sol";
 import {IProductFactory} from "./IProductFactory.sol";
 import {IProduct} from "./IProduct.sol";
 
-contract ProductFactory is IProductFactory, Ownable, EIP712 {
+contract ProductFactory is
+    IProductFactory,
+    Ownable,
+    EIP712,
+    ReentrancyGuard,
+    Pausable
+{
     string public constant DEPHY_PREFIX = "DEPHY_ID_SIGNED_MESSAGE:";
     bytes32 public constant ACTIVATE_DEVICE_TYPEHASH =
         keccak256(
@@ -44,7 +52,7 @@ contract ProductFactory is IProductFactory, Ownable, EIP712 {
      */
     function createProduct(
         CreateProductArgs memory args
-    ) public returns (address) {
+    ) public nonReentrant whenNotPaused returns (address) {
         if (
             !IProduct(args.productImpl).supportsInterface(
                 type(IProduct).interfaceId
@@ -54,11 +62,7 @@ contract ProductFactory is IProductFactory, Ownable, EIP712 {
         }
 
         address product = Clones.clone(args.productImpl);
-        IProduct(product).initialize(
-            args.name,
-            args.symbol,
-            args.baseTokenURI
-        );
+        IProduct(product).initialize(args.name, args.symbol, args.baseTokenURI);
 
         _vendorByProduct[product] = msg.sender;
 
@@ -72,7 +76,7 @@ contract ProductFactory is IProductFactory, Ownable, EIP712 {
      */
     function createDevice(
         CreateDeviceArgs memory args
-    ) public onlyVendor(args.product) {
+    ) public nonReentrant whenNotPaused onlyVendor(args.product) {
         _createDevice(args.product, args.device);
     }
 
@@ -81,7 +85,7 @@ contract ProductFactory is IProductFactory, Ownable, EIP712 {
      */
     function createDevices(
         CreateDevicesArgs memory args
-    ) public onlyVendor(args.product) {
+    ) public nonReentrant whenNotPaused onlyVendor(args.product) {
         for (uint256 i = 0; i < args.devices.length; ++i) {
             if (_tokenIdByProductByDevice[args.product][args.devices[i]] > 0) {
                 revert DeviceAlreadyCreated();
@@ -97,7 +101,13 @@ contract ProductFactory is IProductFactory, Ownable, EIP712 {
      */
     function createActivatedDevice(
         CreateActivatedDeviceArgs memory args
-    ) public onlyVendor(args.product) returns (uint256) {
+    )
+        public
+        nonReentrant
+        whenNotPaused
+        onlyVendor(args.product)
+        returns (uint256)
+    {
         return _createActivatedDevice(args.product, args.device, args.receiver);
     }
 
@@ -106,7 +116,7 @@ contract ProductFactory is IProductFactory, Ownable, EIP712 {
      */
     function createActivatedDevices(
         CreateActivatedDevicesArgs memory args
-    ) public onlyVendor(args.product) {
+    ) public nonReentrant whenNotPaused onlyVendor(args.product) {
         for (uint256 i = 0; i < args.devices.length; ++i) {
             _createActivatedDevice(
                 args.product,
@@ -122,7 +132,7 @@ contract ProductFactory is IProductFactory, Ownable, EIP712 {
     function activateDevice(
         ActivateDeviceArgs memory args,
         EIP712Signature memory signature
-    ) public {
+    ) public nonReentrant whenNotPaused {
         address recoveredAddr = _recoverEIP712Signer(
             _hashTypedDataV4(
                 keccak256(
