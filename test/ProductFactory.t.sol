@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
-import "forge-std/Test.sol";
+import {IProductFactory} from "../contracts/IProductFactory.sol";
 import {ProductFactory} from "../contracts/ProductFactory.sol";
 import {Product} from "../contracts/Product.sol";
-import "forge-std/console.sol";
+import "forge-std/Test.sol";
 
 contract ProductFactoryTest is Test {
     ProductFactory public factory;
@@ -29,7 +29,7 @@ contract ProductFactoryTest is Test {
     function testCreateProduct() public {
         vm.prank(vendor);
 
-        ProductFactory.CreateProductArgs memory args = ProductFactory
+        ProductFactory.CreateProductArgs memory args = IProductFactory
             .CreateProductArgs({
                 productImpl: address(productImplementation),
                 name: "Test Product",
@@ -45,7 +45,7 @@ contract ProductFactoryTest is Test {
     function testCreateDevices() public {
         vm.startPrank(vendor);
 
-        ProductFactory.CreateProductArgs memory args = ProductFactory
+        ProductFactory.CreateProductArgs memory args = IProductFactory
             .CreateProductArgs({
                 productImpl: address(productImplementation),
                 name: "Test Product",
@@ -55,7 +55,7 @@ contract ProductFactoryTest is Test {
 
         address productAddress = factory.createProduct(args);
 
-        ProductFactory.CreateDevicesArgs memory deviceArgs = ProductFactory
+        ProductFactory.CreateDevicesArgs memory deviceArgs = IProductFactory
             .CreateDevicesArgs({
                 product: productAddress,
                 devices: new address[](1)
@@ -63,7 +63,7 @@ contract ProductFactoryTest is Test {
         deviceArgs.devices[0] = device;
 
         vm.expectEmit(true, true, false, false, address(factory));
-        emit ProductFactory.DeviceCreated(productAddress, device, 0);
+        emit IProductFactory.DeviceCreated(productAddress, device, 0);
 
         factory.createDevices(deviceArgs);
 
@@ -80,7 +80,7 @@ contract ProductFactoryTest is Test {
     function testCreateActivatedDevices() public {
         vm.startPrank(vendor);
 
-        ProductFactory.CreateProductArgs memory args = ProductFactory
+        ProductFactory.CreateProductArgs memory args = IProductFactory
             .CreateProductArgs({
                 productImpl: address(productImplementation),
                 name: "Test Product",
@@ -91,7 +91,7 @@ contract ProductFactoryTest is Test {
         address productAddress = factory.createProduct(args);
 
         ProductFactory.CreateActivatedDevicesArgs
-            memory activatedDeviceArgs = ProductFactory
+            memory activatedDeviceArgs = IProductFactory
                 .CreateActivatedDevicesArgs({
                     product: productAddress,
                     devices: new address[](1),
@@ -101,10 +101,10 @@ contract ProductFactoryTest is Test {
         activatedDeviceArgs.receivers[0] = user;
 
         vm.expectEmit(true, true, false, false, address(factory));
-        emit ProductFactory.DeviceCreated(productAddress, device, 0);
+        emit IProductFactory.DeviceCreated(productAddress, device, 0);
 
         vm.expectEmit(true, true, false, false, address(factory));
-        emit ProductFactory.DeviceActivated(productAddress, device);
+        emit IProductFactory.DeviceActivated(productAddress, device);
 
         factory.createActivatedDevices(activatedDeviceArgs);
 
@@ -122,7 +122,7 @@ contract ProductFactoryTest is Test {
     function testActivateDevice() public {
         vm.startPrank(vendor);
 
-        ProductFactory.CreateProductArgs memory args = ProductFactory
+        ProductFactory.CreateProductArgs memory args = IProductFactory
             .CreateProductArgs({
                 productImpl: address(productImplementation),
                 name: "Test Product",
@@ -132,7 +132,7 @@ contract ProductFactoryTest is Test {
 
         address productAddress = factory.createProduct(args);
 
-        ProductFactory.CreateDevicesArgs memory deviceArgs = ProductFactory
+        ProductFactory.CreateDevicesArgs memory deviceArgs = IProductFactory
             .CreateDevicesArgs({
                 product: productAddress,
                 devices: new address[](1)
@@ -155,7 +155,7 @@ contract ProductFactoryTest is Test {
             devicePK
         );
 
-        ProductFactory.ActivateDeviceArgs memory activateArgs = ProductFactory
+        ProductFactory.ActivateDeviceArgs memory activateArgs = IProductFactory
             .ActivateDeviceArgs({
                 product: productAddress,
                 device: device,
@@ -172,7 +172,7 @@ contract ProductFactoryTest is Test {
         vm.prank(user);
 
         vm.expectEmit(true, true, false, false, address(factory));
-        emit ProductFactory.DeviceActivated(productAddress, device);
+        emit IProductFactory.DeviceActivated(productAddress, device);
 
         factory.activateDevice(activateArgs, userSignature);
 
@@ -221,7 +221,7 @@ contract ProductFactoryTest is Test {
 
         (uint8 v, bytes32 r, bytes32 s) = vm.sign(accountPK, digest);
 
-        ProductFactory.EIP712Signature memory signature = ProductFactory
+        ProductFactory.EIP712Signature memory signature = IProductFactory
             .EIP712Signature({
                 signer: user,
                 v: v,

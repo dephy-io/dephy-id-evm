@@ -2,11 +2,11 @@
 pragma solidity ^0.8.24;
 
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
-import {ProductFactory} from "../../contracts/ProductFactory.sol";
+import {IProductFactory} from "../../contracts/IProductFactory.sol";
 import {CustomProduct} from "./CustomProduct.sol";
 
 contract CustomVendor is Ownable {
-    ProductFactory public productFactory;
+    IProductFactory public productFactory;
     CustomProduct public productImpl;
     mapping(address => mapping(address => bool)) public productDevices;
 
@@ -14,7 +14,7 @@ contract CustomVendor is Ownable {
         address initialOwner,
         address productFactoryAddress
     ) Ownable(initialOwner) {
-        productFactory = ProductFactory(productFactoryAddress);
+        productFactory = IProductFactory(productFactoryAddress);
         productImpl = new CustomProduct();
     }
 
@@ -25,7 +25,7 @@ contract CustomVendor is Ownable {
     ) public onlyOwner {
         CustomProduct product = CustomProduct(
             productFactory.createProduct(
-                ProductFactory.CreateProductArgs({
+                IProductFactory.CreateProductArgs({
                     productImpl: address(productImpl),
                     name: name,
                     symbol: symbol,
@@ -68,9 +68,11 @@ contract CustomVendor is Ownable {
         require(customChallenge[0] == 0x42, "Challenge Failed");
 
         uint256 tokenId = productFactory.createActivatedDevice(
-            productAddress,
-            device,
-            msg.sender
+            IProductFactory.CreateActivatedDeviceArgs({
+                product: productAddress,
+                device: device,
+                receiver: msg.sender
+            })
         );
 
         product.bindDevice(tokenId, device);
