@@ -29,7 +29,7 @@ contract ProductFactoryTest is Test {
     function testCreateProduct() public {
         vm.prank(vendor);
 
-        ProductFactory.CreateProductArgs memory args = IProductFactory
+        IProductFactory.CreateProductArgs memory args = IProductFactory
             .CreateProductArgs({
                 productImpl: address(productImplementation),
                 name: "Test Product",
@@ -45,7 +45,7 @@ contract ProductFactoryTest is Test {
     function testCreateDevices() public {
         vm.startPrank(vendor);
 
-        ProductFactory.CreateProductArgs memory args = IProductFactory
+        IProductFactory.CreateProductArgs memory args = IProductFactory
             .CreateProductArgs({
                 productImpl: address(productImplementation),
                 name: "Test Product",
@@ -55,7 +55,7 @@ contract ProductFactoryTest is Test {
 
         address productAddress = factory.createProduct(args);
 
-        ProductFactory.CreateDevicesArgs memory deviceArgs = IProductFactory
+        IProductFactory.CreateDevicesArgs memory deviceArgs = IProductFactory
             .CreateDevicesArgs({
                 product: productAddress,
                 devices: new address[](1)
@@ -80,7 +80,7 @@ contract ProductFactoryTest is Test {
     function testCreateActivatedDevices() public {
         vm.startPrank(vendor);
 
-        ProductFactory.CreateProductArgs memory args = IProductFactory
+        IProductFactory.CreateProductArgs memory args = IProductFactory
             .CreateProductArgs({
                 productImpl: address(productImplementation),
                 name: "Test Product",
@@ -90,7 +90,7 @@ contract ProductFactoryTest is Test {
 
         address productAddress = factory.createProduct(args);
 
-        ProductFactory.CreateActivatedDevicesArgs
+        IProductFactory.CreateActivatedDevicesArgs
             memory activatedDeviceArgs = IProductFactory
                 .CreateActivatedDevicesArgs({
                     product: productAddress,
@@ -122,7 +122,7 @@ contract ProductFactoryTest is Test {
     function testActivateDevice() public {
         vm.startPrank(vendor);
 
-        ProductFactory.CreateProductArgs memory args = IProductFactory
+        IProductFactory.CreateProductArgs memory args = IProductFactory
             .CreateProductArgs({
                 productImpl: address(productImplementation),
                 name: "Test Product",
@@ -132,7 +132,7 @@ contract ProductFactoryTest is Test {
 
         address productAddress = factory.createProduct(args);
 
-        ProductFactory.CreateDevicesArgs memory deviceArgs = IProductFactory
+        IProductFactory.CreateDevicesArgs memory deviceArgs = IProductFactory
             .CreateDevicesArgs({
                 product: productAddress,
                 devices: new address[](1)
@@ -155,7 +155,7 @@ contract ProductFactoryTest is Test {
             devicePK
         );
 
-        ProductFactory.ActivateDeviceArgs memory activateArgs = IProductFactory
+        IProductFactory.ActivateDeviceArgs memory activateArgs = IProductFactory
             .ActivateDeviceArgs({
                 product: productAddress,
                 device: device,
@@ -163,7 +163,7 @@ contract ProductFactoryTest is Test {
                 deviceDeadline: deviceDeadline
             });
 
-        ProductFactory.EIP712Signature
+        IProductFactory.EIP712Signature
             memory userSignature = _generateEIP712Signature(
                 activateArgs,
                 userPK
@@ -201,9 +201,9 @@ contract ProductFactoryTest is Test {
     }
 
     function _generateEIP712Signature(
-        ProductFactory.ActivateDeviceArgs memory activateArgs,
+        IProductFactory.ActivateDeviceArgs memory activateArgs,
         uint256 accountPK
-    ) internal view returns (ProductFactory.EIP712Signature memory) {
+    ) internal view returns (IProductFactory.EIP712Signature memory) {
         bytes32 domainSeparator = factory.getDomainSeparator();
 
         bytes32 hashedMessage = keccak256(
@@ -221,7 +221,7 @@ contract ProductFactoryTest is Test {
 
         (uint8 v, bytes32 r, bytes32 s) = vm.sign(accountPK, digest);
 
-        ProductFactory.EIP712Signature memory signature = IProductFactory
+        IProductFactory.EIP712Signature memory signature = IProductFactory
             .EIP712Signature({
                 signer: user,
                 v: v,
