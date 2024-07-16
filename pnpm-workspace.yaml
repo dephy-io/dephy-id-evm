@@ -1,0 +1,4 @@
+packages:
+  - "."
+  - "tool"
+  - "tool/demo"

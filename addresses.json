@@ -1,6 +1,6 @@
 {
   "BaseSepolia": {
-    "ProductFactory": "0x21Ca08BA1AF5733C2Ca19aBB9B4483Ebc537B4B3",
-    "ProductImpl": "0x4BCb4864A11c648830c917435d33422Ba0201A3C"
+    "ProductFactory": "0x51FF9b79616973da54b68771099C7942519bC0BC",
+    "ProductImpl": "0x647d77324E241709BaF63D7f96F0C19ecA06E2e0"
   }
 }

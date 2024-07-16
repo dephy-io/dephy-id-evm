@@ -4,60 +4,20 @@ pragma solidity ^0.8.24;
 import {EIP712} from "@openzeppelin/contracts/utils/cryptography/EIP712.sol";
 import {ECDSA} from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
+import {ReentrancyGuard} from "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
+import {Pausable} from "@openzeppelin/contracts/utils/Pausable.sol";
 import {Clones} from "@openzeppelin/contracts/proxy/Clones.sol";
+import {IProductFactory} from "./IProductFactory.sol";
 import {IProduct} from "./IProduct.sol";
 
-contract ProductFactory is Ownable, EIP712 {
-    struct EIP712Signature {
-        address signer;
-        uint8 v;
-        bytes32 r;
-        bytes32 s;
-        uint256 deadline;
-    }
-    struct CreateProductArgs {
-        address productImpl;
-        string name;
-        string symbol;
-        string baseTokenURI;
-    }
-    struct CreateDevicesArgs {
-        address product;
-        address[] devices;
-    }
-    struct CreateActivatedDevicesArgs {
-        address product;
-        address[] devices;
-        address[] receivers;
-    }
-    struct ActivateDeviceArgs {
-        address product;
-        address device;
-        bytes deviceSignature;
-        uint256 deviceDeadline;
-    }
-
-    error NotVendor();
-    error EIP712SignatureMismatch();
-    error EIP712SignatureExpired();
-    error DeviceSignatureMismatch();
-    error DeviceSignatureExpired();
-    error DeviceAlreadyCreated();
-    error TokenIdMismatch();
-    error NotProductTemplate();
-
-    event ProductCreated(
-        address indexed vendor,
-        address indexed productImpl,
-        address indexed product
-    );
-    event DeviceCreated(
-        address indexed product,
-        address indexed device,
-        uint256 indexed tokenId
-    );
-    event DeviceActivated(address indexed product, address indexed device);
-
+contract ProductFactory is
+    IProductFactory,
+    Ownable,
+    EIP712,
+    ReentrancyGuard,
+    Pausable
+{
+    string public constant DEPHY_PREFIX = "DEPHY_ID_SIGNED_MESSAGE:";
     bytes32 public constant ACTIVATE_DEVICE_TYPEHASH =
         keccak256(
             bytes(
@@ -80,13 +40,19 @@ contract ProductFactory is Ownable, EIP712 {
         _;
     }
 
+    /**
+     * @inheritdoc IProductFactory
+     */
     function getDomainSeparator() external view returns (bytes32) {
         return _domainSeparatorV4();
     }
 
+    /**
+     * @inheritdoc IProductFactory
+     */
     function createProduct(
         CreateProductArgs memory args
-    ) public returns (address) {
+    ) public nonReentrant whenNotPaused returns (address) {
         if (
             !IProduct(args.productImpl).supportsInterface(
                 type(IProduct).interfaceId
@@ -96,12 +62,7 @@ contract ProductFactory is Ownable, EIP712 {
         }
 
         address product = Clones.clone(args.productImpl);
-        IProduct(product).initialize(
-            args.name,
-            args.symbol,
-            args.baseTokenURI,
-            address(this)
-        );
+        IProduct(product).initialize(args.name, args.symbol, args.baseTokenURI);
 
         _vendorByProduct[product] = msg.sender;
 
@@ -110,9 +71,21 @@ contract ProductFactory is Ownable, EIP712 {
         return product;
     }
 
+    /**
+     * @inheritdoc IProductFactory
+     */
+    function createDevice(
+        CreateDeviceArgs memory args
+    ) public nonReentrant whenNotPaused onlyVendor(args.product) {
+        _createDevice(args.product, args.device);
+    }
+
+    /**
+     * @inheritdoc IProductFactory
+     */
     function createDevices(
         CreateDevicesArgs memory args
-    ) public onlyVendor(args.product) {
+    ) public nonReentrant whenNotPaused onlyVendor(args.product) {
         for (uint256 i = 0; i < args.devices.length; ++i) {
             if (_tokenIdByProductByDevice[args.product][args.devices[i]] > 0) {
                 revert DeviceAlreadyCreated();
@@ -123,9 +96,27 @@ contract ProductFactory is Ownable, EIP712 {
         }
     }
 
+    /**
+     * @inheritdoc IProductFactory
+     */
+    function createActivatedDevice(
+        CreateActivatedDeviceArgs memory args
+    )
+        public
+        nonReentrant
+        whenNotPaused
+        onlyVendor(args.product)
+        returns (uint256)
+    {
+        return _createActivatedDevice(args.product, args.device, args.receiver);
+    }
+
+    /**
+     * @inheritdoc IProductFactory
+     */
     function createActivatedDevices(
         CreateActivatedDevicesArgs memory args
-    ) public onlyVendor(args.product) {
+    ) public nonReentrant whenNotPaused onlyVendor(args.product) {
         for (uint256 i = 0; i < args.devices.length; ++i) {
             _createActivatedDevice(
                 args.product,
@@ -135,32 +126,13 @@ contract ProductFactory is Ownable, EIP712 {
         }
     }
 
-    function createActivatedDevice(
-        address product,
-        address device,
-        address receiver
-    ) public onlyVendor(product) returns (uint256) {
-        return _createActivatedDevice(product, device, receiver);
-    }
-
-    function _createActivatedDevice(
-        address product,
-        address device,
-        address receiver
-    ) internal returns (uint256 tokenId) {
-        if (_tokenIdByProductByDevice[product][device] > 0) {
-            revert DeviceAlreadyCreated();
-        }
-        tokenId = IProduct(product).mint(receiver);
-        _tokenIdByProductByDevice[product][device] = tokenId;
-        emit DeviceCreated(product, device, tokenId);
-        emit DeviceActivated(product, device);
-    }
-
+    /**
+     * @inheritdoc IProductFactory
+     */
     function activateDevice(
         ActivateDeviceArgs memory args,
         EIP712Signature memory signature
-    ) public {
+    ) public nonReentrant whenNotPaused {
         address recoveredAddr = _recoverEIP712Signer(
             _hashTypedDataV4(
                 keccak256(
@@ -200,10 +172,16 @@ contract ProductFactory is Ownable, EIP712 {
         emit DeviceActivated(args.product, args.device);
     }
 
+    /**
+     * @inheritdoc IProductFactory
+     */
     function getVendorByProduct(address product) public view returns (address) {
         return _vendorByProduct[product];
     }
 
+    /**
+     * @inheritdoc IProductFactory
+     */
     function getDeviceTokenId(
         address product,
         address device
@@ -211,13 +189,36 @@ contract ProductFactory is Ownable, EIP712 {
         return _tokenIdByProductByDevice[product][device];
     }
 
+    function _createDevice(
+        address product,
+        address device
+    ) internal returns (uint256 tokenId) {
+        if (_tokenIdByProductByDevice[product][device] > 0) {
+            revert DeviceAlreadyCreated();
+        }
+        tokenId = IProduct(product).mint(address(this));
+        _tokenIdByProductByDevice[product][device] = tokenId;
+        emit DeviceCreated(product, device, tokenId);
+    }
+
+    function _createActivatedDevice(
+        address product,
+        address device,
+        address receiver
+    ) internal returns (uint256 tokenId) {
+        if (_tokenIdByProductByDevice[product][device] > 0) {
+            revert DeviceAlreadyCreated();
+        }
+        tokenId = IProduct(product).mint(receiver);
+        _tokenIdByProductByDevice[product][device] = tokenId;
+        emit DeviceCreated(product, device, tokenId);
+        emit DeviceActivated(product, device);
+    }
+
     function _hashTypedDeviceMessage(
         bytes32 hashedMessage
     ) internal pure returns (bytes32) {
-        return
-            keccak256(
-                abi.encodePacked("DEPHY_ID_SIGNED_MESSAGE:", hashedMessage)
-            );
+        return keccak256(abi.encodePacked(DEPHY_PREFIX, hashedMessage));
     }
 
     function _recoverDeviceSigner(
