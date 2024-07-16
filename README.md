@@ -1,13 +1,20 @@
-## Foundry
+DePHY ID on EVM
+====
 
-**Foundry is a blazing fast, portable and modular toolkit for Ethereum application development written in Rust.**
+The DePHY ID Solidity smart contracts mono repo
 
-Foundry consists of:
+## Contents
 
-- **Forge**: Ethereum testing framework (like Truffle, Hardhat and DappTools).
-- **Cast**: Swiss army knife for interacting with EVM smart contracts, sending transactions and getting chain data.
-- **Anvil**: Local Ethereum node, akin to Ganache, Hardhat Network.
-- **Chisel**: Fast, utilitarian, and verbose solidity REPL.
+- [Contracts](./contracts)
+- [E2E test](./e2e):
+  A brief way to show how the DePHY ID works for developers
+
+## Contract addresses
+
+### Base Sepolia testnet:
+
+- ProductFactory: `0x51FF9b79616973da54b68771099C7942519bC0BC`
+- ProductImpl: `0x647d77324E241709BaF63D7f96F0C19ecA06E2e0`
 
 ## Documentation
 
@@ -55,12 +62,4 @@ $ forge script script/Counter.s.sol:CounterScript --rpc-url <your_rpc_url> --pri
 
 ```shell
 $ cast <subcommand>
-```
-
-### Help
-
-```shell
-$ forge --help
-$ anvil --help
-$ cast --help
 ```

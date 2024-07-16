@@ -1,11 +1,12 @@
 {
   "name": "dephy-id-evm",
+  "private": true,
+  "type": "module",
   "workspaces": [
     ".",
     "tool",
     "tool/demo"
   ],
-  "type": "module",
   "scripts": {
     "build": "forge build",
     "deploy:base_sepolia": "source .env && forge script script/Deploy.s.sol --rpc-url base_sepolia --broadcast",

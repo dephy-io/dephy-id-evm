@@ -6,6 +6,7 @@ solc = "0.8.26"
 src = "contracts"
 test = "test"
 libs = ["dependencies"]
+auto_detect_remappings = true
 
 [dependencies]
 forge-std = { version = "1.9.1" }
