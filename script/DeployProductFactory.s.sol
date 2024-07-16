@@ -5,10 +5,11 @@ import {ProductFactory} from "../contracts/ProductFactory.sol";
 import "forge-std/Script.sol";
 
 contract DeployProductFactory is Script {
-    function run() public {
+    function run() public returns (address) {
         uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY");
         vm.startBroadcast(deployerPrivateKey);
-        new ProductFactory(vm.addr(deployerPrivateKey));
+        ProductFactory factory = new ProductFactory(vm.addr(deployerPrivateKey));
         vm.stopBroadcast();
+        return address(factory);
     }
 }

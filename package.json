@@ -1,5 +1,8 @@
 {
+  "name": "dephy-id-evm",
   "scripts": {
+    "build": "forge build",
+    "deploy:base_sepolia": "source .env && forge script script/Deploy.s.sol --rpc-url base_sepolia --broadcast",
     "e2e": "forge test && bun run e2e/testAll.ts"
   },
   "devDependencies": {
