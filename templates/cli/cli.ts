@@ -1,5 +1,5 @@
 import { ethers } from "ethers";
-import { Vendor__factory } from "../generated";
+import { Vendor__factory } from "./generated";
 import yargs from "yargs";
 
 yargs
@@ -36,7 +36,6 @@ yargs
           e.topics[0] ===
           "0x0d516d8b14b989f8763b7f1b93e8e08f0f5ff06e0b833b8d080f0f1f33f9f302"
       );
-      console.log(targetEvents);
       if (
         !targetEvents ||
         targetEvents.length === 0 ||

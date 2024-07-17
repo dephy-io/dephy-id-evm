@@ -7,7 +7,7 @@
 ### Help
 
 ```bash
-ts-node cli/cli.ts --help
+pnpm run cli --help
 ```
 
 ```bash
@@ -17,7 +17,7 @@ source .env
 ### Create Product
 
 ```bash
-ts-node cli/cli.ts create-product \
+pnpm run cli create-product \
 --rpc $BASE_SEPOLIA_RPC_URL \
 --privatekey $PRIVATE_KEY \
 --vendor 0x935EB754624F02D5F84e9B160f859Bc0726D8fED \
@@ -30,7 +30,7 @@ ts-node cli/cli.ts create-product \
 ### Register Device
 
 ```bash
-ts-node cli/cli.ts register-device \
+pnpm run cli register-device \
 --rpc $BASE_SEPOLIA_RPC_URL \
 --privatekey $PRIVATE_KEY \
 --vendor 0x935EB754624F02D5F84e9B160f859Bc0726D8fED \
@@ -41,7 +41,7 @@ ts-node cli/cli.ts register-device \
 ### Register Device
 
 ```bash
-ts-node cli/cli.ts register-devices \
+pnpm run cli register-devices \
 --rpc $BASE_SEPOLIA_RPC_URL \
 --privatekey $PRIVATE_KEY \
 --vendor 0x935EB754624F02D5F84e9B160f859Bc0726D8fED \
@@ -52,7 +52,7 @@ ts-node cli/cli.ts register-devices \
 ### Activate Device
 
 ```bash
-ts-node cli/cli.ts activate-device \
+pnpm run cli activate-device \
 --rpc $BASE_SEPOLIA_RPC_URL \
 --privatekey $PRIVATE_KEY \
 --vendor 0x935EB754624F02D5F84e9B160f859Bc0726D8fED \
@@ -61,7 +61,7 @@ ts-node cli/cli.ts activate-device \
 --customChallenge {your customChallenge: e.g '0x42'}
 ```
 
-ts-node cli/cli.ts activate-device \
+pnpm run cli activate-device \
 --rpc $BASE_SEPOLIA_RPC_URL \
 --privatekey $PRIVATE_KEY \
 --vendor 0x935EB754624F02D5F84e9B160f859Bc0726D8fED \
