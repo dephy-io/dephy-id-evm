@@ -1,17 +1,21 @@
 # dephy-id-evm-templates
-## Templates Vendor
 
+## Contracts templates
+
+`./tempaltes/contracts/Vendor.sol`
 
 ## Cli
+
+Prepare environmental variables:
+
+```bash
+source .env
+```
 
 ### Help
 
 ```bash
 pnpm run cli --help
-```
-
-```bash
-source .env
 ```
 
 ### Create Product
@@ -38,7 +42,7 @@ pnpm run cli register-device \
 --device {your device}
 ```
 
-### Register Device
+### Register Multiple Devices
 
 ```bash
 pnpm run cli register-devices \
