@@ -5,7 +5,8 @@
   "workspaces": [
     ".",
     "tool",
-    "tool/demo"
+    "tool/demo",
+    "templates"
   ],
   "scripts": {
     "build": "forge build",
