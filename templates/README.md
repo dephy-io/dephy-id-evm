@@ -60,11 +60,3 @@ pnpm run cli activate-device \
 --device {your device} \
 --customChallenge {your customChallenge: e.g '0x42'}
 ```
-
-pnpm run cli activate-device \
---rpc $BASE_SEPOLIA_RPC_URL \
---privatekey $PRIVATE_KEY \
---vendor 0x935EB754624F02D5F84e9B160f859Bc0726D8fED \
---product 0x69358d874B9bC0c553E6E9cc7cFc97370d20b9eE \
---device 0x3F3786B67DC1874C3Bd8e8CD61F5eea87604470F \
---customChallenge 0x42
