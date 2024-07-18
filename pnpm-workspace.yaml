@@ -2,3 +2,4 @@ packages:
   - "."
   - "tool"
   - "tool/demo"
+  - "templates"

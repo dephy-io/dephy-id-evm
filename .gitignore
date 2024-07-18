@@ -15,5 +15,5 @@ docs/
 /.vscode
 
 node_modules
-bun.lockb
-pnpm-lock.yaml
+
+tmp/
