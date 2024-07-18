@@ -21,7 +21,7 @@ contract Vendor is Ownable {
         string memory symbol,
         string memory baseTokenURI
     ) public onlyOwner {
-        address product = productFactory.createProduct(
+        productFactory.createProduct(
             IProductFactory.CreateProductArgs({
                 productImpl: productImpl,
                 name: name,
@@ -61,6 +61,34 @@ contract Vendor is Ownable {
                 product: product,
                 device: device,
                 receiver: msg.sender
+            })
+        );
+    }
+
+    function createActivatedDevice(
+        address product,
+        address device,
+        address receiver
+    ) public onlyOwner {
+        productFactory.createActivatedDevice(
+            IProductFactory.CreateActivatedDeviceArgs({
+                product: product,
+                device: device,
+                receiver: receiver
+            })
+        );
+    }
+
+    function createActivatedDevices(
+        address product,
+        address[] memory devices,
+        address[] memory receivers
+    ) public onlyOwner {
+        productFactory.createActivatedDevices(
+            IProductFactory.CreateActivatedDevicesArgs({
+                product: product,
+                devices: devices,
+                receivers: receivers
             })
         );
     }

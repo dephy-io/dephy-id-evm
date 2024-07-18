@@ -28,6 +28,8 @@ import type {
 export interface VendorInterface extends utils.Interface {
   functions: {
     "activateDevice(address,address,bytes)": FunctionFragment;
+    "createActivatedDevice(address,address,address)": FunctionFragment;
+    "createActivatedDevices(address,address[],address[])": FunctionFragment;
     "createProduct(address,string,string,string)": FunctionFragment;
     "isDeviceRegistered(address,address)": FunctionFragment;
     "owner()": FunctionFragment;
@@ -41,6 +43,8 @@ export interface VendorInterface extends utils.Interface {
   getFunction(
     nameOrSignatureOrTopic:
       | "activateDevice"
+      | "createActivatedDevice"
+      | "createActivatedDevices"
       | "createProduct"
       | "isDeviceRegistered"
       | "owner"
@@ -54,6 +58,14 @@ export interface VendorInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "activateDevice",
     values: [string, string, BytesLike]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "createActivatedDevice",
+    values: [string, string, string]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "createActivatedDevices",
+    values: [string, string[], string[]]
   ): string;
   encodeFunctionData(
     functionFragment: "createProduct",
@@ -87,6 +99,14 @@ export interface VendorInterface extends utils.Interface {
 
   decodeFunctionResult(
     functionFragment: "activateDevice",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "createActivatedDevice",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "createActivatedDevices",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -172,6 +192,20 @@ export interface Vendor extends BaseContract {
       overrides?: Overrides & { from?: string }
     ): Promise<ContractTransaction>;
 
+    createActivatedDevice(
+      product: string,
+      device: string,
+      receiver: string,
+      overrides?: Overrides & { from?: string }
+    ): Promise<ContractTransaction>;
+
+    createActivatedDevices(
+      product: string,
+      devices: string[],
+      receivers: string[],
+      overrides?: Overrides & { from?: string }
+    ): Promise<ContractTransaction>;
+
     createProduct(
       productImpl: string,
       name: string,
@@ -219,6 +253,20 @@ export interface Vendor extends BaseContract {
     overrides?: Overrides & { from?: string }
   ): Promise<ContractTransaction>;
 
+  createActivatedDevice(
+    product: string,
+    device: string,
+    receiver: string,
+    overrides?: Overrides & { from?: string }
+  ): Promise<ContractTransaction>;
+
+  createActivatedDevices(
+    product: string,
+    devices: string[],
+    receivers: string[],
+    overrides?: Overrides & { from?: string }
+  ): Promise<ContractTransaction>;
+
   createProduct(
     productImpl: string,
     name: string,
@@ -263,6 +311,20 @@ export interface Vendor extends BaseContract {
       product: string,
       device: string,
       customChallenge: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    createActivatedDevice(
+      product: string,
+      device: string,
+      receiver: string,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    createActivatedDevices(
+      product: string,
+      devices: string[],
+      receivers: string[],
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -323,6 +385,20 @@ export interface Vendor extends BaseContract {
       overrides?: Overrides & { from?: string }
     ): Promise<BigNumber>;
 
+    createActivatedDevice(
+      product: string,
+      device: string,
+      receiver: string,
+      overrides?: Overrides & { from?: string }
+    ): Promise<BigNumber>;
+
+    createActivatedDevices(
+      product: string,
+      devices: string[],
+      receivers: string[],
+      overrides?: Overrides & { from?: string }
+    ): Promise<BigNumber>;
+
     createProduct(
       productImpl: string,
       name: string,
@@ -368,6 +444,20 @@ export interface Vendor extends BaseContract {
       product: string,
       device: string,
       customChallenge: BytesLike,
+      overrides?: Overrides & { from?: string }
+    ): Promise<PopulatedTransaction>;
+
+    createActivatedDevice(
+      product: string,
+      device: string,
+      receiver: string,
+      overrides?: Overrides & { from?: string }
+    ): Promise<PopulatedTransaction>;
+
+    createActivatedDevices(
+      product: string,
+      devices: string[],
+      receivers: string[],
       overrides?: Overrides & { from?: string }
     ): Promise<PopulatedTransaction>;
 
