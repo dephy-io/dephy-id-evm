@@ -169,7 +169,7 @@ contract ProductFactory is
             _tokenIdByProductByDevice[args.product][args.device]
         );
 
-        emit DeviceActivated(args.product, args.device);
+        emit DeviceActivated(args.product, args.device, recoveredAddr);
     }
 
     /**
@@ -212,7 +212,7 @@ contract ProductFactory is
         tokenId = IProduct(product).mint(receiver);
         _tokenIdByProductByDevice[product][device] = tokenId;
         emit DeviceCreated(product, device, tokenId);
-        emit DeviceActivated(product, device);
+        emit DeviceActivated(product, device, receiver);
     }
 
     function _hashTypedDeviceMessage(
