@@ -104,7 +104,7 @@ contract ProductFactoryTest is Test {
         emit IProductFactory.DeviceCreated(productAddress, device, 0);
 
         vm.expectEmit(true, true, false, false, address(factory));
-        emit IProductFactory.DeviceActivated(productAddress, device);
+        emit IProductFactory.DeviceActivated(productAddress, device, user);
 
         factory.createActivatedDevices(activatedDeviceArgs);
 
@@ -172,7 +172,7 @@ contract ProductFactoryTest is Test {
         vm.prank(user);
 
         vm.expectEmit(true, true, false, false, address(factory));
-        emit IProductFactory.DeviceActivated(productAddress, device);
+        emit IProductFactory.DeviceActivated(productAddress, device, user);
 
         factory.activateDevice(activateArgs, userSignature);
 

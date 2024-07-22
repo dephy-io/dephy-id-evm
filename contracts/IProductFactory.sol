@@ -65,7 +65,11 @@ interface IProductFactory {
         address indexed device,
         uint256 indexed tokenId
     );
-    event DeviceActivated(address indexed product, address indexed device);
+    event DeviceActivated(
+        address indexed product,
+        address indexed device,
+        address receiver
+    );
 
     /**
      * @notice Returns the domain separator for the EIP712 signature scheme.
