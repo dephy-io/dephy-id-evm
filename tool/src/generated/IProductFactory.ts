@@ -26,7 +26,7 @@ import type {
   OnEvent,
 } from "./common";
 
-export declare namespace ProductFactory {
+export declare namespace IProductFactory {
   export type ActivateDeviceArgsStruct = {
     product: string;
     device: string;
@@ -62,6 +62,18 @@ export declare namespace ProductFactory {
     BigNumber
   ] & { signer: string; v: number; r: string; s: string; deadline: BigNumber };
 
+  export type CreateActivatedDeviceArgsStruct = {
+    product: string;
+    device: string;
+    receiver: string;
+  };
+
+  export type CreateActivatedDeviceArgsStructOutput = [
+    string,
+    string,
+    string
+  ] & { product: string; device: string; receiver: string };
+
   export type CreateActivatedDevicesArgsStruct = {
     product: string;
     devices: string[];
@@ -73,6 +85,13 @@ export declare namespace ProductFactory {
     string[],
     string[]
   ] & { product: string; devices: string[]; receivers: string[] };
+
+  export type CreateDeviceArgsStruct = { product: string; device: string };
+
+  export type CreateDeviceArgsStructOutput = [string, string] & {
+    product: string;
+    device: string;
+  };
 
   export type CreateDevicesArgsStruct = { product: string; devices: string[] };
 
@@ -101,64 +120,58 @@ export declare namespace ProductFactory {
   };
 }
 
-export interface ProductFactoryInterface extends utils.Interface {
+export interface IProductFactoryInterface extends utils.Interface {
   functions: {
-    "ACTIVATE_DEVICE_TYPEHASH()": FunctionFragment;
     "activateDevice((address,address,bytes,uint256),(address,uint8,bytes32,bytes32,uint256))": FunctionFragment;
+    "createActivatedDevice((address,address,address))": FunctionFragment;
     "createActivatedDevices((address,address[],address[]))": FunctionFragment;
+    "createDevice((address,address))": FunctionFragment;
     "createDevices((address,address[]))": FunctionFragment;
     "createProduct((address,string,string,string))": FunctionFragment;
-    "eip712Domain()": FunctionFragment;
     "getDeviceTokenId(address,address)": FunctionFragment;
     "getDomainSeparator()": FunctionFragment;
     "getVendorByProduct(address)": FunctionFragment;
-    "owner()": FunctionFragment;
-    "renounceOwnership()": FunctionFragment;
-    "transferOwnership(address)": FunctionFragment;
   };
 
   getFunction(
     nameOrSignatureOrTopic:
-      | "ACTIVATE_DEVICE_TYPEHASH"
       | "activateDevice"
+      | "createActivatedDevice"
       | "createActivatedDevices"
+      | "createDevice"
       | "createDevices"
       | "createProduct"
-      | "eip712Domain"
       | "getDeviceTokenId"
       | "getDomainSeparator"
       | "getVendorByProduct"
-      | "owner"
-      | "renounceOwnership"
-      | "transferOwnership"
   ): FunctionFragment;
 
   encodeFunctionData(
-    functionFragment: "ACTIVATE_DEVICE_TYPEHASH",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
     functionFragment: "activateDevice",
     values: [
-      ProductFactory.ActivateDeviceArgsStruct,
-      ProductFactory.EIP712SignatureStruct
+      IProductFactory.ActivateDeviceArgsStruct,
+      IProductFactory.EIP712SignatureStruct
     ]
   ): string;
   encodeFunctionData(
+    functionFragment: "createActivatedDevice",
+    values: [IProductFactory.CreateActivatedDeviceArgsStruct]
+  ): string;
+  encodeFunctionData(
     functionFragment: "createActivatedDevices",
-    values: [ProductFactory.CreateActivatedDevicesArgsStruct]
+    values: [IProductFactory.CreateActivatedDevicesArgsStruct]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "createDevice",
+    values: [IProductFactory.CreateDeviceArgsStruct]
   ): string;
   encodeFunctionData(
     functionFragment: "createDevices",
-    values: [ProductFactory.CreateDevicesArgsStruct]
+    values: [IProductFactory.CreateDevicesArgsStruct]
   ): string;
   encodeFunctionData(
     functionFragment: "createProduct",
-    values: [ProductFactory.CreateProductArgsStruct]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "eip712Domain",
-    values?: undefined
+    values: [IProductFactory.CreateProductArgsStruct]
   ): string;
   encodeFunctionData(
     functionFragment: "getDeviceTokenId",
@@ -172,26 +185,21 @@ export interface ProductFactoryInterface extends utils.Interface {
     functionFragment: "getVendorByProduct",
     values: [string]
   ): string;
-  encodeFunctionData(functionFragment: "owner", values?: undefined): string;
-  encodeFunctionData(
-    functionFragment: "renounceOwnership",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "transferOwnership",
-    values: [string]
-  ): string;
 
-  decodeFunctionResult(
-    functionFragment: "ACTIVATE_DEVICE_TYPEHASH",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(
     functionFragment: "activateDevice",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "createActivatedDevice",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "createActivatedDevices",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "createDevice",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -200,10 +208,6 @@ export interface ProductFactoryInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "createProduct",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "eip712Domain",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -218,37 +222,25 @@ export interface ProductFactoryInterface extends utils.Interface {
     functionFragment: "getVendorByProduct",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "renounceOwnership",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "transferOwnership",
-    data: BytesLike
-  ): Result;
 
   events: {
-    "DeviceActivated(address,address)": EventFragment;
+    "DeviceActivated(address,address,address)": EventFragment;
     "DeviceCreated(address,address,uint256)": EventFragment;
-    "EIP712DomainChanged()": EventFragment;
-    "OwnershipTransferred(address,address)": EventFragment;
     "ProductCreated(address,address,address)": EventFragment;
   };
 
   getEvent(nameOrSignatureOrTopic: "DeviceActivated"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "DeviceCreated"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "EIP712DomainChanged"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "OwnershipTransferred"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "ProductCreated"): EventFragment;
 }
 
 export interface DeviceActivatedEventObject {
   product: string;
   device: string;
+  receiver: string;
 }
 export type DeviceActivatedEvent = TypedEvent<
-  [string, string],
+  [string, string, string],
   DeviceActivatedEventObject
 >;
 
@@ -266,27 +258,6 @@ export type DeviceCreatedEvent = TypedEvent<
 
 export type DeviceCreatedEventFilter = TypedEventFilter<DeviceCreatedEvent>;
 
-export interface EIP712DomainChangedEventObject {}
-export type EIP712DomainChangedEvent = TypedEvent<
-  [],
-  EIP712DomainChangedEventObject
->;
-
-export type EIP712DomainChangedEventFilter =
-  TypedEventFilter<EIP712DomainChangedEvent>;
-
-export interface OwnershipTransferredEventObject {
-  previousOwner: string;
-  newOwner: string;
-}
-export type OwnershipTransferredEvent = TypedEvent<
-  [string, string],
-  OwnershipTransferredEventObject
->;
-
-export type OwnershipTransferredEventFilter =
-  TypedEventFilter<OwnershipTransferredEvent>;
-
 export interface ProductCreatedEventObject {
   vendor: string;
   productImpl: string;
@@ -299,12 +270,12 @@ export type ProductCreatedEvent = TypedEvent<
 
 export type ProductCreatedEventFilter = TypedEventFilter<ProductCreatedEvent>;
 
-export interface ProductFactory extends BaseContract {
+export interface IProductFactory extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
   attach(addressOrName: string): this;
   deployed(): Promise<this>;
 
-  interface: ProductFactoryInterface;
+  interface: IProductFactoryInterface;
 
   queryFilter<TEvent extends TypedEvent>(
     event: TypedEventFilter<TEvent>,
@@ -326,42 +297,36 @@ export interface ProductFactory extends BaseContract {
   removeListener: OnEvent<this>;
 
   functions: {
-    ACTIVATE_DEVICE_TYPEHASH(overrides?: CallOverrides): Promise<[string]>;
-
     activateDevice(
-      args: ProductFactory.ActivateDeviceArgsStruct,
-      signature: ProductFactory.EIP712SignatureStruct,
+      args: IProductFactory.ActivateDeviceArgsStruct,
+      signature: IProductFactory.EIP712SignatureStruct,
+      overrides?: Overrides & { from?: string }
+    ): Promise<ContractTransaction>;
+
+    createActivatedDevice(
+      args: IProductFactory.CreateActivatedDeviceArgsStruct,
       overrides?: Overrides & { from?: string }
     ): Promise<ContractTransaction>;
 
     createActivatedDevices(
-      args: ProductFactory.CreateActivatedDevicesArgsStruct,
+      args: IProductFactory.CreateActivatedDevicesArgsStruct,
+      overrides?: Overrides & { from?: string }
+    ): Promise<ContractTransaction>;
+
+    createDevice(
+      args: IProductFactory.CreateDeviceArgsStruct,
       overrides?: Overrides & { from?: string }
     ): Promise<ContractTransaction>;
 
     createDevices(
-      args: ProductFactory.CreateDevicesArgsStruct,
+      args: IProductFactory.CreateDevicesArgsStruct,
       overrides?: Overrides & { from?: string }
     ): Promise<ContractTransaction>;
 
     createProduct(
-      args: ProductFactory.CreateProductArgsStruct,
+      args: IProductFactory.CreateProductArgsStruct,
       overrides?: Overrides & { from?: string }
     ): Promise<ContractTransaction>;
-
-    eip712Domain(
-      overrides?: CallOverrides
-    ): Promise<
-      [string, string, string, BigNumber, string, string, BigNumber[]] & {
-        fields: string;
-        name: string;
-        version: string;
-        chainId: BigNumber;
-        verifyingContract: string;
-        salt: string;
-        extensions: BigNumber[];
-      }
-    >;
 
     getDeviceTokenId(
       product: string,
@@ -375,55 +340,38 @@ export interface ProductFactory extends BaseContract {
       product: string,
       overrides?: CallOverrides
     ): Promise<[string]>;
-
-    owner(overrides?: CallOverrides): Promise<[string]>;
-
-    renounceOwnership(
-      overrides?: Overrides & { from?: string }
-    ): Promise<ContractTransaction>;
-
-    transferOwnership(
-      newOwner: string,
-      overrides?: Overrides & { from?: string }
-    ): Promise<ContractTransaction>;
   };
 
-  ACTIVATE_DEVICE_TYPEHASH(overrides?: CallOverrides): Promise<string>;
-
   activateDevice(
-    args: ProductFactory.ActivateDeviceArgsStruct,
-    signature: ProductFactory.EIP712SignatureStruct,
+    args: IProductFactory.ActivateDeviceArgsStruct,
+    signature: IProductFactory.EIP712SignatureStruct,
+    overrides?: Overrides & { from?: string }
+  ): Promise<ContractTransaction>;
+
+  createActivatedDevice(
+    args: IProductFactory.CreateActivatedDeviceArgsStruct,
     overrides?: Overrides & { from?: string }
   ): Promise<ContractTransaction>;
 
   createActivatedDevices(
-    args: ProductFactory.CreateActivatedDevicesArgsStruct,
+    args: IProductFactory.CreateActivatedDevicesArgsStruct,
+    overrides?: Overrides & { from?: string }
+  ): Promise<ContractTransaction>;
+
+  createDevice(
+    args: IProductFactory.CreateDeviceArgsStruct,
     overrides?: Overrides & { from?: string }
   ): Promise<ContractTransaction>;
 
   createDevices(
-    args: ProductFactory.CreateDevicesArgsStruct,
+    args: IProductFactory.CreateDevicesArgsStruct,
     overrides?: Overrides & { from?: string }
   ): Promise<ContractTransaction>;
 
   createProduct(
-    args: ProductFactory.CreateProductArgsStruct,
+    args: IProductFactory.CreateProductArgsStruct,
     overrides?: Overrides & { from?: string }
   ): Promise<ContractTransaction>;
-
-  eip712Domain(
-    overrides?: CallOverrides
-  ): Promise<
-    [string, string, string, BigNumber, string, string, BigNumber[]] & {
-      fields: string;
-      name: string;
-      version: string;
-      chainId: BigNumber;
-      verifyingContract: string;
-      salt: string;
-      extensions: BigNumber[];
-    }
-  >;
 
   getDeviceTokenId(
     product: string,
@@ -438,54 +386,37 @@ export interface ProductFactory extends BaseContract {
     overrides?: CallOverrides
   ): Promise<string>;
 
-  owner(overrides?: CallOverrides): Promise<string>;
-
-  renounceOwnership(
-    overrides?: Overrides & { from?: string }
-  ): Promise<ContractTransaction>;
-
-  transferOwnership(
-    newOwner: string,
-    overrides?: Overrides & { from?: string }
-  ): Promise<ContractTransaction>;
-
   callStatic: {
-    ACTIVATE_DEVICE_TYPEHASH(overrides?: CallOverrides): Promise<string>;
-
     activateDevice(
-      args: ProductFactory.ActivateDeviceArgsStruct,
-      signature: ProductFactory.EIP712SignatureStruct,
+      args: IProductFactory.ActivateDeviceArgsStruct,
+      signature: IProductFactory.EIP712SignatureStruct,
       overrides?: CallOverrides
     ): Promise<void>;
 
+    createActivatedDevice(
+      args: IProductFactory.CreateActivatedDeviceArgsStruct,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     createActivatedDevices(
-      args: ProductFactory.CreateActivatedDevicesArgsStruct,
+      args: IProductFactory.CreateActivatedDevicesArgsStruct,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    createDevice(
+      args: IProductFactory.CreateDeviceArgsStruct,
       overrides?: CallOverrides
     ): Promise<void>;
 
     createDevices(
-      args: ProductFactory.CreateDevicesArgsStruct,
+      args: IProductFactory.CreateDevicesArgsStruct,
       overrides?: CallOverrides
     ): Promise<void>;
 
     createProduct(
-      args: ProductFactory.CreateProductArgsStruct,
+      args: IProductFactory.CreateProductArgsStruct,
       overrides?: CallOverrides
     ): Promise<string>;
-
-    eip712Domain(
-      overrides?: CallOverrides
-    ): Promise<
-      [string, string, string, BigNumber, string, string, BigNumber[]] & {
-        fields: string;
-        name: string;
-        version: string;
-        chainId: BigNumber;
-        verifyingContract: string;
-        salt: string;
-        extensions: BigNumber[];
-      }
-    >;
 
     getDeviceTokenId(
       product: string,
@@ -499,25 +430,18 @@ export interface ProductFactory extends BaseContract {
       product: string,
       overrides?: CallOverrides
     ): Promise<string>;
-
-    owner(overrides?: CallOverrides): Promise<string>;
-
-    renounceOwnership(overrides?: CallOverrides): Promise<void>;
-
-    transferOwnership(
-      newOwner: string,
-      overrides?: CallOverrides
-    ): Promise<void>;
   };
 
   filters: {
-    "DeviceActivated(address,address)"(
+    "DeviceActivated(address,address,address)"(
       product?: string | null,
-      device?: string | null
+      device?: string | null,
+      receiver?: null
     ): DeviceActivatedEventFilter;
     DeviceActivated(
       product?: string | null,
-      device?: string | null
+      device?: string | null,
+      receiver?: null
     ): DeviceActivatedEventFilter;
 
     "DeviceCreated(address,address,uint256)"(
@@ -530,18 +454,6 @@ export interface ProductFactory extends BaseContract {
       device?: string | null,
       tokenId?: BigNumberish | null
     ): DeviceCreatedEventFilter;
-
-    "EIP712DomainChanged()"(): EIP712DomainChangedEventFilter;
-    EIP712DomainChanged(): EIP712DomainChangedEventFilter;
-
-    "OwnershipTransferred(address,address)"(
-      previousOwner?: string | null,
-      newOwner?: string | null
-    ): OwnershipTransferredEventFilter;
-    OwnershipTransferred(
-      previousOwner?: string | null,
-      newOwner?: string | null
-    ): OwnershipTransferredEventFilter;
 
     "ProductCreated(address,address,address)"(
       vendor?: string | null,
@@ -556,30 +468,36 @@ export interface ProductFactory extends BaseContract {
   };
 
   estimateGas: {
-    ACTIVATE_DEVICE_TYPEHASH(overrides?: CallOverrides): Promise<BigNumber>;
-
     activateDevice(
-      args: ProductFactory.ActivateDeviceArgsStruct,
-      signature: ProductFactory.EIP712SignatureStruct,
+      args: IProductFactory.ActivateDeviceArgsStruct,
+      signature: IProductFactory.EIP712SignatureStruct,
+      overrides?: Overrides & { from?: string }
+    ): Promise<BigNumber>;
+
+    createActivatedDevice(
+      args: IProductFactory.CreateActivatedDeviceArgsStruct,
       overrides?: Overrides & { from?: string }
     ): Promise<BigNumber>;
 
     createActivatedDevices(
-      args: ProductFactory.CreateActivatedDevicesArgsStruct,
+      args: IProductFactory.CreateActivatedDevicesArgsStruct,
+      overrides?: Overrides & { from?: string }
+    ): Promise<BigNumber>;
+
+    createDevice(
+      args: IProductFactory.CreateDeviceArgsStruct,
       overrides?: Overrides & { from?: string }
     ): Promise<BigNumber>;
 
     createDevices(
-      args: ProductFactory.CreateDevicesArgsStruct,
+      args: IProductFactory.CreateDevicesArgsStruct,
       overrides?: Overrides & { from?: string }
     ): Promise<BigNumber>;
 
     createProduct(
-      args: ProductFactory.CreateProductArgsStruct,
+      args: IProductFactory.CreateProductArgsStruct,
       overrides?: Overrides & { from?: string }
     ): Promise<BigNumber>;
-
-    eip712Domain(overrides?: CallOverrides): Promise<BigNumber>;
 
     getDeviceTokenId(
       product: string,
@@ -593,46 +511,39 @@ export interface ProductFactory extends BaseContract {
       product: string,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
-
-    owner(overrides?: CallOverrides): Promise<BigNumber>;
-
-    renounceOwnership(
-      overrides?: Overrides & { from?: string }
-    ): Promise<BigNumber>;
-
-    transferOwnership(
-      newOwner: string,
-      overrides?: Overrides & { from?: string }
-    ): Promise<BigNumber>;
   };
 
   populateTransaction: {
-    ACTIVATE_DEVICE_TYPEHASH(
-      overrides?: CallOverrides
+    activateDevice(
+      args: IProductFactory.ActivateDeviceArgsStruct,
+      signature: IProductFactory.EIP712SignatureStruct,
+      overrides?: Overrides & { from?: string }
     ): Promise<PopulatedTransaction>;
 
-    activateDevice(
-      args: ProductFactory.ActivateDeviceArgsStruct,
-      signature: ProductFactory.EIP712SignatureStruct,
+    createActivatedDevice(
+      args: IProductFactory.CreateActivatedDeviceArgsStruct,
       overrides?: Overrides & { from?: string }
     ): Promise<PopulatedTransaction>;
 
     createActivatedDevices(
-      args: ProductFactory.CreateActivatedDevicesArgsStruct,
+      args: IProductFactory.CreateActivatedDevicesArgsStruct,
+      overrides?: Overrides & { from?: string }
+    ): Promise<PopulatedTransaction>;
+
+    createDevice(
+      args: IProductFactory.CreateDeviceArgsStruct,
       overrides?: Overrides & { from?: string }
     ): Promise<PopulatedTransaction>;
 
     createDevices(
-      args: ProductFactory.CreateDevicesArgsStruct,
+      args: IProductFactory.CreateDevicesArgsStruct,
       overrides?: Overrides & { from?: string }
     ): Promise<PopulatedTransaction>;
 
     createProduct(
-      args: ProductFactory.CreateProductArgsStruct,
+      args: IProductFactory.CreateProductArgsStruct,
       overrides?: Overrides & { from?: string }
     ): Promise<PopulatedTransaction>;
-
-    eip712Domain(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     getDeviceTokenId(
       product: string,
@@ -647,17 +558,6 @@ export interface ProductFactory extends BaseContract {
     getVendorByProduct(
       product: string,
       overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    owner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    renounceOwnership(
-      overrides?: Overrides & { from?: string }
-    ): Promise<PopulatedTransaction>;
-
-    transferOwnership(
-      newOwner: string,
-      overrides?: Overrides & { from?: string }
     ): Promise<PopulatedTransaction>;
   };
 }

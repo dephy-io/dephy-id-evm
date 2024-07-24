@@ -7,7 +7,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-import { ProductFactory__factory, } from "./typechain";
+import { ProductFactory__factory, } from "./generated";
 import { ethers } from "ethers";
 import { oneDayLater, oneHourLater } from "./utils/timestamp";
 export class ProductFactory {

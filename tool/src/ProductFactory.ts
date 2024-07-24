@@ -1,7 +1,7 @@
 import {
-  ProductFactory as ProductFactoryRaw,
+  IProductFactory,
   ProductFactory__factory,
-} from "./typechain";
+} from "./generated";
 import { ContractTransaction, Signer, Wallet, ethers } from "ethers";
 import { ChainId } from "./types";
 import { oneDayLater, oneHourLater } from "./utils/timestamp";
@@ -39,7 +39,7 @@ export class ProductFactory {
     },
     onPending?: (tx: ContractTransaction) => void
   ) {
-    const args: ProductFactoryRaw.CreateProductArgsStruct = {
+    const args: IProductFactory.CreateProductArgsStruct = {
       productImpl,
       name,
       symbol,
@@ -74,7 +74,7 @@ export class ProductFactory {
     if (vendor !== (await this.signer.getAddress())) {
       throw new Error("Signer not product vendor");
     }
-    const args: ProductFactoryRaw.CreateDevicesArgsStruct = {
+    const args: IProductFactory.CreateDevicesArgsStruct = {
       product,
       devices,
     };
@@ -101,7 +101,7 @@ export class ProductFactory {
     if (vendor !== (await this.signer.getAddress())) {
       throw new Error("Signer not product vendor");
     }
-    const args: ProductFactoryRaw.CreateActivatedDevicesArgsStruct = {
+    const args: IProductFactory.CreateActivatedDevicesArgsStruct = {
       product,
       devices,
       receivers,
@@ -127,7 +127,7 @@ export class ProductFactory {
     const deviceSignedParams = await this._generateDeviceSignature(
       deviceWallet
     );
-    const activateDeviceArgs: ProductFactoryRaw.ActivateDeviceArgsStruct = {
+    const activateDeviceArgs: IProductFactory.ActivateDeviceArgsStruct = {
       product,
       device: deviceWallet.address,
       ...deviceSignedParams,
@@ -190,7 +190,7 @@ export class ProductFactory {
     activateDeviceArgs,
   }: {
     wallet: Wallet;
-    activateDeviceArgs: ProductFactoryRaw.ActivateDeviceArgsStruct;
+    activateDeviceArgs: IProductFactory.ActivateDeviceArgsStruct;
   }) {
     const { name, version } = await this.instance.eip712Domain();
     const deadline = oneDayLater();
@@ -228,7 +228,7 @@ export class ProductFactory {
       )
     );
 
-    const sig: ProductFactoryRaw.EIP712SignatureStruct = {
+    const sig: IProductFactory.EIP712SignatureStruct = {
       signer: await wallet.getAddress(),
       v,
       r,
