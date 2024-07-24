@@ -3,12 +3,14 @@ import {
   createTestClient, getContract, Hash, http, publicActions, walletActions,
   toBytes, encodePacked, keccak256, serializeSignature, parseSignature,
   Address,
+  encodeFunctionData,
 } from 'viem';
 import { foundry } from 'viem/chains';
 import { generatePrivateKey, privateKeyToAccount, sign } from 'viem/accounts';
 
 import Product from '../out/Product.sol/Product.json';
 import ProductFactory from '../out/ProductFactory.sol/ProductFactory.json';
+import ERC1967Proxy from '../out/ERC1967Proxy.sol/ERC1967Proxy.json';
 
 let anvil: ChildProcess | undefined;
 
@@ -39,18 +41,33 @@ try {
   const productImplAddress = productTx.contractAddress;
   console.log('ProductImpl:', productImplAddress);
 
-  const productFactoryTx = await getReceipt(client.deployContract({
+  const productFactoryImplTx = await getReceipt(client.deployContract({
     account: admin.address,
     abi: ProductFactory.abi,
     chain: foundry,
     bytecode: ProductFactory.bytecode.object as `0x${string}`,
-    args: [admin.address],
+    args: [],
   }));
-  const productFactoryAddress = productFactoryTx.contractAddress;
-  console.log('ProductFactory:', productFactoryAddress);
+  const productFactoryImplAddress = productFactoryImplTx.contractAddress;
+  console.log('ProductFactoryImpl:', productFactoryImplAddress);
+
+  const productFactoryProxyTx = await getReceipt(client.deployContract({
+    account: admin.address,
+    abi: ERC1967Proxy.abi,
+    chain: foundry,
+    bytecode: ERC1967Proxy.bytecode.object as `0x${string}`,
+    args: [productFactoryImplAddress, encodeFunctionData({
+      abi: ProductFactory.abi,
+      functionName: 'initialize',
+      args: [admin.address]
+    })],
+  }));
+
+  const productFactoryProxyAddress = productFactoryProxyTx.contractAddress;
+  console.log('ProductFactoryProxy:', productFactoryProxyAddress);
 
   const productFactory = getContract({
-    address: productFactoryAddress!,
+    address: productFactoryProxyAddress!,
     abi: ProductFactory.abi,
     client,
   });
@@ -138,7 +155,7 @@ try {
       name: 'ProductFactory',
       version: '1',
       chainId: client.chain.id,
-      verifyingContract: productFactoryAddress!,
+      verifyingContract: productFactoryProxyAddress!,
     },
     message: {
       product: productAddress,

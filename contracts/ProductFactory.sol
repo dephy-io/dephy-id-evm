@@ -1,21 +1,23 @@
 // SPDX-License-Identifier: Apache-2.0
 pragma solidity ^0.8.24;
 
-import {EIP712} from "@openzeppelin/contracts/utils/cryptography/EIP712.sol";
 import {ECDSA} from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
-import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
-import {ReentrancyGuard} from "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
-import {Pausable} from "@openzeppelin/contracts/utils/Pausable.sol";
 import {Clones} from "@openzeppelin/contracts/proxy/Clones.sol";
+import {EIP712Upgradeable} from "@openzeppelin/contracts-upgradeable/utils/cryptography/EIP712Upgradeable.sol";
+import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+import {ReentrancyGuardUpgradeable} from "@openzeppelin/contracts-upgradeable/utils/ReentrancyGuardUpgradeable.sol";
+import {PausableUpgradeable} from "@openzeppelin/contracts-upgradeable/utils/PausableUpgradeable.sol";
+import {UUPSUpgradeable} from "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import {IProductFactory} from "./IProductFactory.sol";
 import {IProduct} from "./IProduct.sol";
 
 contract ProductFactory is
     IProductFactory,
-    Ownable,
-    EIP712,
-    ReentrancyGuard,
-    Pausable
+    OwnableUpgradeable,
+    EIP712Upgradeable,
+    ReentrancyGuardUpgradeable,
+    PausableUpgradeable,
+    UUPSUpgradeable
 {
     string public constant DEPHY_PREFIX = "DEPHY_ID_SIGNED_MESSAGE:";
     bytes32 public constant ACTIVATE_DEVICE_TYPEHASH =
@@ -29,9 +31,13 @@ contract ProductFactory is
     mapping(address => mapping(address => uint256))
         internal _tokenIdByProductByDevice;
 
-    constructor(
-        address initialOwner
-    ) EIP712("ProductFactory", "1") Ownable(initialOwner) {}
+    function initialize(address initialOwner) public virtual initializer {
+        __Ownable_init(initialOwner);
+        __EIP712_init("ProductFactory", "1");
+        __ReentrancyGuard_init();
+        __Pausable_init();
+        __UUPSUpgradeable_init();
+    }
 
     modifier onlyVendor(address product) {
         if (msg.sender != _vendorByProduct[product]) {
@@ -244,4 +250,8 @@ contract ProductFactory is
         );
         return recoveredAddress;
     }
+
+    function _authorizeUpgrade(
+        address newImplementation
+    ) internal virtual override onlyOwner {}
 }

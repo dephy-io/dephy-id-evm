@@ -24,7 +24,7 @@ pnpm run cli --help
 pnpm run cli deploy-vendor \
 --rpc $BASE_SEPOLIA_RPC_URL \
 --privatekey $PRIVATE_KEY \
---productFactory 0x51FF9b79616973da54b68771099C7942519bC0BC
+--productFactory 0xC487C07f0e31d63a840157cBcC316FBcBbFc6088
 ```
 
 Deployed Vendor address will store in `templates/tmp/address.json`.

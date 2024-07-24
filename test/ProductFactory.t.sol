@@ -1,14 +1,16 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
+import {ERC1967Proxy} from "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
 import {IProductFactory} from "../contracts/IProductFactory.sol";
 import {ProductFactory} from "../contracts/ProductFactory.sol";
 import {Product} from "../contracts/Product.sol";
+import {ProductFactoryV2} from "./mock/ProductFactoryV2.sol";
 import "forge-std/Test.sol";
 
 contract ProductFactoryTest is Test {
     ProductFactory public factory;
-    Product public productImplementation;
+    Product public productImpl;
     address public owner;
     address public vendor;
     address public user;
@@ -22,8 +24,29 @@ contract ProductFactoryTest is Test {
         (user, userPK) = makeAddrAndKey("user");
         (device, devicePK) = makeAddrAndKey("device");
 
-        productImplementation = new Product();
-        factory = new ProductFactory(owner);
+        productImpl = new Product();
+        ProductFactory factoryImpl = new ProductFactory();
+        ERC1967Proxy factoryProxy = new ERC1967Proxy(
+            address(factoryImpl),
+            abi.encodeWithSelector(ProductFactory.initialize.selector, owner)
+        );
+        factory = ProductFactory(address(factoryProxy));
+    }
+
+    function testUpgrade() public {
+        address newOwner = makeAddr("newOwner");
+        ProductFactoryV2 factoryImplV2 = new ProductFactoryV2();
+        vm.prank(owner);
+        factory.upgradeToAndCall(
+            address(factoryImplV2),
+            abi.encodeWithSelector(
+                ProductFactoryV2.initialize.selector,
+                newOwner
+            )
+        );
+        assertEq(factory.owner(), newOwner);
+        (, , string memory version, , , , ) = factory.eip712Domain();
+        assertEq(version, "2");
     }
 
     function testCreateProduct() public {
@@ -31,7 +54,7 @@ contract ProductFactoryTest is Test {
 
         IProductFactory.CreateProductArgs memory args = IProductFactory
             .CreateProductArgs({
-                productImpl: address(productImplementation),
+                productImpl: address(productImpl),
                 name: "Test Product",
                 symbol: "TP",
                 baseTokenURI: "https://example.com/token/"
@@ -47,7 +70,7 @@ contract ProductFactoryTest is Test {
 
         IProductFactory.CreateProductArgs memory args = IProductFactory
             .CreateProductArgs({
-                productImpl: address(productImplementation),
+                productImpl: address(productImpl),
                 name: "Test Product",
                 symbol: "TP",
                 baseTokenURI: "https://example.com/token/"
@@ -82,7 +105,7 @@ contract ProductFactoryTest is Test {
 
         IProductFactory.CreateProductArgs memory args = IProductFactory
             .CreateProductArgs({
-                productImpl: address(productImplementation),
+                productImpl: address(productImpl),
                 name: "Test Product",
                 symbol: "TP",
                 baseTokenURI: "https://example.com/token/"
@@ -124,7 +147,7 @@ contract ProductFactoryTest is Test {
 
         IProductFactory.CreateProductArgs memory args = IProductFactory
             .CreateProductArgs({
-                productImpl: address(productImplementation),
+                productImpl: address(productImpl),
                 name: "Test Product",
                 symbol: "TP",
                 baseTokenURI: "https://example.com/token/"

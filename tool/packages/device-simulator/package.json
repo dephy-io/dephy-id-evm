@@ -1,0 +1,22 @@
+{
+  "name": "tool-device-simulator",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "rimraf dist/* && tsc -p tsconfig.json",
+    "cli": "node ./dist/index.js"
+  },
+  "devDependencies": {
+    "@types/yargs": "^17.0.32",
+    "rimraf": "^6.0.0"
+  },
+  "bin": {
+    "device-simulator": "./dist/index.js"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "ethers": "^5.7.2",
+    "yargs": "^17.7.2"
+  }
+}
