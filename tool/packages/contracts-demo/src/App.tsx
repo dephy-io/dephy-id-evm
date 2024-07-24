@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import "./App.scss";
 import { ContractTransaction, Signer, ethers } from "ethers";
-import { ProductFactory, ChainId } from "dephy-id-evm-tool/dist";
+import { ProductFactory, ChainId } from "../../contracts-sdk/dist";
 import ADDRESS_JSON from "../../../../addresses.json";
 
 const BASE_SEPOLIA_PARAMS = {
