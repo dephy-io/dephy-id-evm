@@ -82,35 +82,18 @@ contract Wallet is ReentrancyGuard {
     function proxyCall(
         address target,
         bytes memory data,
+        uint256 value,
         uint256 deadline,
         bytes memory signature
     ) public payable onlyDeviceOwner nonReentrant returns (bytes memory) {
-        return _proxyCall(target, data, msg.value, deadline, signature);
-    }
-
-    function proxyCall(
-        address target,
-        bytes memory data,
-        uint256 value,
-        uint256 deadline,
-        bytes memory signature
-    ) public onlyDeviceOwner nonReentrant returns (bytes memory) {
-        if (address(this).balance < value) {
-            revert InsufficientBalance();
-        }
-        return _proxyCall(target, data, value, deadline, signature);
-    }
-
-    function _proxyCall(
-        address target,
-        bytes memory data,
-        uint256 value,
-        uint256 deadline,
-        bytes memory signature
-    ) internal returns (bytes memory) {
         if (target == address(this)) {
             revert SelfCallForbidden();
         }
+        
+        if (address(this).balance < value) {
+            revert InsufficientBalance();
+        }
+
         if (target == address(PRODUCT)) {
             address recoveredDeviceAddr = _recoverDeviceSigner(
                 _hashTypedDeviceMessage(keccak256(abi.encode(deadline))),
