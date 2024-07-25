@@ -79,58 +79,60 @@ contract Wallet is ReentrancyGuard {
         emit Withdraw(token, receiver, amount);
     }
 
-function proxyCall(
-    address target,
-    bytes memory data,
-    uint256 deadline,
-    bytes memory signature
-) public payable onlyDeviceOwner nonReentrant returns (bytes memory) {
-    return _proxyCall(target, data, msg.value, deadline, signature);
-}
-
-function proxyCall(
-    address target,
-    bytes memory data,
-    uint256 value,
-    uint256 deadline,
-    bytes memory signature
-) public onlyDeviceOwner nonReentrant returns (bytes memory) {
-    if (address(this).balance < value) {
-        revert InsufficientBalance();
+    function proxyCall(
+        address target,
+        bytes memory data,
+        uint256 deadline,
+        bytes memory signature
+    ) public payable onlyDeviceOwner nonReentrant returns (bytes memory) {
+        return _proxyCall(target, data, msg.value, deadline, signature);
     }
-    return _proxyCall(target, data, value, deadline, signature);
-}
 
-function _proxyCall(
-    address target,
-    bytes memory data,
-    uint256 value,
-    uint256 deadline,
-    bytes memory signature
-) internal returns (bytes memory) {
-    if (target == address(this)) {
-        revert SelfCallForbidden();
-    }
-    if (target == address(PRODUCT)) {
-        address recoveredDeviceAddr = _recoverDeviceSigner(
-            _hashTypedDeviceMessage(keccak256(abi.encode(deadline))),
-            signature,
-            deadline
-        );
-        if (recoveredDeviceAddr != DEVICE) {
-            revert DeviceMismatch();
+    function proxyCall(
+        address target,
+        bytes memory data,
+        uint256 value,
+        uint256 deadline,
+        bytes memory signature
+    ) public onlyDeviceOwner nonReentrant returns (bytes memory) {
+        if (address(this).balance < value) {
+            revert InsufficientBalance();
         }
+        return _proxyCall(target, data, value, deadline, signature);
     }
 
-    (bool success, bytes memory returnedData) = target.call{value: value}(data);
-    if (!success) {
-        revert ProxyCallFailed();
-    }
+    function _proxyCall(
+        address target,
+        bytes memory data,
+        uint256 value,
+        uint256 deadline,
+        bytes memory signature
+    ) internal returns (bytes memory) {
+        if (target == address(this)) {
+            revert SelfCallForbidden();
+        }
+        if (target == address(PRODUCT)) {
+            address recoveredDeviceAddr = _recoverDeviceSigner(
+                _hashTypedDeviceMessage(keccak256(abi.encode(deadline))),
+                signature,
+                deadline
+            );
+            if (recoveredDeviceAddr != DEVICE) {
+                revert DeviceMismatch();
+            }
+        }
 
-    emit ProxyCalled(target, value, data, returnedData);
-    
-    return returnedData;
-}
+        (bool success, bytes memory returnedData) = target.call{value: value}(
+            data
+        );
+        if (!success) {
+            revert ProxyCallFailed();
+        }
+
+        emit ProxyCalled(target, value, data, returnedData);
+
+        return returnedData;
+    }
 
     function _hashTypedDeviceMessage(
         bytes32 hashedMessage
