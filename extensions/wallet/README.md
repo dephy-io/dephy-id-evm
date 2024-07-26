@@ -102,10 +102,16 @@ pnpm run cli proxyCall \
 --data {call_data}
 ```
 
-If the target call is a payable call, you need to add:
+`proxyCall` is a payable function, so you can specify the `msgValue`:
 
 ```bash
---value {value_in_ether}
+--msgValue {value_in_ether}
+```
+
+If the `target call` is a payable function so you need to spend wallet's balance, you need to add:
+
+```bash
+--walletValue {value_in_ether}
 ```
 
 If Wallet address not set in `./tmp/address.json`, you need to add:
@@ -120,5 +126,3 @@ If `taget` is `Product` contract, you need to provide signature from your `devic
 --deadline {deadline_timestamp} \
 --signature {signature} \
 ```
-
-pnpm run cli deploy --privatekey $PRIVATE_KEY --rpc $BASE_SEPOLIA_RPC_URL --device 0x13a6D1fe418de7e5B03Fb4a15352DfeA3249eAA4 --product 0x3C34074D6A6FB23Bc65312333AB27413C64Ccbe8 --tokenId 1

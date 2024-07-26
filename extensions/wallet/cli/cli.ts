@@ -208,14 +208,18 @@ yargs(hideBin(process.argv))
       rpc: { type: "string", demandOption: true },
       target: { type: "string", demandOption: true },
       data: { type: "string", demandOption: true },
-      value: { type: "string", demandOption: false },
+      msgValue: { type: "string", demandOption: false },
+      walletValue: { type: "string", demandOption: false },
       deadline: { type: "number", demandOption: false },
       signature: { type: "string", demandOption: false },
       contract: { type: "string", demandOption: false },
     },
     async (args) => {
-      if(!args.value) {
-        args.value = "0";
+      if(!args.walletValue) {
+        args.walletValue = "0";
+      }
+      if(!args.msg_value) {
+        args.msgValue = "0";
       }
       if (!args.deadline) {
         args.deadline = 0;
@@ -237,14 +241,17 @@ yargs(hideBin(process.argv))
       const tx = await contract.proxyCall(
         args.target,
         ethers.utils.arrayify(args.data),
-        ethers.utils.parseEther(args.value),
+        ethers.utils.parseEther(args.walletValue),
         args.deadline,
-        ethers.utils.arrayify(args.signature)
+        ethers.utils.arrayify(args.signature),
+        {
+            value: args.msgValue
+        }
       );
       console.log(`Transaction hash: ${tx.hash}`);
       await tx.wait();
       console.log(
-        `Proxy call to ${args.target} with value ${args.value} ETH was successful`
+        `Proxy call to ${args.target} with walletValue ${args.walletValue} ETH was successful`
       );
     }
   )

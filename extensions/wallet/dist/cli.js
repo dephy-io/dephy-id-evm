@@ -154,13 +154,17 @@ const addressFilePath = path_1.default.resolve(process.cwd(), "./tmp/address.jso
     rpc: { type: "string", demandOption: true },
     target: { type: "string", demandOption: true },
     data: { type: "string", demandOption: true },
-    value: { type: "string", demandOption: false },
+    msgValue: { type: "string", demandOption: false },
+    walletValue: { type: "string", demandOption: false },
     deadline: { type: "number", demandOption: false },
     signature: { type: "string", demandOption: false },
     contract: { type: "string", demandOption: false },
 }, (args) => __awaiter(void 0, void 0, void 0, function* () {
-    if (!args.value) {
-        args.value = "0";
+    if (!args.walletValue) {
+        args.walletValue = "0";
+    }
+    if (!args.msg_value) {
+        args.msgValue = "0";
     }
     if (!args.deadline) {
         args.deadline = 0;
@@ -176,9 +180,11 @@ const addressFilePath = path_1.default.resolve(process.cwd(), "./tmp/address.jso
         contractAddress = addressData.Wallet;
     }
     const contract = generated_1.Wallet__factory.connect(contractAddress, wallet);
-    const tx = yield contract.proxyCall(args.target, ethers_1.ethers.utils.arrayify(args.data), ethers_1.ethers.utils.parseEther(args.value), args.deadline, ethers_1.ethers.utils.arrayify(args.signature));
+    const tx = yield contract.proxyCall(args.target, ethers_1.ethers.utils.arrayify(args.data), ethers_1.ethers.utils.parseEther(args.walletValue), args.deadline, ethers_1.ethers.utils.arrayify(args.signature), {
+        value: args.msgValue
+    });
     console.log(`Transaction hash: ${tx.hash}`);
     yield tx.wait();
-    console.log(`Proxy call to ${args.target} with value ${args.value} ETH was successful`);
+    console.log(`Proxy call to ${args.target} with walletValue ${args.walletValue} ETH was successful`);
 }))
     .help().argv;
