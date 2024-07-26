@@ -32,7 +32,7 @@ contract Wallet is ReentrancyGuard {
     using SafeERC20 for IERC20;
 
     string public constant DEPHY_PREFIX = "DEPHY_ID_SIGNED_MESSAGE:";
-    address public constant NATIVE_TOKEN = address(1);
+    address public constant NATIVE_TOKEN = address(0);
     address public immutable DEVICE;
     IERC721 public immutable PRODUCT;
     uint256 public immutable TOKEN_ID;
@@ -89,7 +89,7 @@ contract Wallet is ReentrancyGuard {
         if (target == address(this)) {
             revert SelfCallForbidden();
         }
-        
+
         if (address(this).balance < value) {
             revert InsufficientBalance();
         }
