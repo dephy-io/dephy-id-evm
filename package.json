@@ -9,8 +9,11 @@
     "templates"
   ],
   "scripts": {
-    "build": "forge build",
+    "build": "forge build --sizes",
+    "deploy:base": "source .env && forge script script/Deploy.s.sol --rpc-url base --broadcast",
     "deploy:base_sepolia": "source .env && forge script script/Deploy.s.sol --rpc-url base_sepolia --broadcast",
+    "deploy:bnb": "source .env && forge script script/Deploy.s.sol --rpc-url bnb --broadcast",
+    "deploy:bnb_testnet": "source .env && forge script script/Deploy.s.sol --rpc-url bnb_testnet --broadcast",
     "e2e": "forge test && tsx e2e/testAll.ts"
   },
   "devDependencies": {
