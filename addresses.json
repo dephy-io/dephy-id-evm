@@ -2,5 +2,9 @@
   "BaseSepolia": {
     "ProductFactory": "0xC487C07f0e31d63a840157cBcC316FBcBbFc6088",
     "ProductImpl": "0x647d77324E241709BaF63D7f96F0C19ecA06E2e0"
+  },
+  "BNBTestnet": {
+    "ProductFactory": "0x6541465473e0DA2B2325e23CC0B3f92fF07b28D5",
+    "ProductImpl": "0xa94EB1f9276FfEc73004049f6D6F5a459C226669"
   }
 }

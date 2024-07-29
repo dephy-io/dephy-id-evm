@@ -16,3 +16,5 @@ forge-std = { version = "1.9.1" }
 [rpc_endpoints]
 base = "${BASE_RPC_URL}"
 base_sepolia = "${BASE_SEPOLIA_RPC_URL}"
+bnb = "${BNB_RPC_URL}"
+bnb_testnet = "${BNB_TESTNET_RPC_URL}"

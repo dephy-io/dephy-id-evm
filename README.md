@@ -1,5 +1,4 @@
-DePHY ID on EVM
-====
+# DePHY ID on EVM
 
 The DePHY ID Solidity smart contracts mono repo
 
@@ -8,58 +7,65 @@ The DePHY ID Solidity smart contracts mono repo
 - [Contracts](./contracts)
 - [E2E test](./e2e):
   A brief way to show how the DePHY ID works for developers
+- [Test](./test/):
+  Standard foundry smart contract tests.
+- [Script](./script/):
+  Contracts deployment scripts.
+- [Extensions](./extensions/):
+  A proxy wallet of the product owner.
+- [Templates](./templates/):
+  A vendor contract template and cli.
+- [Tools](./tools/):
+  Consists of contracts interactive typescript sdk, react demo and device simulator.
 
 ## Contract addresses
 
-### Base Sepolia testnet:
+Deployed contract addresses is stored in `addresses.json`.
 
-- ProductFactory: `0x51FF9b79616973da54b68771099C7942519bC0BC`
-- ProductImpl: `0x647d77324E241709BaF63D7f96F0C19ecA06E2e0`
+## Build
 
-## Documentation
-
-https://book.getfoundry.sh/
-
-## Usage
-
-### Build
-
-```shell
-$ forge build
+```bash
+pnpm run build
 ```
 
-### Test
+## Test / E2E Test
 
-```shell
-$ forge test
+```bash
+pnpm run e2e
 ```
 
-### Format
+## Deployment
 
-```shell
-$ forge fmt
+Below are the commands for deploying your application to various networks:
+
+- Deploy to Base Mainnet/Testnet
+
+```bash
+pnpm run deploy:base
+pnpm run deploy:base_sepolia
 ```
 
-### Gas Snapshots
+- Deploy to BNB Smart Chain Mainnet/Testnet
 
-```shell
-$ forge snapshot
+```bash
+pnpm run deploy:bnb
+pnpm run deploy:bnb_testnet
 ```
 
-### Anvil
+Ensure you have a `.env` file configured with the necessary RPC URLs and private key before running these commands.
 
-```shell
-$ anvil
+## Upgrade
+
+First set ProductFactory proxy address:
+
+```bash
+PROXY=
 ```
 
-### Deploy
+Then execute `UpgradeProductFactory.s.sol` script:
 
-```shell
-$ forge script script/Counter.s.sol:CounterScript --rpc-url <your_rpc_url> --private-key <your_private_key>
+```bash
+forge script script/UpgradeProductFactory.s.sol --rpc-url {RPC} --broadcast
 ```
 
-### Cast
-
-```shell
-$ cast <subcommand>
-```
+ProductFactoryV2 implementation is mounted to proxy now.
