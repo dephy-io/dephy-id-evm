@@ -7,11 +7,16 @@ The DePHY ID Solidity smart contracts mono repo
 - [Contracts](./contracts)
 - [E2E test](./e2e):
   A brief way to show how the DePHY ID works for developers
-- [Test](./test/): Standard foundry smart contract tests.
-- [Script](./script/): Contracts deployment scripts.
-- [Extensions](./extensions/): A proxy wallet of the product owner.
-- [Templates](./templates/): Vendor template contract and cli.
-- [Tools](./tools/): Consist of contracts interactive typescript sdk, react demo and device simulator.
+- [Test](./test/):
+  Standard foundry smart contract tests.
+- [Script](./script/):
+  Contracts deployment scripts.
+- [Extensions](./extensions/):
+  A proxy wallet of the product owner.
+- [Templates](./templates/):
+  A vendor contract template and cli.
+- [Tools](./tools/):
+  Consists of contracts interactive typescript sdk, react demo and device simulator.
 
 ## Contract addresses
 
