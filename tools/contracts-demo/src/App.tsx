@@ -1,25 +1,16 @@
-import { useState, useEffect } from "react";
-import "./App.scss";
+import React, { useState, useEffect } from "react";
 import { ContractTransaction, Signer, ethers } from "ethers";
 import { ProductFactory, ChainId } from "../../contracts-sdk/dist";
-import ADDRESS_JSON from "../../../../addresses.json";
-
-const BASE_SEPOLIA_PARAMS = {
-  chainId: "0x14a34",
-  chainName: "Base Sepolia Testnet",
-  nativeCurrency: {
-    name: "ETH",
-    symbol: "ETH",
-    decimals: 18,
-  },
-  rpcUrls: ["https://base-sepolia-rpc.publicnode.com"], // Replace with actual Sepolia RPC URL
-  blockExplorerUrls: ["https://sepolia.basescan.org/"],
-};
+import { BASE_SEPOLIA_PARAMS, BNB_TESTNET_PARAMS } from "./constants";
+import ADDRESS_JSON from "../../../addresses.json";
+import "./App.scss";
 
 function App() {
   const [account, setAccount] = useState("");
   const [signer, setSigner] = useState<Signer>();
   const [productFactory, setProductFactory] = useState<ProductFactory>();
+  const [currentNetwork, setCurrentNetwork] = useState<string>("BNBTestnet");
+  const [chainParams, setChainParams] = useState<any>(BNB_TESTNET_PARAMS);
 
   const [productName, setProductName] = useState("");
   const [productSymbol, setProductSymbol] = useState("");
@@ -37,17 +28,20 @@ function App() {
   useEffect(() => {
     (async () => {
       if (signer) {
+        const params = currentNetwork === "BaseSepolia" ? BASE_SEPOLIA_PARAMS : BNB_TESTNET_PARAMS;
+        setChainParams(params);
+
         try {
           await (window as any).ethereum.request({
             method: "wallet_switchEthereumChain",
-            params: [{ chainId: "0x14a34" }],
+            params: [{ chainId: params.chainId }],
           });
         } catch (switchError) {
           if ((switchError as any).code === 4902) {
             try {
               await (window as any).ethereum.request({
                 method: "wallet_addEthereumChain",
-                params: [BASE_SEPOLIA_PARAMS],
+                params: [params],
               });
             } catch (addError) {
               console.error("Failed to add the network to MetaMask:", addError);
@@ -57,24 +51,25 @@ function App() {
           }
         }
 
+        const chainId = currentNetwork === "BaseSepolia" ? ChainId.BaseSepolia : ChainId.BNBTestnet;
+        const productFactoryAddress = currentNetwork === "BaseSepolia" ? ADDRESS_JSON.BaseSepolia.ProductFactory : ADDRESS_JSON.BNBTestnet.ProductFactory;
+
         const productFactory = new ProductFactory({
           signer,
-          chainId: ChainId.BaseSepolia,
-          address: ADDRESS_JSON.BaseSepolia.ProductFactory,
+          chainId,
+          address: productFactoryAddress,
         });
         setProductFactory(productFactory);
       }
     })();
-  }, [signer]);
+  }, [signer, currentNetwork]);
 
   const connectWallet = async () => {
     if (!(window as any).ethereum) {
       alert("Please install MetaMask first!");
-      return
+      return;
     }
-    const provider = new ethers.providers.Web3Provider(
-      (window as any).ethereum
-    );
+    const provider = new ethers.providers.Web3Provider((window as any).ethereum);
     await provider.send("eth_requestAccounts", []);
     const signer = provider.getSigner();
     const account = await signer.getAddress();
@@ -89,7 +84,7 @@ function App() {
       };
       const product = await productFactory.createProduct(
         {
-          productImpl: ADDRESS_JSON.BaseSepolia.ProductImpl,
+          productImpl: currentNetwork === "BaseSepolia" ? ADDRESS_JSON.BaseSepolia.ProductImpl : ADDRESS_JSON.BNBTestnet.ProductImpl,
           name: productName,
           symbol: productSymbol,
           baseTokenURI,
@@ -150,11 +145,21 @@ function App() {
     }
   };
 
+  const switchNetwork = (network: string) => {
+    setCurrentNetwork(network);
+  };
+
   return (
     <div className="App">
       <button onClick={connectWallet}>Connect Wallet</button>
       <div className="blackText">{account}</div>
       <hr />
+      <div>
+        <select onChange={(e) => switchNetwork(e.target.value)} value={currentNetwork}>
+          <option value="BaseSepolia">Base Sepolia Testnet</option>
+          <option value="BNBTestnet">BNB Testnet</option>
+        </select>
+      </div>
       <div>
         <input
           type="text"
@@ -178,7 +183,7 @@ function App() {
         <a
           className="blackText"
           target="_blank"
-          href={`https://sepolia.basescan.org/tx/${createProductTx}`}
+          href={`${chainParams.blockExplorerUrls[0]}/tx/${createProductTx}`}
         >
           {createProductTx}
         </a>
@@ -201,7 +206,7 @@ function App() {
         <a
           className="blackText"
           target="_blank"
-          href={`https://sepolia.basescan.org/tx/${createDevicesTx}`}
+          href={`${chainParams.blockExplorerUrls[0]}/tx/${createDevicesTx}`}
         >
           {createDevicesTx}
         </a>
@@ -217,13 +222,12 @@ function App() {
         <a
           className="blackText"
           target="_blank"
-          href={`https://sepolia.basescan.org/tx/${createActivatedDevicesTx}`}
+          href={`${chainParams.blockExplorerUrls[0]}/tx/${createActivatedDevicesTx}`}
         >
           {createActivatedDevicesTx}
         </a>
       </div>
       <br />
-
       <div>
         <input
           type="text"
@@ -241,7 +245,7 @@ function App() {
         <a
           className="blackText"
           target="_blank"
-          href={`https://sepolia.basescan.org/tx/${activatedDeviceTx}`}
+          href={`${chainParams.blockExplorerUrls[0]}/tx/${activatedDeviceTx}`}
         >
           {activatedDeviceTx}
         </a>

@@ -36,7 +36,7 @@ const path_1 = __importDefault(require("path"));
     const contract = yield factory.deploy(wallet.address, args.productFactory);
     console.log("contract deploying...");
     yield contract.deployed();
-    console.log(`vendor deployed at ${contract.address}`);
+    console.log(`Vendor contract deployed at ${contract.address}`);
     // Step 4: Write deployed contract address to `./templates/tmp/address.json`
     const addressPath = path_1.default.resolve(__dirname, "../../templates/tmp/address.json");
     const addressDir = path_1.default.dirname(addressPath);
@@ -44,7 +44,7 @@ const path_1 = __importDefault(require("path"));
         fs_1.default.mkdirSync(addressDir, { recursive: true });
     }
     fs_1.default.writeFileSync(addressPath, JSON.stringify({ Vendor: contract.address }, null, 2));
-    console.log(`vendor address stored in ./templates/tmp/address.json`);
+    console.log(`Vendor contract address stored in ./templates/tmp/address.json`);
 }))
     .command("create-product", "Create a new product", {
     rpc: { type: "string", demandOption: true },

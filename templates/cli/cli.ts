@@ -44,7 +44,7 @@ yargs(hideBin(process.argv))
       );
       console.log("contract deploying...");
       await contract.deployed();
-      console.log(`vendor deployed at ${contract.address}`);
+      console.log(`Vendor contract deployed at ${contract.address}`);
 
       // Step 4: Write deployed contract address to `./templates/tmp/address.json`
       const addressPath = path.resolve(
@@ -59,7 +59,7 @@ yargs(hideBin(process.argv))
         addressPath,
         JSON.stringify({ Vendor: contract.address }, null, 2)
       );
-      console.log(`vendor address stored in ./templates/tmp/address.json`);
+      console.log(`Vendor contract address stored in ./templates/tmp/address.json`);
     }
   )
   .command(

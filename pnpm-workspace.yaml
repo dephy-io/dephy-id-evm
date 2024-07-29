@@ -1,3 +1,4 @@
 packages:
-  - "tool/**"
   - "templates"
+  - "tools/**"
+  - "extensions/**"

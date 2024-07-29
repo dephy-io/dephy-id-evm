@@ -18,6 +18,37 @@ importers:
         specifier: ^2.17.3
         version: 2.17.3
 
+  extensions/wallet:
+    dependencies:
+      ethers:
+        specifier: ^5.7.2
+        version: 5.7.2
+      typescript:
+        specifier: ^5.0.0
+        version: 5.0.2
+      yargs:
+        specifier: ^17.7.2
+        version: 17.7.2
+    devDependencies:
+      '@ethersproject/abi':
+        specifier: ^5.7.0
+        version: 5.7.0
+      '@ethersproject/providers':
+        specifier: ^5.7.2
+        version: 5.7.2
+      '@typechain/ethers-v5':
+        specifier: ^11.1.1
+        version: 11.1.1(@ethersproject/abi@5.7.0)(@ethersproject/providers@5.7.2)(ethers@5.7.2)(typechain@8.3.1)(typescript@5.0.2)
+      '@types/yargs':
+        specifier: ^17.0.32
+        version: 17.0.32
+      rimraf:
+        specifier: ^6.0.0
+        version: 6.0.0
+      typechain:
+        specifier: ^8.3.1
+        version: 8.3.1(typescript@5.0.2)
+
   templates:
     dependencies:
       ethers:
@@ -49,36 +80,8 @@ importers:
         specifier: ^8.3.1
         version: 8.3.1(typescript@5.0.2)
 
-  tool:
+  tools/contracts-demo:
     dependencies:
-      ethers:
-        specifier: ^5.7.2
-        version: 5.7.2
-      typescript:
-        specifier: ^5.0.0
-        version: 5.0.2
-    devDependencies:
-      '@ethersproject/abi':
-        specifier: ^5.7.0
-        version: 5.7.0
-      '@ethersproject/providers':
-        specifier: ^5.7.2
-        version: 5.7.2
-      '@typechain/ethers-v5':
-        specifier: ^11.1.1
-        version: 11.1.1(@ethersproject/abi@5.7.0)(@ethersproject/providers@5.7.2)(ethers@5.7.2)(typechain@8.3.1)(typescript@5.0.2)
-      rimraf:
-        specifier: ^6.0.0
-        version: 6.0.0
-      typechain:
-        specifier: ^8.3.1
-        version: 8.3.1(typescript@5.0.2)
-
-  tool/packages/contracts-demo:
-    dependencies:
-      dephy-id-evm-tool:
-        specifier: workspace:*
-        version: link:../..
       ethers:
         specifier: ^5.7.2
         version: 5.7.2
@@ -114,7 +117,7 @@ importers:
         specifier: ^2.4.4
         version: 2.4.4
 
-  tool/packages/contracts-sdk:
+  tools/contracts-sdk:
     dependencies:
       ethers:
         specifier: ^5.7.2
@@ -139,7 +142,7 @@ importers:
         specifier: ^8.3.1
         version: 8.3.1(typescript@5.0.2)
 
-  tool/packages/device-simulator:
+  tools/device-simulator:
     dependencies:
       ethers:
         specifier: ^5.7.2
