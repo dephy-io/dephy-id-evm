@@ -7,6 +7,14 @@ cd indexer/indexer-storage
 edgedb project init --server-instance dephy-id-evm-indexer --non-interactive
 ```
 
+```edgeql
+configure instance insert cfg::Auth {
+    priority := -1,
+    method := (insert cfg::Trust { transports := "SIMPLE_HTTP" }),
+};
+```
+
+
 ## Add Product Factory
 
 Add each deployed `ProductFactory`. Use `$CHAIN_NAME` from `viem/chains`.

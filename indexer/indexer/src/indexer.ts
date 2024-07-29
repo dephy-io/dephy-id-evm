@@ -121,18 +121,22 @@ export class Indexer {
             fromBlock = chain.latestEvent.blockNumber + 1n
         }
 
-        let fetchLimit = 100n
+        let fetchLimit = 99n
         if (this.chainConfig.custom && 'fetchLimit' in this.chainConfig.custom) {
             fetchLimit = this.chainConfig.custom['fetchLimit'] as bigint
         }
 
-        let toBlock = fromBlock + fetchLimit - 1n
         let latestBlock = await this.client.getBlock({ blockTag: 'latest' })
         this.log(`fetching events in ${latestBlock.number - fromBlock} blocks`)
 
         // in case the inner loop takes too long
         while (fromBlock <= latestBlock.number) {
+            let toBlock
             while (fromBlock <= latestBlock.number) {
+                toBlock = fromBlock + fetchLimit
+                if (toBlock > latestBlock.number) {
+                    toBlock = latestBlock.number
+                }
                 this.log(`fetching #${fromBlock}-${toBlock}`)
                 const logs = await this.client.getLogs({
                     address: this.productFactory.address,
@@ -144,10 +148,6 @@ export class Indexer {
                 await this.handleLogs(logs as ProductFactoryEventLog[])
 
                 fromBlock = toBlock + 1n
-                toBlock += fetchLimit
-                if (toBlock > latestBlock.number) {
-                    toBlock = latestBlock.number
-                }
             }
 
             await e.update(e.ProductFactory, () => ({
@@ -231,6 +231,8 @@ export class Indexer {
             }
         }
 
-        await this.fillMissingBlocks()
+        if (logs.length > 0) {
+            await this.fillMissingBlocks()
+        }
     }
 }
