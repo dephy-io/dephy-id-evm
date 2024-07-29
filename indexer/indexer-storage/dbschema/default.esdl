@@ -130,8 +130,10 @@ module default {
     type ProductFactory {
         required chain: Chain;
         required address: EthAddress;
-        required createdAt: bigint;
+        required uptoBlock: bigint;
         owner: EthAddress;
+
+        required active: bool;
 
         constraint exclusive on ( (.chain, .address) );
 

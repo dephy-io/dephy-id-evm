@@ -4,10 +4,10 @@ import * as $ from "../reflection";
 import * as _ from "../imports";
 import type * as _std from "./std";
 export type $EthAddress = $.ScalarType<"std::str", string>;
-const EthAddress: $.scalarTypeWithConstructor<_std.$str, never> = $.makeType<$.scalarTypeWithConstructor<_std.$str, never>>(_.spec, "3c675e7f-49dd-11ef-95ae-91a9fd2b0bf3", _.syntax.literal);
+const EthAddress: $.scalarTypeWithConstructor<_std.$str, never> = $.makeType<$.scalarTypeWithConstructor<_std.$str, never>>(_.spec, "07bf2eb4-4d93-11ef-bc92-7508926f7deb", _.syntax.literal);
 
 export type $Hash = $.ScalarType<"std::str", string>;
-const Hash: $.scalarTypeWithConstructor<_std.$str, never> = $.makeType<$.scalarTypeWithConstructor<_std.$str, never>>(_.spec, "3c6203a7-49dd-11ef-8fcc-b1c4ce79d304", _.syntax.literal);
+const Hash: $.scalarTypeWithConstructor<_std.$str, never> = $.makeType<$.scalarTypeWithConstructor<_std.$str, never>>(_.spec, "07b97f2f-4d93-11ef-bfba-9112aee0834f", _.syntax.literal);
 
 export type $BlockλShape = $.typeutil.flatten<_std.$Object_8ce8c71ee4fa5f73840c22d7eaa58588λShape & {
   "number": $.PropertyDesc<_std.$bigint, $.Cardinality.One, false, false, false, false>;
@@ -15,10 +15,10 @@ export type $BlockλShape = $.typeutil.flatten<_std.$Object_8ce8c71ee4fa5f73840c
   "hash": $.PropertyDesc<$Hash, $.Cardinality.One, false, false, false, false>;
   "chain": $.LinkDesc<$Chain, $.Cardinality.One, {}, false, false,  false, false>;
   "<block[is EthEvent]": $.LinkDesc<$EthEvent, $.Cardinality.Many, {}, false, false,  false, false>;
-  "<block[is ProductCreated]": $.LinkDesc<$ProductCreated, $.Cardinality.Many, {}, false, false,  false, false>;
-  "<block[is OwnershipTransferred]": $.LinkDesc<$OwnershipTransferred, $.Cardinality.Many, {}, false, false,  false, false>;
   "<block[is DeviceActivated]": $.LinkDesc<$DeviceActivated, $.Cardinality.Many, {}, false, false,  false, false>;
+  "<block[is ProductCreated]": $.LinkDesc<$ProductCreated, $.Cardinality.Many, {}, false, false,  false, false>;
   "<block[is DeviceCreated]": $.LinkDesc<$DeviceCreated, $.Cardinality.Many, {}, false, false,  false, false>;
+  "<block[is OwnershipTransferred]": $.LinkDesc<$OwnershipTransferred, $.Cardinality.Many, {}, false, false,  false, false>;
   "<blocks[is Chain]": $.LinkDesc<$Chain, $.Cardinality.Many, {}, false, false,  false, false>;
   "<block": $.LinkDesc<$.ObjectType, $.Cardinality.Many, {}, false, false,  false, false>;
   "<blocks": $.LinkDesc<$.ObjectType, $.Cardinality.Many, {}, false, false,  false, false>;
@@ -27,7 +27,7 @@ type $Block = $.ObjectType<"default::Block", $BlockλShape, null, [
   ..._std.$Object_8ce8c71ee4fa5f73840c22d7eaa58588['__exclusives__'],
   {chain: {__element__: $Chain, __cardinality__: $.Cardinality.One | $.Cardinality.AtMostOne },number: {__element__: _std.$bigint, __cardinality__: $.Cardinality.One | $.Cardinality.AtMostOne },},
 ]>;
-const $Block = $.makeType<$Block>(_.spec, "3c625cdf-49dd-11ef-b714-291dac908785", _.syntax.literal);
+const $Block = $.makeType<$Block>(_.spec, "07b9e048-4d93-11ef-9aed-e760b5541af0", _.syntax.literal);
 
 const Block: $.$expr_PathNode<$.TypeSet<$Block, $.Cardinality.Many>, null> = _.syntax.$PathNode($.$toSet($Block, $.Cardinality.Many), null);
 
@@ -40,19 +40,19 @@ export type $ChainλShape = $.typeutil.flatten<_std.$Object_8ce8c71ee4fa5f73840c
   "latestEvent": $.LinkDesc<$EthEvent, $.Cardinality.AtMostOne, {}, false, true,  false, false>;
   "<chain[is Block]": $.LinkDesc<$Block, $.Cardinality.Many, {}, false, false,  false, false>;
   "<chain[is EthEvent]": $.LinkDesc<$EthEvent, $.Cardinality.Many, {}, false, false,  false, false>;
-  "<chain[is ProductCreated]": $.LinkDesc<$ProductCreated, $.Cardinality.Many, {}, false, false,  false, false>;
-  "<chain[is OwnershipTransferred]": $.LinkDesc<$OwnershipTransferred, $.Cardinality.Many, {}, false, false,  false, false>;
   "<chain[is DeviceActivated]": $.LinkDesc<$DeviceActivated, $.Cardinality.Many, {}, false, false,  false, false>;
+  "<chain[is ProductCreated]": $.LinkDesc<$ProductCreated, $.Cardinality.Many, {}, false, false,  false, false>;
   "<chain[is DeviceCreated]": $.LinkDesc<$DeviceCreated, $.Cardinality.Many, {}, false, false,  false, false>;
+  "<chain[is OwnershipTransferred]": $.LinkDesc<$OwnershipTransferred, $.Cardinality.Many, {}, false, false,  false, false>;
   "<chain[is ProductFactory]": $.LinkDesc<$ProductFactory, $.Cardinality.Many, {}, false, false,  false, false>;
   "<chain": $.LinkDesc<$.ObjectType, $.Cardinality.Many, {}, false, false,  false, false>;
 }>;
 type $Chain = $.ObjectType<"default::Chain", $ChainλShape, null, [
   ..._std.$Object_8ce8c71ee4fa5f73840c22d7eaa58588['__exclusives__'],
-  {chainId: {__element__: _std.$bigint, __cardinality__: $.Cardinality.One | $.Cardinality.AtMostOne },},
   {name: {__element__: _std.$str, __cardinality__: $.Cardinality.One | $.Cardinality.AtMostOne },},
+  {chainId: {__element__: _std.$bigint, __cardinality__: $.Cardinality.One | $.Cardinality.AtMostOne },},
 ]>;
-const $Chain = $.makeType<$Chain>(_.spec, "3c6366c1-49dd-11ef-b377-e369136af29c", _.syntax.literal);
+const $Chain = $.makeType<$Chain>(_.spec, "07bafac8-4d93-11ef-bb7b-4b120aa0d909", _.syntax.literal);
 
 const Chain: $.$expr_PathNode<$.TypeSet<$Chain, $.Cardinality.Many>, null> = _.syntax.$PathNode($.$toSet($Chain, $.Cardinality.Many), null);
 
@@ -69,7 +69,7 @@ export type $DeviceλShape = $.typeutil.flatten<_std.$Object_8ce8c71ee4fa5f73840
 type $Device = $.ObjectType<"default::Device", $DeviceλShape, null, [
   ..._std.$Object_8ce8c71ee4fa5f73840c22d7eaa58588['__exclusives__'],
 ]>;
-const $Device = $.makeType<$Device>(_.spec, "3c8fb55e-49dd-11ef-ae7b-cb45a3900e51", _.syntax.literal);
+const $Device = $.makeType<$Device>(_.spec, "07f0272c-4d93-11ef-b888-fb89b91f9642", _.syntax.literal);
 
 const Device: $.$expr_PathNode<$.TypeSet<$Device, $.Cardinality.Many>, null> = _.syntax.$PathNode($.$toSet($Device, $.Cardinality.Many), null);
 
@@ -95,7 +95,7 @@ type $EthEvent = $.ObjectType<"default::EthEvent", $EthEventλShape, null, [
   ..._std.$Object_8ce8c71ee4fa5f73840c22d7eaa58588['__exclusives__'],
   {chain: {__element__: $Chain, __cardinality__: $.Cardinality.One | $.Cardinality.AtMostOne },blockNumber: {__element__: _std.$bigint, __cardinality__: $.Cardinality.One | $.Cardinality.AtMostOne },logIndex: {__element__: _std.$int32, __cardinality__: $.Cardinality.One | $.Cardinality.AtMostOne },},
 ]>;
-const $EthEvent = $.makeType<$EthEvent>(_.spec, "3c67adbb-49dd-11ef-946c-2b6f15fc1722", _.syntax.literal);
+const $EthEvent = $.makeType<$EthEvent>(_.spec, "07bf82a4-4d93-11ef-a48d-1941f2ded5c1", _.syntax.literal);
 
 const EthEvent: $.$expr_PathNode<$.TypeSet<$EthEvent, $.Cardinality.Many>, null> = _.syntax.$PathNode($.$toSet($EthEvent, $.Cardinality.Many), null);
 
@@ -107,7 +107,7 @@ export type $DeviceActivatedλShape = $.typeutil.flatten<$EthEventλShape & {
 type $DeviceActivated = $.ObjectType<"default::DeviceActivated", $DeviceActivatedλShape, null, [
   ...$EthEvent['__exclusives__'],
 ]>;
-const $DeviceActivated = $.makeType<$DeviceActivated>(_.spec, "3c7d0265-49dd-11ef-a4a5-8b33a1f295a4", _.syntax.literal);
+const $DeviceActivated = $.makeType<$DeviceActivated>(_.spec, "07c83473-4d93-11ef-a3d5-63a58a4783e4", _.syntax.literal);
 
 const DeviceActivated: $.$expr_PathNode<$.TypeSet<$DeviceActivated, $.Cardinality.Many>, null> = _.syntax.$PathNode($.$toSet($DeviceActivated, $.Cardinality.Many), null);
 
@@ -119,7 +119,7 @@ export type $DeviceCreatedλShape = $.typeutil.flatten<$EthEventλShape & {
 type $DeviceCreated = $.ObjectType<"default::DeviceCreated", $DeviceCreatedλShape, null, [
   ...$EthEvent['__exclusives__'],
 ]>;
-const $DeviceCreated = $.makeType<$DeviceCreated>(_.spec, "3c83cb34-49dd-11ef-845a-6372fa26ce9f", _.syntax.literal);
+const $DeviceCreated = $.makeType<$DeviceCreated>(_.spec, "07d60196-4d93-11ef-a60a-39e71dba4ff3", _.syntax.literal);
 
 const DeviceCreated: $.$expr_PathNode<$.TypeSet<$DeviceCreated, $.Cardinality.Many>, null> = _.syntax.$PathNode($.$toSet($DeviceCreated, $.Cardinality.Many), null);
 
@@ -130,7 +130,7 @@ export type $OwnershipTransferredλShape = $.typeutil.flatten<$EthEventλShape &
 type $OwnershipTransferred = $.ObjectType<"default::OwnershipTransferred", $OwnershipTransferredλShape, null, [
   ...$EthEvent['__exclusives__'],
 ]>;
-const $OwnershipTransferred = $.makeType<$OwnershipTransferred>(_.spec, "3c768ac7-49dd-11ef-a57b-ad53b1d031dc", _.syntax.literal);
+const $OwnershipTransferred = $.makeType<$OwnershipTransferred>(_.spec, "07dcc6aa-4d93-11ef-8e70-074676876f70", _.syntax.literal);
 
 const OwnershipTransferred: $.$expr_PathNode<$.TypeSet<$OwnershipTransferred, $.Cardinality.Many>, null> = _.syntax.$PathNode($.$toSet($OwnershipTransferred, $.Cardinality.Many), null);
 
@@ -152,7 +152,7 @@ type $Product = $.ObjectType<"default::Product", $ProductλShape, null, [
   ..._std.$Object_8ce8c71ee4fa5f73840c22d7eaa58588['__exclusives__'],
   {factory: {__element__: $ProductFactory, __cardinality__: $.Cardinality.One | $.Cardinality.AtMostOne },address: {__element__: $EthAddress, __cardinality__: $.Cardinality.One | $.Cardinality.AtMostOne },},
 ]>;
-const $Product = $.makeType<$Product>(_.spec, "3c917811-49dd-11ef-a0ad-c71d1feabc80", _.syntax.literal);
+const $Product = $.makeType<$Product>(_.spec, "07f1f0bf-4d93-11ef-9bb8-fd5e58fb876f", _.syntax.literal);
 
 const Product: $.$expr_PathNode<$.TypeSet<$Product, $.Cardinality.Many>, null> = _.syntax.$PathNode($.$toSet($Product, $.Cardinality.Many), null);
 
@@ -164,7 +164,7 @@ export type $ProductCreatedλShape = $.typeutil.flatten<$EthEventλShape & {
 type $ProductCreated = $.ObjectType<"default::ProductCreated", $ProductCreatedλShape, null, [
   ...$EthEvent['__exclusives__'],
 ]>;
-const $ProductCreated = $.makeType<$ProductCreated>(_.spec, "3c6ffbb4-49dd-11ef-b2ca-5d9d318c3460", _.syntax.literal);
+const $ProductCreated = $.makeType<$ProductCreated>(_.spec, "07cf0b77-4d93-11ef-b7db-2f1d445f1ce0", _.syntax.literal);
 
 const ProductCreated: $.$expr_PathNode<$.TypeSet<$ProductCreated, $.Cardinality.Many>, null> = _.syntax.$PathNode($.$toSet($ProductCreated, $.Cardinality.Many), null);
 
@@ -172,7 +172,8 @@ export type $ProductFactoryλShape = $.typeutil.flatten<_std.$Object_8ce8c71ee4f
   "chain": $.LinkDesc<$Chain, $.Cardinality.One, {}, false, false,  false, false>;
   "address": $.PropertyDesc<$EthAddress, $.Cardinality.One, false, false, false, false>;
   "owner": $.PropertyDesc<$EthAddress, $.Cardinality.AtMostOne, false, false, false, false>;
-  "createdAt": $.PropertyDesc<_std.$bigint, $.Cardinality.One, false, false, false, false>;
+  "active": $.PropertyDesc<_std.$bool, $.Cardinality.One, false, false, false, false>;
+  "uptoBlock": $.PropertyDesc<_std.$bigint, $.Cardinality.One, false, false, false, false>;
   "products": $.LinkDesc<$Product, $.Cardinality.Many, {}, false, true,  false, false>;
   "<factory[is Product]": $.LinkDesc<$Product, $.Cardinality.Many, {}, false, false,  false, false>;
   "<factory": $.LinkDesc<$.ObjectType, $.Cardinality.Many, {}, false, false,  false, false>;
@@ -181,7 +182,7 @@ type $ProductFactory = $.ObjectType<"default::ProductFactory", $ProductFactoryλ
   ..._std.$Object_8ce8c71ee4fa5f73840c22d7eaa58588['__exclusives__'],
   {chain: {__element__: $Chain, __cardinality__: $.Cardinality.One | $.Cardinality.AtMostOne },address: {__element__: $EthAddress, __cardinality__: $.Cardinality.One | $.Cardinality.AtMostOne },},
 ]>;
-const $ProductFactory = $.makeType<$ProductFactory>(_.spec, "3c93d07d-49dd-11ef-88f9-3d73f476938f", _.syntax.literal);
+const $ProductFactory = $.makeType<$ProductFactory>(_.spec, "07f472b7-4d93-11ef-b51e-cbdfcf97de37", _.syntax.literal);
 
 const ProductFactory: $.$expr_PathNode<$.TypeSet<$ProductFactory, $.Cardinality.Many>, null> = _.syntax.$PathNode($.$toSet($ProductFactory, $.Cardinality.Many), null);
 

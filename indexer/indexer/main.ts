@@ -24,15 +24,20 @@ try {
             chainId: true,
         },
         address: true,
-        createdAt: true,
+        uptoBlock: true,
+        active: true,
     })).run(db)
 
     let indexeres: Indexer[] = []
-    for (const { chain, address, createdAt } of productFactories) {
+    for (const { chain, address, uptoBlock, active } of productFactories) {
+        if (!active) {
+            console.log(`${chain.name}@${address} is inactive`)
+            continue
+        }
         const indexer = new Indexer({
             db,
             chain,
-            productFactory: { address: address as Address, createdAt },
+            productFactory: { address: address as Address, uptoBlock },
         })
         indexeres.push(indexer)
     }

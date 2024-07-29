@@ -694,10 +694,10 @@ export type $ObjectTypeλShape = $.typeutil.flatten<$SourceλShape & Omit<$Consi
   "<__type__[is Block]": $.LinkDesc<_default.$Block, $.Cardinality.Many, {}, false, false,  false, false>;
   "<__type__[is Chain]": $.LinkDesc<_default.$Chain, $.Cardinality.Many, {}, false, false,  false, false>;
   "<__type__[is EthEvent]": $.LinkDesc<_default.$EthEvent, $.Cardinality.Many, {}, false, false,  false, false>;
-  "<__type__[is ProductCreated]": $.LinkDesc<_default.$ProductCreated, $.Cardinality.Many, {}, false, false,  false, false>;
-  "<__type__[is OwnershipTransferred]": $.LinkDesc<_default.$OwnershipTransferred, $.Cardinality.Many, {}, false, false,  false, false>;
   "<__type__[is DeviceActivated]": $.LinkDesc<_default.$DeviceActivated, $.Cardinality.Many, {}, false, false,  false, false>;
+  "<__type__[is ProductCreated]": $.LinkDesc<_default.$ProductCreated, $.Cardinality.Many, {}, false, false,  false, false>;
   "<__type__[is DeviceCreated]": $.LinkDesc<_default.$DeviceCreated, $.Cardinality.Many, {}, false, false,  false, false>;
+  "<__type__[is OwnershipTransferred]": $.LinkDesc<_default.$OwnershipTransferred, $.Cardinality.Many, {}, false, false,  false, false>;
   "<__type__[is Device]": $.LinkDesc<_default.$Device, $.Cardinality.Many, {}, false, false,  false, false>;
   "<__type__[is Product]": $.LinkDesc<_default.$Product, $.Cardinality.Many, {}, false, false,  false, false>;
   "<__type__[is ProductFactory]": $.LinkDesc<_default.$ProductFactory, $.Cardinality.Many, {}, false, false,  false, false>;

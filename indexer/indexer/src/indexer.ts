@@ -17,14 +17,14 @@ type IndexerConfig = {
     chain: { name: string; chainId: bigint; },
     productFactory: {
         address: Address,
-        createdAt: bigint,
+        uptoBlock: bigint,
     },
     db: DbClient,
 }
 
 export class Indexer {
     client: PublicClient
-    productFactory: { address: Address, createdAt: bigint }
+    productFactory: { address: Address, uptoBlock: bigint }
     db: DbClient
     chainConfig: Chain
     chain: { name: string; chainId: bigint; }
@@ -116,8 +116,8 @@ export class Indexer {
             }
         })).run(this.db)
 
-        let fromBlock = this.productFactory.createdAt
-        if (chain?.latestEvent?.blockNumber) {
+        let fromBlock = this.productFactory.uptoBlock + 1n
+        if (chain?.latestEvent?.blockNumber && chain.latestEvent.blockNumber >= fromBlock) {
             fromBlock = chain.latestEvent.blockNumber + 1n
         }
 
@@ -128,6 +128,7 @@ export class Indexer {
 
         let toBlock = fromBlock + fetchLimit - 1n
         let latestBlock = await this.client.getBlock({ blockTag: 'latest' })
+        this.log(`fetching events in ${latestBlock.number - fromBlock} blocks`)
 
         // in case the inner loop takes too long
         while (fromBlock <= latestBlock.number) {
@@ -144,12 +145,25 @@ export class Indexer {
 
                 fromBlock = toBlock + 1n
                 toBlock += fetchLimit
+                if (toBlock > latestBlock.number) {
+                    toBlock = latestBlock.number
+                }
             }
+
+            await e.update(e.ProductFactory, () => ({
+                filter_single: {
+                    chain: this.chainQuery(),
+                    address: this.productFactory.address,
+                },
+                set: {
+                    uptoBlock: latestBlock.number
+                }
+            })).run(this.db)
 
             latestBlock = await this.client.getBlock({ blockTag: 'latest' })
         }
 
-        this.log('up to date')
+        this.log(`up to date: #${latestBlock.number}`)
     }
 
     async handleLogs(logs: ProductFactoryEventLog[]) {

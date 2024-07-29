@@ -1,7 +1,7 @@
 import { parseArgs } from "util"
 import * as edgedb from "edgedb"
 import e from "indexer-storage"
-import * as chains from "viem/chains"
+import * as chains from "viem/chains";
 
 
 try {
@@ -21,9 +21,8 @@ try {
                 type: 'string',
                 short: 'a',
             },
-            createdAtBlock: {
-                type: 'string',
-                short: 'b'
+            active: {
+                type: 'boolean',
             },
         }
     })
@@ -34,23 +33,23 @@ try {
         throw `No chain named ${options.chainName}`
     }
 
-    console.log(`adding ${options.chainName}: ${chain.id} ${chain.name}`)
+    console.log(`set ${options.chainName!}@${options.address} active: ${!!options.active}`)
 
     const db = await edgedb.createClient(options.database).ensureConnected()
 
-    await e.insert(e.ProductFactory, {
-        chain: e.insert(e.Chain, {
-            name: options.chainName!,
-            chainId: BigInt(chain.id),
-            fullName: chain.name,
-        }).unlessConflict(c => ({
-            on: c.chainId,
-            else: c
-        })),
-        address: options.address!.toLowerCase(),
-        uptoBlock: BigInt(options.createdAtBlock!),
-        active: true,
-    }).run(db)
+    await e.update(e.ProductFactory, (pf) => ({
+        filter_single: {
+            chain: e.select(e.Chain, () => ({
+                filter_single: {
+                    name: options.chainName!,
+                }
+            })),
+            address: options.address!.toLowerCase(),
+        },
+        set: {
+            active: !!options.active!,
+        }
+    })).run(db)
 
     console.log('Done')
 } catch (error) {

@@ -1,4 +1,4 @@
-CREATE MIGRATION m16fq5wuocc43brfit5b2e5p2aaq7d2pmrijgz6j5pji4zlgm7kq5q
+CREATE MIGRATION m1midfflttspyeivubawnvdrrovsdiyeneeqrasrlxonmx5jqimb6q
     ONTO initial
 {
   CREATE EXTENSION graphql VERSION '1.0';
@@ -54,24 +54,24 @@ CREATE MIGRATION m16fq5wuocc43brfit5b2e5p2aaq7d2pmrijgz6j5pji4zlgm7kq5q
       CREATE CONSTRAINT std::exclusive ON ((.chain, .blockNumber, .logIndex));
       CREATE INDEX ON ((.chain, .blockNumber, .logIndex));
   };
-  CREATE TYPE default::ProductCreated EXTENDING default::EthEvent {
-      CREATE REQUIRED PROPERTY product: default::EthAddress;
-      CREATE REQUIRED PROPERTY productImpl: default::EthAddress;
-      CREATE REQUIRED PROPERTY vendor: default::EthAddress;
-  };
-  CREATE TYPE default::OwnershipTransferred EXTENDING default::EthEvent {
-      CREATE REQUIRED PROPERTY newOwner: default::EthAddress;
-      CREATE REQUIRED PROPERTY previousOwner: default::EthAddress;
-  };
   CREATE TYPE default::DeviceActivated EXTENDING default::EthEvent {
       CREATE REQUIRED PROPERTY device: default::EthAddress;
       CREATE REQUIRED PROPERTY product: default::EthAddress;
       CREATE REQUIRED PROPERTY receiver: default::EthAddress;
   };
+  CREATE TYPE default::ProductCreated EXTENDING default::EthEvent {
+      CREATE REQUIRED PROPERTY product: default::EthAddress;
+      CREATE REQUIRED PROPERTY productImpl: default::EthAddress;
+      CREATE REQUIRED PROPERTY vendor: default::EthAddress;
+  };
   CREATE TYPE default::DeviceCreated EXTENDING default::EthEvent {
       CREATE REQUIRED PROPERTY device: default::EthAddress;
       CREATE REQUIRED PROPERTY product: default::EthAddress;
       CREATE REQUIRED PROPERTY tokenId: std::bigint;
+  };
+  CREATE TYPE default::OwnershipTransferred EXTENDING default::EthEvent {
+      CREATE REQUIRED PROPERTY newOwner: default::EthAddress;
+      CREATE REQUIRED PROPERTY previousOwner: default::EthAddress;
   };
   ALTER TYPE default::Chain {
       CREATE MULTI LINK blocks := (.<chain[IS default::Block]);
@@ -111,7 +111,8 @@ CREATE MIGRATION m16fq5wuocc43brfit5b2e5p2aaq7d2pmrijgz6j5pji4zlgm7kq5q
       CREATE CONSTRAINT std::exclusive ON ((.chain, .address));
       CREATE PROPERTY owner: default::EthAddress;
       CREATE INDEX ON ((.chain, .address));
-      CREATE REQUIRED PROPERTY createdAt: std::bigint;
+      CREATE REQUIRED PROPERTY active: std::bool;
+      CREATE REQUIRED PROPERTY uptoBlock: std::bigint;
   };
   ALTER TYPE default::Product {
       CREATE REQUIRED LINK factory: default::ProductFactory;

@@ -1,7 +1,7 @@
 {
   "name": "indexer",
   "scripts": {
-    "dev": "bun run ./main.ts"
+    "indexer": "bun run ./main.ts"
   },
   "dependencies": {
     "viem": "^2.17.9",
