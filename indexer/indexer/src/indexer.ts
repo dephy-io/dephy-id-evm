@@ -77,7 +77,25 @@ export class Indexer {
             onLogs: (logs) => this.handleLogs(logs as ProductFactoryEventLog[]),
         })
 
+        this.client.watchBlocks({
+            poll: true,
+            pollingInterval: 60_000,
+            blockTag: 'finalized',
+            onBlock: (block) => this.updateUptoBlock(block.number)
+        })
+
         this.log('running')
+    }
+    async updateUptoBlock(blockNumber: bigint) {
+        await e.update(e.ProductFactory, () => ({
+            filter_single: {
+                chain: this.chainQuery(),
+                address: this.productFactory.address,
+            },
+            set: {
+                uptoBlock: blockNumber
+            }
+        })).run(this.db)
     }
 
     async fillMissingBlocks() {
@@ -150,15 +168,7 @@ export class Indexer {
                 fromBlock = toBlock + 1n
             }
 
-            await e.update(e.ProductFactory, () => ({
-                filter_single: {
-                    chain: this.chainQuery(),
-                    address: this.productFactory.address,
-                },
-                set: {
-                    uptoBlock: latestBlock.number
-                }
-            })).run(this.db)
+            await this.updateUptoBlock(latestBlock.number)
 
             latestBlock = await this.client.getBlock({ blockTag: 'latest' })
         }
