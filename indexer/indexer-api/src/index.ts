@@ -21,19 +21,18 @@ const app = new Hono()
 app.post('/graphql', async (c) => {
   const contentType = c.req.header('Content-Type')!
   let query
+  let body
   if (contentType.search('json') >= 0) {
-    const body = await c.req.json()
+    body = await c.req.json()
     query = body['query']
-  } else if (contentType == 'application/graphql') {
-    query = await c.req.text()
   }
 
   if (typeof query == 'string' && query.match(/^\s*(query\s*)?\{/)) {
     const resp = await fetch(graphqlEndpoint, {
       method: 'POST',
-      body: JSON.stringify({ query }),
+      body: JSON.stringify(body),
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': contentType
       }
     })
 

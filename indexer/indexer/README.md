@@ -45,5 +45,5 @@ This indexer API is just a proxy to edgedb graphql endpoint, but only accept gra
 
 ```sh
 cd indexer/indexer-api
-bun indexer-api
+bun indexer-api -g $EDGE_GRAPHQL_ENDPOINT
 ```
