@@ -1,0 +1,12 @@
+{
+  "name": "indexer-storage",
+  "scripts": {
+    "gen-edgeql": "generate edgeql-js --target ts"
+  },
+  "dependencies": {
+    "edgedb": "^1.5.7"
+  },
+  "devDependencies": {
+    "@edgedb/generate": "^0.5.3"
+  }
+}

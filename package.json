@@ -3,10 +3,9 @@
   "private": true,
   "type": "module",
   "workspaces": [
-    ".",
-    "tool",
-    "tool/demo",
-    "templates"
+    "tool/**",
+    "templates",
+    "indexer/*"
   ],
   "scripts": {
     "build": "forge build --sizes",
