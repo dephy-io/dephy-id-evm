@@ -143,6 +143,7 @@ export type $ProductλShape = $.typeutil.flatten<_std.$Object_8ce8c71ee4fa5f7384
   "symbol": $.PropertyDesc<_std.$str, $.Cardinality.AtMostOne, false, false, false, false>;
   "factory": $.LinkDesc<$ProductFactory, $.Cardinality.One, {}, false, false,  false, false>;
   "devices": $.LinkDesc<$Device, $.Cardinality.Many, {}, false, true,  false, false>;
+  "devices_count": $.PropertyDesc<_std.$int64, $.Cardinality.One, false, true, false, false>;
   "<product[is Device]": $.LinkDesc<$Device, $.Cardinality.Many, {}, false, false,  false, false>;
   "<products[is ProductFactory]": $.LinkDesc<$ProductFactory, $.Cardinality.Many, {}, false, false,  false, false>;
   "<product": $.LinkDesc<$.ObjectType, $.Cardinality.Many, {}, false, false,  false, false>;
@@ -175,6 +176,10 @@ export type $ProductFactoryλShape = $.typeutil.flatten<_std.$Object_8ce8c71ee4f
   "active": $.PropertyDesc<_std.$bool, $.Cardinality.One, false, false, false, false>;
   "uptoBlock": $.PropertyDesc<_std.$bigint, $.Cardinality.One, false, false, false, false>;
   "products": $.LinkDesc<$Product, $.Cardinality.Many, {}, false, true,  false, false>;
+  "devices_count": $.PropertyDesc<_std.$int64, $.Cardinality.One, false, true, false, false>;
+  "products_count": $.PropertyDesc<_std.$int64, $.Cardinality.One, false, true, false, false>;
+  "vendors": $.PropertyDesc<$EthAddress, $.Cardinality.Many, false, true, false, false>;
+  "vendors_count": $.PropertyDesc<_std.$int64, $.Cardinality.One, false, true, false, false>;
   "<factory[is Product]": $.LinkDesc<$Product, $.Cardinality.Many, {}, false, false,  false, false>;
   "<factory": $.LinkDesc<$.ObjectType, $.Cardinality.Many, {}, false, false,  false, false>;
 }>;

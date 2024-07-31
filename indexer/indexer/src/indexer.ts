@@ -74,6 +74,7 @@ export class Indexer {
             address: this.productFactory.address,
             abi: productFactoryAbi,
             strict: true,
+            pollingInterval: this.chainConfig.custom?.pollingInterval as number,
             onLogs: (logs) => this.handleLogs(logs as ProductFactoryEventLog[]),
         })
 

@@ -27,7 +27,7 @@ app.post('/graphql', async (c) => {
     query = body['query']
   }
 
-  if (typeof query == 'string' && query.match(/^\s*(query\s*)?\{/)) {
+  if (typeof query == 'string' && query.match(/^\s*query/)) {
     const resp = await fetch(graphqlEndpoint, {
       method: 'POST',
       body: JSON.stringify(body),

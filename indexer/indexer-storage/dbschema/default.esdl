@@ -138,6 +138,12 @@ module default {
         constraint exclusive on ( (.chain, .address) );
 
         multi products := .<factory[is Product];
+        products_count := count(.products);
+
+        vendors := distinct .products.vendor;
+        vendors_count := count(.vendors);
+
+        devices_count := count(.products.devices);
 
         index on ((.chain, .address));
     }
@@ -155,6 +161,7 @@ module default {
         constraint exclusive on ( (.factory, .address) );
 
         multi devices := .<product[is Device];
+        devices_count := count(.devices);
 
         index on ((.factory, .address));
         index on (.vendor);
