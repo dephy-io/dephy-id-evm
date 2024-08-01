@@ -1,0 +1,10 @@
+{
+  "name": "indexer",
+  "scripts": {
+    "indexer": "bun run ./main.ts"
+  },
+  "dependencies": {
+    "viem": "^2.17.9",
+    "indexer-storage": "workspace:*"
+  }
+}
