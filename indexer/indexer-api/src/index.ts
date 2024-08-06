@@ -1,4 +1,5 @@
 import { Hono } from 'hono'
+import { cors } from 'hono/cors'
 import { parseArgs } from 'util'
 
 const { values: options } = parseArgs({
@@ -18,11 +19,13 @@ const graphqlEndpoint = options.graphql!
 
 const app = new Hono()
 
+app.use('*', cors())
+
 app.post('/graphql', async (c) => {
   const contentType = c.req.header('Content-Type')!
   let query
   let body
-  if (contentType.search('json') >= 0) {
+  if (contentType?.search('json') >= 0) {
     body = await c.req.json()
     query = body['query']
   }

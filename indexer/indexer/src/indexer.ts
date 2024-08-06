@@ -87,6 +87,7 @@ export class Indexer {
 
         this.log('running')
     }
+
     async updateUptoBlock(blockNumber: bigint) {
         await e.update(e.ProductFactory, () => ({
             filter_single: {
@@ -156,15 +157,7 @@ export class Indexer {
                 if (toBlock > latestBlock.number) {
                     toBlock = latestBlock.number
                 }
-                this.log(`fetching #${fromBlock}-${toBlock}`)
-                const logs = await this.client.getLogs({
-                    address: this.productFactory.address,
-                    events: ProductFactoryEvents,
-                    fromBlock,
-                    toBlock,
-                    strict: true,
-                })
-                await this.handleLogs(logs as ProductFactoryEventLog[])
+                this.fillEvents(fromBlock, toBlock)
 
                 fromBlock = toBlock + 1n
             }
@@ -175,6 +168,18 @@ export class Indexer {
         }
 
         this.log(`up to date: #${latestBlock.number}`)
+    }
+
+    async fillEvents(fromBlock: bigint, toBlock: bigint) {
+        this.log(`fetching #${fromBlock}-${toBlock}`)
+        const logs = await this.client.getLogs({
+            address: this.productFactory.address,
+            events: ProductFactoryEvents,
+            fromBlock,
+            toBlock,
+            strict: true,
+        })
+        await this.handleLogs(logs as ProductFactoryEventLog[])
     }
 
     async handleLogs(logs: ProductFactoryEventLog[]) {
