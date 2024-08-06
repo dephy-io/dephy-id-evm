@@ -285,6 +285,25 @@ importers:
         specifier: ^6.0.0
         version: 6.0.0
 
+  tools/product-tester:
+    dependencies:
+      ethers:
+        specifier: ^5.7.2
+        version: 5.7.2
+      typescript:
+        specifier: ^5.0.0
+        version: 5.5.4
+      yargs:
+        specifier: ^17.7.2
+        version: 17.7.2
+    devDependencies:
+      '@types/yargs':
+        specifier: ^17.0.32
+        version: 17.0.32
+      rimraf:
+        specifier: ^6.0.0
+        version: 6.0.0
+
 packages:
 
   '@adraffy/ens-normalize@1.10.0':
