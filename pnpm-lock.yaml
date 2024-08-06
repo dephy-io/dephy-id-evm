@@ -139,7 +139,7 @@ importers:
         specifier: ^10.9.2
         version: 10.9.2(@types/node@20.14.10)(typescript@5.5.4)
       typescript:
-        specifier: ^5.5.2
+        specifier: ^5.0.0
         version: 5.5.4
 
   extensions/wallet:
