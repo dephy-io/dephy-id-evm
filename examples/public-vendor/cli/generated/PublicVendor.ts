@@ -25,40 +25,28 @@ import type {
   OnEvent,
 } from "./common";
 
-export interface VendorInterface extends utils.Interface {
+export interface PublicVendorInterface extends utils.Interface {
   functions: {
-    "activateDevice(address,address,bytes)": FunctionFragment;
     "createActivatedDevice(address,address,address)": FunctionFragment;
     "createActivatedDevices(address,address[],address[])": FunctionFragment;
     "createProduct(address,string,string,string)": FunctionFragment;
-    "isDeviceRegistered(address,address)": FunctionFragment;
     "owner()": FunctionFragment;
     "productFactory()": FunctionFragment;
-    "registerDevice(address,address)": FunctionFragment;
-    "registerDevices(address,address[])": FunctionFragment;
     "renounceOwnership()": FunctionFragment;
     "transferOwnership(address)": FunctionFragment;
   };
 
   getFunction(
     nameOrSignatureOrTopic:
-      | "activateDevice"
       | "createActivatedDevice"
       | "createActivatedDevices"
       | "createProduct"
-      | "isDeviceRegistered"
       | "owner"
       | "productFactory"
-      | "registerDevice"
-      | "registerDevices"
       | "renounceOwnership"
       | "transferOwnership"
   ): FunctionFragment;
 
-  encodeFunctionData(
-    functionFragment: "activateDevice",
-    values: [string, string, BytesLike]
-  ): string;
   encodeFunctionData(
     functionFragment: "createActivatedDevice",
     values: [string, string, string]
@@ -71,22 +59,10 @@ export interface VendorInterface extends utils.Interface {
     functionFragment: "createProduct",
     values: [string, string, string, string]
   ): string;
-  encodeFunctionData(
-    functionFragment: "isDeviceRegistered",
-    values: [string, string]
-  ): string;
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "productFactory",
     values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "registerDevice",
-    values: [string, string]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "registerDevices",
-    values: [string, string[]]
   ): string;
   encodeFunctionData(
     functionFragment: "renounceOwnership",
@@ -97,10 +73,6 @@ export interface VendorInterface extends utils.Interface {
     values: [string]
   ): string;
 
-  decodeFunctionResult(
-    functionFragment: "activateDevice",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(
     functionFragment: "createActivatedDevice",
     data: BytesLike
@@ -113,21 +85,9 @@ export interface VendorInterface extends utils.Interface {
     functionFragment: "createProduct",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(
-    functionFragment: "isDeviceRegistered",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "productFactory",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "registerDevice",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "registerDevices",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -158,12 +118,12 @@ export type OwnershipTransferredEvent = TypedEvent<
 export type OwnershipTransferredEventFilter =
   TypedEventFilter<OwnershipTransferredEvent>;
 
-export interface Vendor extends BaseContract {
+export interface PublicVendor extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
   attach(addressOrName: string): this;
   deployed(): Promise<this>;
 
-  interface: VendorInterface;
+  interface: PublicVendorInterface;
 
   queryFilter<TEvent extends TypedEvent>(
     event: TypedEventFilter<TEvent>,
@@ -185,13 +145,6 @@ export interface Vendor extends BaseContract {
   removeListener: OnEvent<this>;
 
   functions: {
-    activateDevice(
-      product: string,
-      device: string,
-      customChallenge: BytesLike,
-      overrides?: Overrides & { from?: string }
-    ): Promise<ContractTransaction>;
-
     createActivatedDevice(
       product: string,
       device: string,
@@ -214,27 +167,9 @@ export interface Vendor extends BaseContract {
       overrides?: Overrides & { from?: string }
     ): Promise<ContractTransaction>;
 
-    isDeviceRegistered(
-      arg0: string,
-      arg1: string,
-      overrides?: CallOverrides
-    ): Promise<[boolean]>;
-
     owner(overrides?: CallOverrides): Promise<[string]>;
 
     productFactory(overrides?: CallOverrides): Promise<[string]>;
-
-    registerDevice(
-      product: string,
-      device: string,
-      overrides?: Overrides & { from?: string }
-    ): Promise<ContractTransaction>;
-
-    registerDevices(
-      product: string,
-      devices: string[],
-      overrides?: Overrides & { from?: string }
-    ): Promise<ContractTransaction>;
 
     renounceOwnership(
       overrides?: Overrides & { from?: string }
@@ -245,13 +180,6 @@ export interface Vendor extends BaseContract {
       overrides?: Overrides & { from?: string }
     ): Promise<ContractTransaction>;
   };
-
-  activateDevice(
-    product: string,
-    device: string,
-    customChallenge: BytesLike,
-    overrides?: Overrides & { from?: string }
-  ): Promise<ContractTransaction>;
 
   createActivatedDevice(
     product: string,
@@ -275,27 +203,9 @@ export interface Vendor extends BaseContract {
     overrides?: Overrides & { from?: string }
   ): Promise<ContractTransaction>;
 
-  isDeviceRegistered(
-    arg0: string,
-    arg1: string,
-    overrides?: CallOverrides
-  ): Promise<boolean>;
-
   owner(overrides?: CallOverrides): Promise<string>;
 
   productFactory(overrides?: CallOverrides): Promise<string>;
-
-  registerDevice(
-    product: string,
-    device: string,
-    overrides?: Overrides & { from?: string }
-  ): Promise<ContractTransaction>;
-
-  registerDevices(
-    product: string,
-    devices: string[],
-    overrides?: Overrides & { from?: string }
-  ): Promise<ContractTransaction>;
 
   renounceOwnership(
     overrides?: Overrides & { from?: string }
@@ -307,13 +217,6 @@ export interface Vendor extends BaseContract {
   ): Promise<ContractTransaction>;
 
   callStatic: {
-    activateDevice(
-      product: string,
-      device: string,
-      customChallenge: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
     createActivatedDevice(
       product: string,
       device: string,
@@ -336,27 +239,9 @@ export interface Vendor extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    isDeviceRegistered(
-      arg0: string,
-      arg1: string,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
     owner(overrides?: CallOverrides): Promise<string>;
 
     productFactory(overrides?: CallOverrides): Promise<string>;
-
-    registerDevice(
-      product: string,
-      device: string,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    registerDevices(
-      product: string,
-      devices: string[],
-      overrides?: CallOverrides
-    ): Promise<void>;
 
     renounceOwnership(overrides?: CallOverrides): Promise<void>;
 
@@ -378,13 +263,6 @@ export interface Vendor extends BaseContract {
   };
 
   estimateGas: {
-    activateDevice(
-      product: string,
-      device: string,
-      customChallenge: BytesLike,
-      overrides?: Overrides & { from?: string }
-    ): Promise<BigNumber>;
-
     createActivatedDevice(
       product: string,
       device: string,
@@ -407,27 +285,9 @@ export interface Vendor extends BaseContract {
       overrides?: Overrides & { from?: string }
     ): Promise<BigNumber>;
 
-    isDeviceRegistered(
-      arg0: string,
-      arg1: string,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
     owner(overrides?: CallOverrides): Promise<BigNumber>;
 
     productFactory(overrides?: CallOverrides): Promise<BigNumber>;
-
-    registerDevice(
-      product: string,
-      device: string,
-      overrides?: Overrides & { from?: string }
-    ): Promise<BigNumber>;
-
-    registerDevices(
-      product: string,
-      devices: string[],
-      overrides?: Overrides & { from?: string }
-    ): Promise<BigNumber>;
 
     renounceOwnership(
       overrides?: Overrides & { from?: string }
@@ -440,13 +300,6 @@ export interface Vendor extends BaseContract {
   };
 
   populateTransaction: {
-    activateDevice(
-      product: string,
-      device: string,
-      customChallenge: BytesLike,
-      overrides?: Overrides & { from?: string }
-    ): Promise<PopulatedTransaction>;
-
     createActivatedDevice(
       product: string,
       device: string,
@@ -469,27 +322,9 @@ export interface Vendor extends BaseContract {
       overrides?: Overrides & { from?: string }
     ): Promise<PopulatedTransaction>;
 
-    isDeviceRegistered(
-      arg0: string,
-      arg1: string,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
     owner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     productFactory(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    registerDevice(
-      product: string,
-      device: string,
-      overrides?: Overrides & { from?: string }
-    ): Promise<PopulatedTransaction>;
-
-    registerDevices(
-      product: string,
-      devices: string[],
-      overrides?: Overrides & { from?: string }
-    ): Promise<PopulatedTransaction>;
 
     renounceOwnership(
       overrides?: Overrides & { from?: string }

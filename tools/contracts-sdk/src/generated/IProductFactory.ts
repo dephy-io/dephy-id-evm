@@ -28,19 +28,12 @@ import type {
 
 export declare namespace IProductFactory {
   export type ActivateDeviceArgsStruct = {
-    product: string;
     device: string;
     deviceSignature: BytesLike;
     deviceDeadline: BigNumberish;
   };
 
-  export type ActivateDeviceArgsStructOutput = [
-    string,
-    string,
-    string,
-    BigNumber
-  ] & {
-    product: string;
+  export type ActivateDeviceArgsStructOutput = [string, string, BigNumber] & {
     device: string;
     deviceSignature: string;
     deviceDeadline: BigNumber;
@@ -118,17 +111,24 @@ export declare namespace IProductFactory {
     symbol: string;
     baseTokenURI: string;
   };
+
+  export type DeviceBindingStruct = { product: string; tokenId: BigNumberish };
+
+  export type DeviceBindingStructOutput = [string, BigNumber] & {
+    product: string;
+    tokenId: BigNumber;
+  };
 }
 
 export interface IProductFactoryInterface extends utils.Interface {
   functions: {
-    "activateDevice((address,address,bytes,uint256),(address,uint8,bytes32,bytes32,uint256))": FunctionFragment;
+    "activateDevice((address,bytes,uint256),(address,uint8,bytes32,bytes32,uint256))": FunctionFragment;
     "createActivatedDevice((address,address,address))": FunctionFragment;
     "createActivatedDevices((address,address[],address[]))": FunctionFragment;
     "createDevice((address,address))": FunctionFragment;
     "createDevices((address,address[]))": FunctionFragment;
     "createProduct((address,string,string,string))": FunctionFragment;
-    "getDeviceTokenId(address,address)": FunctionFragment;
+    "getDeviceBinding(address)": FunctionFragment;
     "getDomainSeparator()": FunctionFragment;
     "getVendorByProduct(address)": FunctionFragment;
   };
@@ -141,7 +141,7 @@ export interface IProductFactoryInterface extends utils.Interface {
       | "createDevice"
       | "createDevices"
       | "createProduct"
-      | "getDeviceTokenId"
+      | "getDeviceBinding"
       | "getDomainSeparator"
       | "getVendorByProduct"
   ): FunctionFragment;
@@ -174,8 +174,8 @@ export interface IProductFactoryInterface extends utils.Interface {
     values: [IProductFactory.CreateProductArgsStruct]
   ): string;
   encodeFunctionData(
-    functionFragment: "getDeviceTokenId",
-    values: [string, string]
+    functionFragment: "getDeviceBinding",
+    values: [string]
   ): string;
   encodeFunctionData(
     functionFragment: "getDomainSeparator",
@@ -211,7 +211,7 @@ export interface IProductFactoryInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "getDeviceTokenId",
+    functionFragment: "getDeviceBinding",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -328,11 +328,10 @@ export interface IProductFactory extends BaseContract {
       overrides?: Overrides & { from?: string }
     ): Promise<ContractTransaction>;
 
-    getDeviceTokenId(
-      product: string,
+    getDeviceBinding(
       device: string,
       overrides?: CallOverrides
-    ): Promise<[BigNumber]>;
+    ): Promise<[IProductFactory.DeviceBindingStructOutput]>;
 
     getDomainSeparator(overrides?: CallOverrides): Promise<[string]>;
 
@@ -373,11 +372,10 @@ export interface IProductFactory extends BaseContract {
     overrides?: Overrides & { from?: string }
   ): Promise<ContractTransaction>;
 
-  getDeviceTokenId(
-    product: string,
+  getDeviceBinding(
     device: string,
     overrides?: CallOverrides
-  ): Promise<BigNumber>;
+  ): Promise<IProductFactory.DeviceBindingStructOutput>;
 
   getDomainSeparator(overrides?: CallOverrides): Promise<string>;
 
@@ -418,11 +416,10 @@ export interface IProductFactory extends BaseContract {
       overrides?: CallOverrides
     ): Promise<string>;
 
-    getDeviceTokenId(
-      product: string,
+    getDeviceBinding(
       device: string,
       overrides?: CallOverrides
-    ): Promise<BigNumber>;
+    ): Promise<IProductFactory.DeviceBindingStructOutput>;
 
     getDomainSeparator(overrides?: CallOverrides): Promise<string>;
 
@@ -499,8 +496,7 @@ export interface IProductFactory extends BaseContract {
       overrides?: Overrides & { from?: string }
     ): Promise<BigNumber>;
 
-    getDeviceTokenId(
-      product: string,
+    getDeviceBinding(
       device: string,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
@@ -545,8 +541,7 @@ export interface IProductFactory extends BaseContract {
       overrides?: Overrides & { from?: string }
     ): Promise<PopulatedTransaction>;
 
-    getDeviceTokenId(
-      product: string,
+    getDeviceBinding(
       device: string,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;

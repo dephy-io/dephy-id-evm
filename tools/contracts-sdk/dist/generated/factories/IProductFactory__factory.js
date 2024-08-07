@@ -13,11 +13,6 @@ const _abi = [
                 internalType: "struct IProductFactory.ActivateDeviceArgs",
                 components: [
                     {
-                        name: "product",
-                        type: "address",
-                        internalType: "address",
-                    },
-                    {
                         name: "device",
                         type: "address",
                         internalType: "address",
@@ -229,13 +224,8 @@ const _abi = [
     },
     {
         type: "function",
-        name: "getDeviceTokenId",
+        name: "getDeviceBinding",
         inputs: [
-            {
-                name: "product",
-                type: "address",
-                internalType: "address",
-            },
             {
                 name: "device",
                 type: "address",
@@ -245,8 +235,20 @@ const _abi = [
         outputs: [
             {
                 name: "",
-                type: "uint256",
-                internalType: "uint256",
+                type: "tuple",
+                internalType: "struct IProductFactory.DeviceBinding",
+                components: [
+                    {
+                        name: "product",
+                        type: "address",
+                        internalType: "address",
+                    },
+                    {
+                        name: "tokenId",
+                        type: "uint256",
+                        internalType: "uint256",
+                    },
+                ],
             },
         ],
         stateMutability: "view",
