@@ -142,7 +142,7 @@ yargs(hideBin(process.argv))
           );
         }
         const addressJson = JSON.parse(fs.readFileSync(addressFilePath, "utf-8"));
-        vendorAddress = addressJson.Vendor;
+        vendorAddress = addressJson.PublicVendor;
         if (!vendorAddress) {
           throw new Error("PublicVendor address not found in address.json");
         }

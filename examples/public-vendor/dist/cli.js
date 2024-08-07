@@ -97,7 +97,7 @@ const addressFilePath = path_1.default.resolve(process.cwd(), "./tmp/address.jso
             throw new Error("PublicVendor address not provided and address.json not found");
         }
         const addressJson = JSON.parse(fs_1.default.readFileSync(addressFilePath, "utf-8"));
-        vendorAddress = addressJson.Vendor;
+        vendorAddress = addressJson.PublicVendor;
         if (!vendorAddress) {
             throw new Error("PublicVendor address not found in address.json");
         }
