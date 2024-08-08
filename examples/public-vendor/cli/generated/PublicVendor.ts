@@ -12,11 +12,7 @@ import type {
   Signer,
   utils,
 } from "ethers";
-import type {
-  FunctionFragment,
-  Result,
-  EventFragment,
-} from "@ethersproject/abi";
+import type { FunctionFragment, Result } from "@ethersproject/abi";
 import type { Listener, Provider } from "@ethersproject/providers";
 import type {
   TypedEventFilter,
@@ -27,50 +23,32 @@ import type {
 
 export interface PublicVendorInterface extends utils.Interface {
   functions: {
-    "createActivatedDevice(address,address,address)": FunctionFragment;
-    "createActivatedDevices(address,address[],address[])": FunctionFragment;
-    "createProduct(address,string,string,string)": FunctionFragment;
-    "owner()": FunctionFragment;
+    "createActivatedDevice(address,address)": FunctionFragment;
+    "createActivatedDevices(address[],address[])": FunctionFragment;
+    "product()": FunctionFragment;
     "productFactory()": FunctionFragment;
-    "renounceOwnership()": FunctionFragment;
-    "transferOwnership(address)": FunctionFragment;
   };
 
   getFunction(
     nameOrSignatureOrTopic:
       | "createActivatedDevice"
       | "createActivatedDevices"
-      | "createProduct"
-      | "owner"
+      | "product"
       | "productFactory"
-      | "renounceOwnership"
-      | "transferOwnership"
   ): FunctionFragment;
 
   encodeFunctionData(
     functionFragment: "createActivatedDevice",
-    values: [string, string, string]
+    values: [string, string]
   ): string;
   encodeFunctionData(
     functionFragment: "createActivatedDevices",
-    values: [string, string[], string[]]
+    values: [string[], string[]]
   ): string;
-  encodeFunctionData(
-    functionFragment: "createProduct",
-    values: [string, string, string, string]
-  ): string;
-  encodeFunctionData(functionFragment: "owner", values?: undefined): string;
+  encodeFunctionData(functionFragment: "product", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "productFactory",
     values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "renounceOwnership",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "transferOwnership",
-    values: [string]
   ): string;
 
   decodeFunctionResult(
@@ -81,42 +59,14 @@ export interface PublicVendorInterface extends utils.Interface {
     functionFragment: "createActivatedDevices",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(
-    functionFragment: "createProduct",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "product", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "productFactory",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(
-    functionFragment: "renounceOwnership",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "transferOwnership",
-    data: BytesLike
-  ): Result;
 
-  events: {
-    "OwnershipTransferred(address,address)": EventFragment;
-  };
-
-  getEvent(nameOrSignatureOrTopic: "OwnershipTransferred"): EventFragment;
+  events: {};
 }
-
-export interface OwnershipTransferredEventObject {
-  previousOwner: string;
-  newOwner: string;
-}
-export type OwnershipTransferredEvent = TypedEvent<
-  [string, string],
-  OwnershipTransferredEventObject
->;
-
-export type OwnershipTransferredEventFilter =
-  TypedEventFilter<OwnershipTransferredEvent>;
 
 export interface PublicVendor extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
@@ -146,193 +96,91 @@ export interface PublicVendor extends BaseContract {
 
   functions: {
     createActivatedDevice(
-      product: string,
       device: string,
       receiver: string,
       overrides?: Overrides & { from?: string }
     ): Promise<ContractTransaction>;
 
     createActivatedDevices(
-      product: string,
       devices: string[],
       receivers: string[],
       overrides?: Overrides & { from?: string }
     ): Promise<ContractTransaction>;
 
-    createProduct(
-      productImpl: string,
-      name: string,
-      symbol: string,
-      baseTokenURI: string,
-      overrides?: Overrides & { from?: string }
-    ): Promise<ContractTransaction>;
-
-    owner(overrides?: CallOverrides): Promise<[string]>;
+    product(overrides?: CallOverrides): Promise<[string]>;
 
     productFactory(overrides?: CallOverrides): Promise<[string]>;
-
-    renounceOwnership(
-      overrides?: Overrides & { from?: string }
-    ): Promise<ContractTransaction>;
-
-    transferOwnership(
-      newOwner: string,
-      overrides?: Overrides & { from?: string }
-    ): Promise<ContractTransaction>;
   };
 
   createActivatedDevice(
-    product: string,
     device: string,
     receiver: string,
     overrides?: Overrides & { from?: string }
   ): Promise<ContractTransaction>;
 
   createActivatedDevices(
-    product: string,
     devices: string[],
     receivers: string[],
     overrides?: Overrides & { from?: string }
   ): Promise<ContractTransaction>;
 
-  createProduct(
-    productImpl: string,
-    name: string,
-    symbol: string,
-    baseTokenURI: string,
-    overrides?: Overrides & { from?: string }
-  ): Promise<ContractTransaction>;
-
-  owner(overrides?: CallOverrides): Promise<string>;
+  product(overrides?: CallOverrides): Promise<string>;
 
   productFactory(overrides?: CallOverrides): Promise<string>;
 
-  renounceOwnership(
-    overrides?: Overrides & { from?: string }
-  ): Promise<ContractTransaction>;
-
-  transferOwnership(
-    newOwner: string,
-    overrides?: Overrides & { from?: string }
-  ): Promise<ContractTransaction>;
-
   callStatic: {
     createActivatedDevice(
-      product: string,
       device: string,
       receiver: string,
       overrides?: CallOverrides
     ): Promise<void>;
 
     createActivatedDevices(
-      product: string,
       devices: string[],
       receivers: string[],
       overrides?: CallOverrides
     ): Promise<void>;
 
-    createProduct(
-      productImpl: string,
-      name: string,
-      symbol: string,
-      baseTokenURI: string,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    owner(overrides?: CallOverrides): Promise<string>;
+    product(overrides?: CallOverrides): Promise<string>;
 
     productFactory(overrides?: CallOverrides): Promise<string>;
-
-    renounceOwnership(overrides?: CallOverrides): Promise<void>;
-
-    transferOwnership(
-      newOwner: string,
-      overrides?: CallOverrides
-    ): Promise<void>;
   };
 
-  filters: {
-    "OwnershipTransferred(address,address)"(
-      previousOwner?: string | null,
-      newOwner?: string | null
-    ): OwnershipTransferredEventFilter;
-    OwnershipTransferred(
-      previousOwner?: string | null,
-      newOwner?: string | null
-    ): OwnershipTransferredEventFilter;
-  };
+  filters: {};
 
   estimateGas: {
     createActivatedDevice(
-      product: string,
       device: string,
       receiver: string,
       overrides?: Overrides & { from?: string }
     ): Promise<BigNumber>;
 
     createActivatedDevices(
-      product: string,
       devices: string[],
       receivers: string[],
       overrides?: Overrides & { from?: string }
     ): Promise<BigNumber>;
 
-    createProduct(
-      productImpl: string,
-      name: string,
-      symbol: string,
-      baseTokenURI: string,
-      overrides?: Overrides & { from?: string }
-    ): Promise<BigNumber>;
-
-    owner(overrides?: CallOverrides): Promise<BigNumber>;
+    product(overrides?: CallOverrides): Promise<BigNumber>;
 
     productFactory(overrides?: CallOverrides): Promise<BigNumber>;
-
-    renounceOwnership(
-      overrides?: Overrides & { from?: string }
-    ): Promise<BigNumber>;
-
-    transferOwnership(
-      newOwner: string,
-      overrides?: Overrides & { from?: string }
-    ): Promise<BigNumber>;
   };
 
   populateTransaction: {
     createActivatedDevice(
-      product: string,
       device: string,
       receiver: string,
       overrides?: Overrides & { from?: string }
     ): Promise<PopulatedTransaction>;
 
     createActivatedDevices(
-      product: string,
       devices: string[],
       receivers: string[],
       overrides?: Overrides & { from?: string }
     ): Promise<PopulatedTransaction>;
 
-    createProduct(
-      productImpl: string,
-      name: string,
-      symbol: string,
-      baseTokenURI: string,
-      overrides?: Overrides & { from?: string }
-    ): Promise<PopulatedTransaction>;
-
-    owner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+    product(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     productFactory(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    renounceOwnership(
-      overrides?: Overrides & { from?: string }
-    ): Promise<PopulatedTransaction>;
-
-    transferOwnership(
-      newOwner: string,
-      overrides?: Overrides & { from?: string }
-    ): Promise<PopulatedTransaction>;
   };
 }

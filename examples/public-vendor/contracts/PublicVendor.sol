@@ -1,26 +1,21 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
-import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {IProductFactory} from "../../../contracts/IProductFactory.sol";
 
-contract PublicVendor is Ownable {
+contract PublicVendor {
     IProductFactory public productFactory;
+    address public product;
 
     constructor(
-        address initialOwner,
-        address productFactoryAddress
-    ) Ownable(initialOwner) {
-        productFactory = IProductFactory(productFactoryAddress);
-    }
-
-    function createProduct(
+        address productFactoryAddress,
         address productImpl,
         string memory name,
         string memory symbol,
         string memory baseTokenURI
-    ) public onlyOwner {
-        productFactory.createProduct(
+    ) {
+        productFactory = IProductFactory(productFactoryAddress);
+        product = productFactory.createProduct(
             IProductFactory.CreateProductArgs({
                 productImpl: productImpl,
                 name: name,
@@ -31,7 +26,6 @@ contract PublicVendor is Ownable {
     }
 
     function createActivatedDevice(
-        address product,
         address device,
         address receiver
     ) public {
@@ -45,7 +39,6 @@ contract PublicVendor is Ownable {
     }
 
     function createActivatedDevices(
-        address product,
         address[] memory devices,
         address[] memory receivers
     ) public {
