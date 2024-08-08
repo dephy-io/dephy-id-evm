@@ -28,7 +28,10 @@ function App() {
   useEffect(() => {
     (async () => {
       if (signer) {
-        const params = currentNetwork === "BaseSepolia" ? BASE_SEPOLIA_PARAMS : BNB_TESTNET_PARAMS;
+        const params =
+          currentNetwork === "BaseSepolia"
+            ? BASE_SEPOLIA_PARAMS
+            : BNB_TESTNET_PARAMS;
         setChainParams(params);
 
         try {
@@ -51,8 +54,14 @@ function App() {
           }
         }
 
-        const chainId = currentNetwork === "BaseSepolia" ? ChainId.BaseSepolia : ChainId.BNBTestnet;
-        const productFactoryAddress = currentNetwork === "BaseSepolia" ? ADDRESS_JSON.BaseSepolia.ProductFactory : ADDRESS_JSON.BNBTestnet.ProductFactory;
+        const chainId =
+          currentNetwork === "BaseSepolia"
+            ? ChainId.BaseSepolia
+            : ChainId.BNBTestnet;
+        const productFactoryAddress =
+          currentNetwork === "BaseSepolia"
+            ? ADDRESS_JSON.BaseSepolia.ProductFactory
+            : ADDRESS_JSON.BNBTestnet.ProductFactory;
 
         const productFactory = new ProductFactory({
           signer,
@@ -69,7 +78,9 @@ function App() {
       alert("Please install MetaMask first!");
       return;
     }
-    const provider = new ethers.providers.Web3Provider((window as any).ethereum);
+    const provider = new ethers.providers.Web3Provider(
+      (window as any).ethereum
+    );
     await provider.send("eth_requestAccounts", []);
     const signer = provider.getSigner();
     const account = await signer.getAddress();
@@ -84,7 +95,10 @@ function App() {
       };
       const product = await productFactory.createProduct(
         {
-          productImpl: currentNetwork === "BaseSepolia" ? ADDRESS_JSON.BaseSepolia.ProductImpl : ADDRESS_JSON.BNBTestnet.ProductImpl,
+          productImpl:
+            currentNetwork === "BaseSepolia"
+              ? ADDRESS_JSON.BaseSepolia.ProductImpl
+              : ADDRESS_JSON.BNBTestnet.ProductImpl,
           name: productName,
           symbol: productSymbol,
           baseTokenURI,
@@ -134,13 +148,7 @@ function App() {
       const onPending = (tx: ContractTransaction) => {
         setActivatedDeviceTx(tx.hash);
       };
-      await productFactory.activateDevice(
-        {
-          product: productAddress,
-          devicePrivatekey: devicePrivateKey,
-        },
-        onPending
-      );
+      await productFactory.activateDevice(devicePrivateKey, onPending);
       alert("Device activated!");
     }
   };
@@ -155,7 +163,10 @@ function App() {
       <div className="blackText">{account}</div>
       <hr />
       <div>
-        <select onChange={(e) => switchNetwork(e.target.value)} value={currentNetwork}>
+        <select
+          onChange={(e) => switchNetwork(e.target.value)}
+          value={currentNetwork}
+        >
           <option value="BaseSepolia">Base Sepolia Testnet</option>
           <option value="BNBTestnet">BNB Testnet</option>
         </select>

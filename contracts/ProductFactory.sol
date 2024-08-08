@@ -23,13 +23,12 @@ contract ProductFactory is
     bytes32 public constant ACTIVATE_DEVICE_TYPEHASH =
         keccak256(
             bytes(
-                "ActivateDevice(address product,address device,bytes deviceSignature,uint256 deviceDeadline,uint256 deadline)"
+                "ActivateDevice(address device,bytes deviceSignature,uint256 deviceDeadline,uint256 deadline)"
             )
         );
 
     mapping(address => address) internal _vendorByProduct;
-    mapping(address => mapping(address => uint256))
-        internal _tokenIdByProductByDevice;
+    mapping(address => DeviceBinding) internal _deviceBindings;
 
     function initialize(address initialOwner) public virtual initializer {
         __Ownable_init(initialOwner);
@@ -93,12 +92,7 @@ contract ProductFactory is
         CreateDevicesArgs memory args
     ) public nonReentrant whenNotPaused onlyVendor(args.product) {
         for (uint256 i = 0; i < args.devices.length; ++i) {
-            if (_tokenIdByProductByDevice[args.product][args.devices[i]] > 0) {
-                revert DeviceAlreadyCreated();
-            }
-            uint256 tokenId = IProduct(args.product).mint(address(this));
-            _tokenIdByProductByDevice[args.product][args.devices[i]] = tokenId;
-            emit DeviceCreated(args.product, args.devices[i], tokenId);
+            _createDevice(args.product, args.devices[i]);
         }
     }
 
@@ -144,7 +138,6 @@ contract ProductFactory is
                 keccak256(
                     abi.encode(
                         ACTIVATE_DEVICE_TYPEHASH,
-                        args.product,
                         args.device,
                         keccak256(args.deviceSignature),
                         args.deviceDeadline,
@@ -169,13 +162,15 @@ contract ProductFactory is
             revert DeviceSignatureMismatch();
         }
 
-        IProduct(args.product).transferFrom(
+        DeviceBinding memory deviceBinding = _deviceBindings[args.device];
+
+        IProduct(deviceBinding.product).transferFrom(
             address(this),
             recoveredAddr,
-            _tokenIdByProductByDevice[args.product][args.device]
+            deviceBinding.tokenId
         );
 
-        emit DeviceActivated(args.product, args.device, recoveredAddr);
+        emit DeviceActivated(deviceBinding.product, args.device, recoveredAddr);
     }
 
     /**
@@ -188,22 +183,24 @@ contract ProductFactory is
     /**
      * @inheritdoc IProductFactory
      */
-    function getDeviceTokenId(
-        address product,
+    function getDeviceBinding(
         address device
-    ) public view returns (uint256) {
-        return _tokenIdByProductByDevice[product][device];
+    ) public view returns (DeviceBinding memory) {
+        return _deviceBindings[device];
     }
 
     function _createDevice(
         address product,
         address device
     ) internal returns (uint256 tokenId) {
-        if (_tokenIdByProductByDevice[product][device] > 0) {
+        if (_deviceBindings[device].product != address(0)) {
             revert DeviceAlreadyCreated();
         }
         tokenId = IProduct(product).mint(address(this));
-        _tokenIdByProductByDevice[product][device] = tokenId;
+        _deviceBindings[device] = DeviceBinding({
+            product: product,
+            tokenId: tokenId
+        });
         emit DeviceCreated(product, device, tokenId);
     }
 
@@ -212,11 +209,14 @@ contract ProductFactory is
         address device,
         address receiver
     ) internal returns (uint256 tokenId) {
-        if (_tokenIdByProductByDevice[product][device] > 0) {
+        if (_deviceBindings[device].product != address(0)) {
             revert DeviceAlreadyCreated();
         }
         tokenId = IProduct(product).mint(receiver);
-        _tokenIdByProductByDevice[product][device] = tokenId;
+        _deviceBindings[device] = DeviceBinding({
+            product: product,
+            tokenId: tokenId
+        });
         emit DeviceCreated(product, device, tokenId);
         emit DeviceActivated(product, device, receiver);
     }

@@ -1,5 +1,6 @@
 packages:
-  - 'templates'
-  - 'tools/**'
-  - 'extensions/**'
-  - 'explorer-ui'
+  - "examples/**"
+  - "tools/**"
+  - "extensions/**"
+  - "indexer/**"
+  - "explorer-ui"

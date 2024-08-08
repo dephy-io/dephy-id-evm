@@ -1,4 +1,4 @@
-import { ContractTransaction, Signer, ethers } from "ethers";
+import { ContractTransaction, Signer } from "ethers";
 import { ChainId } from "./types";
 export declare class ProductFactory {
     private signer;
@@ -24,15 +24,9 @@ export declare class ProductFactory {
         devices: string[];
         receivers: string[];
     }, onPending?: (tx: ContractTransaction) => void): Promise<void>;
-    activateDevice({ product, devicePrivatekey, }: {
-        product: string;
-        devicePrivatekey: string;
-    }, onPending?: (tx: ContractTransaction) => void): Promise<void>;
+    activateDevice(devicePrivatekey: string, onPending?: (tx: ContractTransaction) => void): Promise<void>;
     getVendorByProduct(product: string): Promise<string>;
-    getDeviceTokenId({ product, device, }: {
-        product: string;
-        device: string;
-    }): Promise<ethers.BigNumber>;
+    getDeviceBinding(device: string): Promise<import("./generated/ProductFactory").IProductFactory.DeviceBindingStructOutput>;
     private _generateDeviceSignature;
     private _generateActivateDeviceSignature;
 }

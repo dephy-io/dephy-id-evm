@@ -3,7 +3,7 @@
   "module": "src/index.ts",
   "type": "module",
   "scripts": {
-    "typechain": "rimraf src/generated/* && typechain --target ethers-v5 --out-dir src/generated/ '../out/ProductFactory.sol/ProductFactory.json' '../out/IProductFactory.sol/IProductFactory.json'",
+    "typechain": "rimraf src/generated/* && typechain --target ethers-v5 --out-dir src/generated/ '../../out/ProductFactory.sol/ProductFactory.json' '../../out/IProductFactory.sol/IProductFactory.json'",
     "build": "rimraf dist/* && tsc -p tsconfig.json"
   },
   "devDependencies": {

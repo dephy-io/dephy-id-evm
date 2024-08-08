@@ -1,7 +1,4 @@
-import {
-  IProductFactory,
-  ProductFactory__factory,
-} from "./generated";
+import { IProductFactory, ProductFactory__factory } from "./generated";
 import { ContractTransaction, Signer, Wallet, ethers } from "ethers";
 import { ChainId } from "./types";
 import { oneDayLater, oneHourLater } from "./utils/timestamp";
@@ -114,21 +111,13 @@ export class ProductFactory {
   }
 
   public async activateDevice(
-    {
-      product,
-      devicePrivatekey,
-    }: {
-      product: string;
-      devicePrivatekey: string;
-    },
+    devicePrivatekey: string,
     onPending?: (tx: ContractTransaction) => void
   ) {
     const deviceWallet = new ethers.Wallet(devicePrivatekey);
-    const deviceSignedParams = await this._generateDeviceSignature(
-      deviceWallet
-    );
+    const deviceSignedParams =
+      await this._generateDeviceSignature(deviceWallet);
     const activateDeviceArgs: IProductFactory.ActivateDeviceArgsStruct = {
-      product,
       device: deviceWallet.address,
       ...deviceSignedParams,
     };
@@ -151,14 +140,8 @@ export class ProductFactory {
     return this.instance.getVendorByProduct(product);
   }
 
-  public async getDeviceTokenId({
-    product,
-    device,
-  }: {
-    product: string;
-    device: string;
-  }) {
-    return this.instance.getDeviceTokenId(product, device);
+  public async getDeviceBinding(device: string) {
+    return this.instance.getDeviceBinding(device);
   }
 
   private async _generateDeviceSignature(wallet: Wallet) {
@@ -198,7 +181,6 @@ export class ProductFactory {
     const msgParams = {
       types: {
         ActivateDevice: [
-          { name: "product", type: "address" },
           { name: "device", type: "address" },
           { name: "deviceSignature", type: "bytes" },
           { name: "deviceDeadline", type: "uint256" },
@@ -212,7 +194,6 @@ export class ProductFactory {
         verifyingContract: this.instance.address,
       },
       value: {
-        product: activateDeviceArgs.product,
         device: activateDeviceArgs.device,
         deviceSignature: activateDeviceArgs.deviceSignature,
         deviceDeadline: activateDeviceArgs.deviceDeadline,

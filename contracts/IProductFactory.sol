@@ -2,6 +2,11 @@
 pragma solidity ^0.8.24;
 
 interface IProductFactory {
+    struct DeviceBinding {
+        address product;
+        uint256 tokenId;
+    }
+
     struct EIP712Signature {
         address signer;
         uint8 v;
@@ -40,7 +45,6 @@ interface IProductFactory {
     }
 
     struct ActivateDeviceArgs {
-        address product;
         address device;
         bytes deviceSignature;
         uint256 deviceDeadline;
@@ -124,10 +128,9 @@ interface IProductFactory {
     function getVendorByProduct(address product) external view returns (address);
 
     /**
-     * @notice Returns the token ID for a given product and device.
-     * @param product Address of the product.
+     * @notice Returns the product address and token ID for a device.
      * @param device Address of the device.
-     * @return uint256 Token ID associated with the device.
+     * @return DevieInfo Product address and Token ID associated with the device.
      */
-    function getDeviceTokenId(address product, address device) external view returns (uint256);
+    function getDeviceBinding(address device) external view returns (DeviceBinding memory);
 }

@@ -10,10 +10,6 @@ export declare class IProductFactory__factory {
             readonly type: "tuple";
             readonly internalType: "struct IProductFactory.ActivateDeviceArgs";
             readonly components: readonly [{
-                readonly name: "product";
-                readonly type: "address";
-                readonly internalType: "address";
-            }, {
                 readonly name: "device";
                 readonly type: "address";
                 readonly internalType: "address";
@@ -175,20 +171,25 @@ export declare class IProductFactory__factory {
         readonly stateMutability: "nonpayable";
     }, {
         readonly type: "function";
-        readonly name: "getDeviceTokenId";
+        readonly name: "getDeviceBinding";
         readonly inputs: readonly [{
-            readonly name: "product";
-            readonly type: "address";
-            readonly internalType: "address";
-        }, {
             readonly name: "device";
             readonly type: "address";
             readonly internalType: "address";
         }];
         readonly outputs: readonly [{
             readonly name: "";
-            readonly type: "uint256";
-            readonly internalType: "uint256";
+            readonly type: "tuple";
+            readonly internalType: "struct IProductFactory.DeviceBinding";
+            readonly components: readonly [{
+                readonly name: "product";
+                readonly type: "address";
+                readonly internalType: "address";
+            }, {
+                readonly name: "tokenId";
+                readonly type: "uint256";
+                readonly internalType: "uint256";
+            }];
         }];
         readonly stateMutability: "view";
     }, {

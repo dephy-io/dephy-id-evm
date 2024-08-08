@@ -1,10 +1,10 @@
 {
-  "name": "dephy-id-evm-templates",
+  "name": "example-public-vendor",
   "version": "0.0.1",
   "main": "dist/index.js",
   "scripts": {
-    "typechain": "rimraf cli/generated/* && typechain --target ethers-v5 --out-dir cli/generated/ '../out/Vendor.sol/Vendor.json'",
-    "build:contracts": "forge build --contracts ./templates",
+    "typechain": "rimraf cli/generated/* && typechain --target ethers-v5 --out-dir cli/generated/ '../../out/PublicVendor.sol/PublicVendor.json'",
+    "build:contracts": "forge build --contracts ./examples",
     "build": "rimraf dist/* && tsc -p tsconfig.json",
     "cli": "node ./dist/index.js"
   },
@@ -17,7 +17,7 @@
     "typechain": "^8.3.1"
   },
   "bin": {
-    "dephy-id-evm-templates-cli": "./dist/index.js"
+    "public-vendor": "./dist/index.js"
   },
   "peerDependencies": {
     "typescript": "^5.0.0"
