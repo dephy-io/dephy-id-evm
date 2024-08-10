@@ -2,11 +2,6 @@
   "name": "dephy-id-evm",
   "private": true,
   "type": "module",
-  "workspaces": [
-    "tool/**",
-    "templates",
-    "indexer/*"
-  ],
   "scripts": {
     "build": "forge build --sizes",
     "deploy:base": "source .env && forge script script/Deploy.s.sol --rpc-url base --broadcast",

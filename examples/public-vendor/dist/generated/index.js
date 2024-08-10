@@ -23,7 +23,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Vendor__factory = exports.factories = void 0;
+exports.PublicVendor__factory = exports.factories = void 0;
 exports.factories = __importStar(require("./factories"));
-var Vendor__factory_1 = require("./factories/Vendor__factory");
-Object.defineProperty(exports, "Vendor__factory", { enumerable: true, get: function () { return Vendor__factory_1.Vendor__factory; } });
+var PublicVendor__factory_1 = require("./factories/PublicVendor__factory");
+Object.defineProperty(exports, "PublicVendor__factory", { enumerable: true, get: function () { return PublicVendor__factory_1.PublicVendor__factory; } });

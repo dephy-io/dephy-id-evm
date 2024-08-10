@@ -92,12 +92,11 @@ contract ProductFactoryTest is Test {
 
         vm.stopPrank();
 
-        uint256 tokenId = factory.getDeviceTokenId(
-            productAddress,
-            deviceArgs.devices[0]
-        );
-        assertEq(tokenId, 1);
-        assertEq(Product(productAddress).ownerOf(tokenId), address(factory));
+        IProductFactory.DeviceBinding memory deviceBinding = factory.getDeviceBinding(deviceArgs.devices[0]);
+        assertEq(deviceBinding.product, productAddress);
+        assertEq(deviceBinding.tokenId, 1);
+
+        assertEq(Product(productAddress).ownerOf(deviceBinding.tokenId), address(factory));
     }
 
     function testCreateActivatedDevices() public {
@@ -133,13 +132,11 @@ contract ProductFactoryTest is Test {
 
         vm.stopPrank();
 
-        uint256 tokenId = factory.getDeviceTokenId(
-            productAddress,
-            activatedDeviceArgs.devices[0]
-        );
-        assertEq(tokenId, 1);
+        IProductFactory.DeviceBinding memory deviceBinding = factory.getDeviceBinding(activatedDeviceArgs.devices[0]);
+        assertEq(deviceBinding.product, productAddress);
+        assertEq(deviceBinding.tokenId, 1);
 
-        assertEq(Product(productAddress).ownerOf(tokenId), user);
+        assertEq(Product(productAddress).ownerOf(deviceBinding.tokenId), user);
     }
 
     function testActivateDevice() public {
@@ -166,12 +163,6 @@ contract ProductFactoryTest is Test {
 
         vm.stopPrank();
 
-        uint256 tokenId = factory.getDeviceTokenId(
-            productAddress,
-            deviceArgs.devices[0]
-        );
-        assertEq(tokenId, 1);
-
         uint256 deviceDeadline = block.timestamp + 12 hours;
         bytes memory deviceSignature = _generateDeviceSignature(
             deviceDeadline,
@@ -180,7 +171,6 @@ contract ProductFactoryTest is Test {
 
         IProductFactory.ActivateDeviceArgs memory activateArgs = IProductFactory
             .ActivateDeviceArgs({
-                product: productAddress,
                 device: device,
                 deviceSignature: deviceSignature,
                 deviceDeadline: deviceDeadline
@@ -199,7 +189,11 @@ contract ProductFactoryTest is Test {
 
         factory.activateDevice(activateArgs, userSignature);
 
-        assertEq(Product(productAddress).ownerOf(tokenId), user);
+        IProductFactory.DeviceBinding memory deviceBinding = factory.getDeviceBinding(activateArgs.device);
+        assertEq(deviceBinding.product, productAddress);
+        assertEq(deviceBinding.tokenId, 1);
+
+        assertEq(Product(productAddress).ownerOf(deviceBinding.tokenId), user);
     }
 
     function _generateDeviceSignature(
@@ -232,7 +226,6 @@ contract ProductFactoryTest is Test {
         bytes32 hashedMessage = keccak256(
             abi.encode(
                 factory.ACTIVATE_DEVICE_TYPEHASH(),
-                activateArgs.product,
                 activateArgs.device,
                 keccak256(activateArgs.deviceSignature),
                 activateArgs.deviceDeadline,

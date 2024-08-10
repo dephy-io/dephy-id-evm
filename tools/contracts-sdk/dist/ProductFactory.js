@@ -7,7 +7,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-import { ProductFactory__factory, } from "./generated";
+import { ProductFactory__factory } from "./generated";
 import { ethers } from "ethers";
 import { oneDayLater, oneHourLater } from "./utils/timestamp";
 export class ProductFactory {
@@ -73,11 +73,11 @@ export class ProductFactory {
             yield tx.wait();
         });
     }
-    activateDevice({ product, devicePrivatekey, }, onPending) {
+    activateDevice(devicePrivatekey, onPending) {
         return __awaiter(this, void 0, void 0, function* () {
             const deviceWallet = new ethers.Wallet(devicePrivatekey);
             const deviceSignedParams = yield this._generateDeviceSignature(deviceWallet);
-            const activateDeviceArgs = Object.assign({ product, device: deviceWallet.address }, deviceSignedParams);
+            const activateDeviceArgs = Object.assign({ device: deviceWallet.address }, deviceSignedParams);
             const signature = yield this._generateActivateDeviceSignature({
                 wallet: this.signer,
                 activateDeviceArgs,
@@ -94,9 +94,9 @@ export class ProductFactory {
             return this.instance.getVendorByProduct(product);
         });
     }
-    getDeviceTokenId({ product, device, }) {
+    getDeviceBinding(device) {
         return __awaiter(this, void 0, void 0, function* () {
-            return this.instance.getDeviceTokenId(product, device);
+            return this.instance.getDeviceBinding(device);
         });
     }
     _generateDeviceSignature(wallet) {
@@ -119,7 +119,6 @@ export class ProductFactory {
             const msgParams = {
                 types: {
                     ActivateDevice: [
-                        { name: "product", type: "address" },
                         { name: "device", type: "address" },
                         { name: "deviceSignature", type: "bytes" },
                         { name: "deviceDeadline", type: "uint256" },
@@ -133,7 +132,6 @@ export class ProductFactory {
                     verifyingContract: this.instance.address,
                 },
                 value: {
-                    product: activateDeviceArgs.product,
                     device: activateDeviceArgs.device,
                     deviceSignature: activateDeviceArgs.deviceSignature,
                     deviceDeadline: activateDeviceArgs.deviceDeadline,

@@ -20,3 +20,4 @@ tmp/
 
 .DS_Store
 bun.lockb
+pnpm-lock.yaml
