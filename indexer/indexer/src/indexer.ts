@@ -4,7 +4,7 @@ import {
     getContract,
 } from 'viem'
 import chains from './chains'
-import { Client as DbClient } from "edgedb"
+import { Client as DbClient, Executor } from "edgedb"
 import { ProductFactoryAbi, ProductFactoryEventLog } from './productFactory'
 import { ProductAbi } from './product'
 import e from "indexer-storage"
@@ -72,7 +72,7 @@ export class Indexer {
     async run() {
         await this.fillMissingBlocks()
         await this.fillMissingEvents()
-        await this.tryFillProductsMetadata()
+        await this.tryFillProductsMetadata(this.db)
 
         this.client.watchContractEvent({
             address: this.productFactory.address,
@@ -161,7 +161,7 @@ export class Indexer {
                 if (toBlock > latestBlock.number) {
                     toBlock = latestBlock.number
                 }
-                this.fillEvents(fromBlock, toBlock)
+                await this.fillEvents(fromBlock, toBlock)
 
                 fromBlock = toBlock + 1n
             }
@@ -186,7 +186,7 @@ export class Indexer {
         await this.handleLogs(logs as ProductFactoryEventLog[])
     }
 
-    async tryFillProductsMetadata() {
+    async tryFillProductsMetadata(db: Executor) {
         const productFactory = await e.select(e.ProductFactory, () => ({
             filter_single: {
                 id: this.productFactory.id
@@ -196,7 +196,7 @@ export class Indexer {
                 address: true,
                 filter: e.op('not', e.op('exists', p.name)),
             }),
-        })).run(this.db)
+        })).run(db)
 
         for (const product of productFactory!.products) {
             const productContract = getContract({
@@ -214,90 +214,82 @@ export class Indexer {
                 await e.update(e.Product, () => ({
                     filter_single: { id: product.id },
                     set: { name, symbol }
-                })).run(this.db)
+                })).run(db)
             }
         }
     }
 
     async handleLogs(logs: ProductFactoryEventLog[]) {
-        logs.sort((l1, l2) => {
-            if (l1.blockNumber < l2.blockNumber) {
-                return -1
-            } else if (l1.blockNumber == l2.blockNumber && l1.logIndex < l2.logIndex) {
-                return -1
-            } else {
-                return 1
+        this.db.transaction(async (dbTx) => {
+            for (const log of logs) {
+                this.log(log.blockNumber, log.logIndex, log.eventName, log.args)
+
+                switch (log.eventName) {
+                    case 'ProductCreated':
+                        await e.insert(e.ProductCreated, {
+                            chain: this.chainQuery(),
+                            address: toLower(log.address),
+                            blockNumber: log.blockNumber!,
+                            blockHash: toLower(log.blockHash!),
+                            logIndex: log.logIndex!,
+                            txHash: toLower(log.transactionHash!),
+                            product: toLower(log.args.product),
+                            productImpl: toLower(log.args.productImpl),
+                            vendor: toLower(log.args.vendor),
+                        }).unlessConflict().run(dbTx)
+
+                        this.tryFillProductsMetadata(dbTx)
+                        break
+
+                    case 'DeviceCreated':
+                        await e.insert(e.DeviceCreated, {
+                            chain: this.chainQuery(),
+                            address: toLower(log.address),
+                            blockNumber: log.blockNumber!,
+                            blockHash: toLower(log.blockHash!),
+                            logIndex: log.logIndex!,
+                            txHash: toLower(log.transactionHash!),
+                            product: toLower(log.args.product),
+                            device: toLower(log.args.device),
+                            tokenId: log.args.tokenId,
+                        }).unlessConflict().run(dbTx)
+                        break
+
+                    case 'DeviceActivated':
+                        await e.insert(e.DeviceActivated, {
+                            chain: this.chainQuery(),
+                            address: toLower(log.address),
+                            blockNumber: log.blockNumber!,
+                            blockHash: toLower(log.blockHash!),
+                            logIndex: log.logIndex!,
+                            txHash: toLower(log.transactionHash!),
+                            product: toLower(log.args.product),
+                            device: toLower(log.args.device),
+                            receiver: toLower(log.args.receiver),
+                        }).unlessConflict().run(dbTx)
+                        break
+
+                    case 'OwnershipTransferred':
+                        await e.insert(e.OwnershipTransferred, {
+                            chain: this.chainQuery(),
+                            address: toLower(log.address),
+                            blockNumber: log.blockNumber!,
+                            blockHash: toLower(log.blockHash!),
+                            logIndex: log.logIndex!,
+                            txHash: toLower(log.transactionHash!),
+                            previousOwner: toLower(log.args.previousOwner),
+                            newOwner: toLower(log.args.newOwner)
+                        }).unlessConflict().run(dbTx)
+                        break
+
+                    default:
+                        break
+                }
+            }
+
+            if (logs.length > 0) {
+                await this.fillMissingBlocks()
             }
         })
-
-        for (const log of logs) {
-            this.log(log.eventName, log.args)
-
-            switch (log.eventName) {
-                case 'ProductCreated':
-                    await e.insert(e.ProductCreated, {
-                        chain: this.chainQuery(),
-                        address: toLower(log.address),
-                        blockNumber: log.blockNumber!,
-                        blockHash: toLower(log.blockHash!),
-                        logIndex: log.logIndex!,
-                        txHash: toLower(log.transactionHash!),
-                        product: toLower(log.args.product),
-                        productImpl: toLower(log.args.productImpl),
-                        vendor: toLower(log.args.vendor),
-                    }).unlessConflict().run(this.db)
-
-                    this.tryFillProductsMetadata()
-                    break
-
-                case 'DeviceCreated':
-                    await e.insert(e.DeviceCreated, {
-                        chain: this.chainQuery(),
-                        address: toLower(log.address),
-                        blockNumber: log.blockNumber!,
-                        blockHash: toLower(log.blockHash!),
-                        logIndex: log.logIndex!,
-                        txHash: toLower(log.transactionHash!),
-                        product: toLower(log.args.product),
-                        device: toLower(log.args.device),
-                        tokenId: log.args.tokenId,
-                    }).unlessConflict().run(this.db)
-                    break
-
-                case 'DeviceActivated':
-                    await e.insert(e.DeviceActivated, {
-                        chain: this.chainQuery(),
-                        address: toLower(log.address),
-                        blockNumber: log.blockNumber!,
-                        blockHash: toLower(log.blockHash!),
-                        logIndex: log.logIndex!,
-                        txHash: toLower(log.transactionHash!),
-                        product: toLower(log.args.product),
-                        device: toLower(log.args.device),
-                        receiver: toLower(log.args.receiver),
-                    }).unlessConflict().run(this.db)
-                    break
-
-                case 'OwnershipTransferred':
-                    await e.insert(e.OwnershipTransferred, {
-                        chain: this.chainQuery(),
-                        address: toLower(log.address),
-                        blockNumber: log.blockNumber!,
-                        blockHash: toLower(log.blockHash!),
-                        logIndex: log.logIndex!,
-                        txHash: toLower(log.transactionHash!),
-                        previousOwner: toLower(log.args.previousOwner),
-                        newOwner: toLower(log.args.newOwner)
-                    }).unlessConflict().run(this.db)
-                    break
-
-                default:
-                    break
-            }
-        }
-
-        if (logs.length > 0) {
-            await this.fillMissingBlocks()
-        }
     }
 }

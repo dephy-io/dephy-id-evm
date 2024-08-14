@@ -10,6 +10,7 @@ chains.bscTestnet.custom = {
 }
 
 chains.baseSepolia.custom = {
+    fetchLimit: 1000n,
     pollingInterval: 500,
 }
 
