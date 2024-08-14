@@ -86,20 +86,20 @@ export class Indexer {
             poll: true,
             pollingInterval: 60_000,
             blockTag: 'finalized',
-            onBlock: (block) => this.updateUptoBlock(block.number)
+            onBlock: (block) => this.updateUptoBlock(block.number - 100n)
         })
 
         this.log('running')
     }
 
     async updateUptoBlock(blockNumber: bigint) {
-        await e.update(e.ProductFactory, () => ({
+        await e.update(e.ProductFactory, (pf) => ({
             filter_single: {
                 chain: this.chainQuery(),
                 address: this.productFactory.address,
             },
             set: {
-                uptoBlock: blockNumber
+                uptoBlock: e.cast(e.bigint, e.max(e.set(blockNumber, pf.uptoBlock)))
             }
         })).run(this.db)
     }
@@ -220,6 +220,16 @@ export class Indexer {
     }
 
     async handleLogs(logs: ProductFactoryEventLog[]) {
+        logs.sort((l1, l2) => {
+            if (l1.blockNumber < l2.blockNumber) {
+                return -1
+            } else if (l1.blockNumber == l2.blockNumber && l1.logIndex < l2.logIndex) {
+                return -1
+            } else {
+                return 1
+            }
+        })
+
         for (const log of logs) {
             this.log(log.eventName, log.args)
 
