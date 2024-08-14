@@ -1,6 +1,6 @@
 import { Log } from "viem"
 
-export const productFactoryAbi = [
+export const ProductFactoryAbi = [
   {
     "type": "function",
     "name": "ACTIVATE_DEVICE_TYPEHASH",
@@ -774,8 +774,8 @@ export const productFactoryAbi = [
   }
 ] as const
 
-export const productFactoryEvents = productFactoryAbi.filter(a => a.type == 'event')
+export const productFactoryEvents = ProductFactoryAbi.filter(a => a.type == 'event')
 
 export type ProductFactoryEventName = typeof productFactoryEvents[number]['name']
 
-export type ProductFactoryEventLog = Log<bigint, number, false, undefined, true, typeof productFactoryAbi, ProductFactoryEventName>
+export type ProductFactoryEventLog = Log<bigint, number, false, undefined, true, typeof ProductFactoryAbi, ProductFactoryEventName>

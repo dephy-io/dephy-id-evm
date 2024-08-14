@@ -1,13 +1,15 @@
 import {
     Chain, createPublicClient, http, webSocket,
     PublicClient, Address, Hex,
+    getContract,
 } from 'viem'
 import chains from './chains'
 import { Client as DbClient } from "edgedb"
-import { productFactoryAbi, ProductFactoryEventLog } from './productFactory'
+import { ProductFactoryAbi, ProductFactoryEventLog } from './productFactory'
+import { ProductAbi } from './product'
 import e from "indexer-storage"
 
-const ProductFactoryEvents = productFactoryAbi.filter(a => a.type == 'event')
+const ProductFactoryEvents = ProductFactoryAbi.filter(a => a.type == 'event')
 
 function toLower(hex: Hex): Hex {
     return hex.toLowerCase() as Hex
@@ -16,6 +18,7 @@ function toLower(hex: Hex): Hex {
 type IndexerConfig = {
     chain: { name: string; chainId: bigint; },
     productFactory: {
+        id: string,
         address: Address,
         uptoBlock: bigint,
     },
@@ -24,7 +27,7 @@ type IndexerConfig = {
 
 export class Indexer {
     client: PublicClient
-    productFactory: { address: Address, uptoBlock: bigint }
+    productFactory: { id: string, address: Address, uptoBlock: bigint }
     db: DbClient
     chainConfig: Chain
     chain: { name: string; chainId: bigint; }
@@ -69,10 +72,11 @@ export class Indexer {
     async run() {
         await this.fillMissingBlocks()
         await this.fillMissingEvents()
+        await this.tryFillProductsMetadata()
 
         this.client.watchContractEvent({
             address: this.productFactory.address,
-            abi: productFactoryAbi,
+            abi: ProductFactoryAbi,
             strict: true,
             pollingInterval: this.chainConfig.custom?.pollingInterval as number,
             onLogs: (logs) => this.handleLogs(logs as ProductFactoryEventLog[]),
@@ -182,6 +186,39 @@ export class Indexer {
         await this.handleLogs(logs as ProductFactoryEventLog[])
     }
 
+    async tryFillProductsMetadata() {
+        const productFactory = await e.select(e.ProductFactory, () => ({
+            filter_single: {
+                id: this.productFactory.id
+            },
+            products: (p) => ({
+                id: true,
+                address: true,
+                filter: e.op('not', e.op('exists', p.name)),
+            }),
+        })).run(this.db)
+
+        for (const product of productFactory!.products) {
+            const productContract = getContract({
+                address: product.address as Address,
+                abi: ProductAbi,
+                client: this.client,
+            })
+
+            const [name, symbol] = await Promise.all([
+                productContract.read.name(),
+                productContract.read.symbol(),
+            ])
+
+            if (typeof name == 'string' && typeof symbol == 'string') {
+                await e.update(e.Product, () => ({
+                    filter_single: { id: product.id },
+                    set: { name, symbol }
+                })).run(this.db)
+            }
+        }
+    }
+
     async handleLogs(logs: ProductFactoryEventLog[]) {
         for (const log of logs) {
             this.log(log.eventName, log.args)
@@ -199,6 +236,8 @@ export class Indexer {
                         productImpl: toLower(log.args.productImpl),
                         vendor: toLower(log.args.vendor),
                     }).unlessConflict().run(this.db)
+
+                    this.tryFillProductsMetadata()
                     break
 
                 case 'DeviceCreated':

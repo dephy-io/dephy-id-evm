@@ -19,6 +19,7 @@ try {
     const db = await edgedb.createClient(options.database).ensureConnected()
 
     const productFactories = await e.select(e.ProductFactory, () => ({
+        id: true,
         chain: {
             name: true,
             chainId: true,
@@ -29,7 +30,7 @@ try {
     })).run(db)
 
     let indexeres: Indexer[] = []
-    for (const { chain, address, uptoBlock, active } of productFactories) {
+    for (const { id, chain, address, uptoBlock, active } of productFactories) {
         if (!active) {
             console.log(`${chain.name}@${address} is inactive`)
             continue
@@ -37,7 +38,7 @@ try {
         const indexer = new Indexer({
             db,
             chain,
-            productFactory: { address: address as Address, uptoBlock },
+            productFactory: { id, address: address as Address, uptoBlock },
         })
         indexeres.push(indexer)
     }
