@@ -20,13 +20,13 @@ export default function Home() {
   );
 
   const { data } = useQuery({
-    queryKey: ["products"],
-    queryFn: async () => getProducts(gqlClient!),
+    queryKey: ["products", chain],
+    queryFn: async () => getProducts(gqlClient!, chain.id),
     enabled: !!gqlClient,
   });
   const { data: programData } = useQuery({
     queryKey: ["prodoctFactory"],
-    queryFn: async () => getProductFactory(gqlClient!),
+    queryFn: async () => getProductFactory(gqlClient!, chain.id),
     enabled: !!gqlClient,
   });
 

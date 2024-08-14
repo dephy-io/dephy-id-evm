@@ -9,8 +9,9 @@ import {
 import { createPublicClient, http, type PublicClient, erc721Abi } from "viem";
 import { bscTestnet, type Chain } from "viem/chains";
 import { GraphQLClient } from "graphql-request";
+import { useRouter } from "next/navigation";
 
-import { chainConfig } from "@/lib/config";
+import { env } from "@/env";
 
 interface ClientContextProps {
   chain: Chain;
@@ -62,13 +63,14 @@ const ClientContext = createContext<ClientContextProps>({
 export const useClient = () => useContext(ClientContext);
 
 const ClientProvider: FC<{ children: ReactNode }> = ({ children }) => {
+  const router = useRouter();
   const [chain, setChain] = useState<Chain>(bscTestnet);
   const [viemClient, setViemClient] = useState<PublicClient | null>(null);
   const [gqlClient, setGqlClient] = useState<GraphQLClient | null>(null);
 
   useEffect(() => {
     const client = createPublicClient({
-      chain: bscTestnet,
+      chain,
       transport: http(),
     });
 
@@ -76,15 +78,14 @@ const ClientProvider: FC<{ children: ReactNode }> = ({ children }) => {
   }, [chain]);
 
   useEffect(() => {
-    if (chainConfig[chain.id]) {
-      const gqlClient = new GraphQLClient(chainConfig[chain.id]!);
+    const gqlClient = new GraphQLClient(env.NEXT_PUBLIC_GRAPHQL_URI);
 
-      setGqlClient(gqlClient);
-    }
+    setGqlClient(gqlClient);
   }, [chain]);
 
   const handleSwitchChain = (chain: Chain) => {
     setChain(chain);
+    router.push("/");
   };
 
   const getNFTNameAndSymbol = async (address: `0x${string}`) => {

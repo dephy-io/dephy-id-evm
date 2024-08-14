@@ -66,7 +66,7 @@ export default function Product() {
   const [devices, setDevices] = useState<DeviceType[]>([]);
 
   const { data } = useQuery({
-    queryKey: ["product", router?.query?.id, page],
+    queryKey: ["product", router?.query?.id, page, chain],
     queryFn: async ({ queryKey }) => {
       const [_key, id] = queryKey;
 

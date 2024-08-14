@@ -1,35 +1,26 @@
-import { bscTestnet, type Chain } from "viem/chains";
-
-import { env } from "@/env"
+import { bscTestnet, baseSepolia, type Chain } from "viem/chains";
 
 import BNBLogo from '@/assets/bnb-logo.svg'
-
-type ChainProps = Record<number, string>
+import BaseLogo from '@/assets/base-logo.svg'
 
 export type ChainProp = Chain & {
   title?: string
   logo?: never
 }
 
-const chainsDev: ChainProps = {
-  97: "https://indexer-bnb-testnet-api.dephy.id/graphql"
-}
-
-const chainsProd: ChainProps = {
-  97: "https://indexer-bnb-testnet-api.dephy.id/graphql"
-}
-
-const chainConfig: ChainProps = env.NEXT_PUBLIC_ENV === "production" ? chainsProd : chainsDev
-
 const chains = [
   {
     ...bscTestnet,
     logo: BNBLogo as unknown as never,
     title: 'BSC Testnet',
+  },
+  {
+    ...baseSepolia,
+    logo: BaseLogo as unknown as never,
+    title: 'Base Sepolia'
   }
 ]
 
 export {
-  chainConfig,
   chains
 }
