@@ -30,10 +30,10 @@ const addressFilePath = path_1.default.resolve(process.cwd(), "./tmp/address.jso
     symbol: { type: "string", demandOption: true },
     baseTokenURI: { type: "string", demandOption: true },
 }, (args) => __awaiter(void 0, void 0, void 0, function* () {
-    // Step 1: Run `forge build --contracts ./examples/public-vendor`
-    (0, child_process_1.execSync)("forge build --contracts ./examples/public-vendor");
+    // Step 1: Run `forge build --contracts ./examples/public-vendor -o ./examples/public-vendor/out`
+    (0, child_process_1.execSync)("forge build --contracts ./examples/public-vendor -o ./examples/public-vendor/out");
     // Step 2: Read ABI and bytecode from `./out/PublicVendor.sol/PublicVendor.json`
-    const vendorArtifactPath = path_1.default.resolve(__dirname, "../../../out/PublicVendor.sol/PublicVendor.json");
+    const vendorArtifactPath = path_1.default.resolve(__dirname, "./out/PublicVendor.sol/PublicVendor.json");
     const vendorArtifact = JSON.parse(fs_1.default.readFileSync(vendorArtifactPath, "utf-8"));
     // Step 3: Deploy contract with your wallet
     const wallet = new ethers_1.ethers.Wallet(args.privatekey, new ethers_1.ethers.providers.JsonRpcProvider(args.rpc));
