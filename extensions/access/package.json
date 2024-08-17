@@ -1,0 +1,29 @@
+{
+  "name": "example-access",
+  "version": "0.0.1",
+  "main": "dist/index.js",
+  "scripts": {
+    "typechain": "rimraf cli/generated/* && typechain --target ethers-v5 --out-dir cli/generated/ './out/Application.sol/Application.json' './out/ApplicationFactory.sol/ApplicationFactory.json'",
+    "build:contracts": "forge build --contracts ./extensions/access -o ./extensions/access/out",
+    "build": "rimraf dist/* && tsc -p tsconfig.json",
+    "cli": "node ./dist/index.js"
+  },
+  "devDependencies": {
+    "@ethersproject/abi": "^5.7.0",
+    "@ethersproject/providers": "^5.7.2",
+    "@typechain/ethers-v5": "^11.1.1",
+    "@types/yargs": "^17.0.32",
+    "rimraf": "^6.0.0",
+    "typechain": "^8.3.1"
+  },
+  "bin": {
+    "public-vendor": "./dist/index.js"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "ethers": "^5.7.2",
+    "yargs": "^17.7.2"
+  }
+}
