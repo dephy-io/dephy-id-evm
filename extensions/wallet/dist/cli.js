@@ -17,7 +17,6 @@ const yargs_1 = __importDefault(require("yargs"));
 const helpers_1 = require("yargs/helpers");
 const fs_1 = __importDefault(require("fs"));
 const path_1 = __importDefault(require("path"));
-// import Wallet from "./typechain/Wallet"; // 使用 Typechain 生成的类型定义
 const generated_1 = require("./generated");
 const child_process_1 = require("child_process");
 // Utility function to write JSON data to a file
@@ -38,10 +37,8 @@ const addressFilePath = path_1.default.resolve(process.cwd(), "./tmp/address.jso
     tokenId: { type: "number", demandOption: true },
     device: { type: "string", demandOption: true },
 }, (args) => __awaiter(void 0, void 0, void 0, function* () {
-    // Step 1: Run `forge build --contracts ./extensions/wallet`
-    (0, child_process_1.execSync)("forge build --contracts ./extensions/wallet");
-    // Step 2: Read ABI and bytecode from `./out/Wallet.sol/Wallet.json`
-    const walletArtifactPath = path_1.default.resolve(__dirname, "../../../out/Wallet.sol/Wallet.json");
+    (0, child_process_1.execSync)("forge build --contracts ./extensions/wallet -o ./extensions/wallet/out");
+    const walletArtifactPath = path_1.default.resolve(__dirname, "../out/Wallet.sol/Wallet.json");
     const walletArtifact = JSON.parse(fs_1.default.readFileSync(walletArtifactPath, "utf-8"));
     const provider = new ethers_1.ethers.providers.JsonRpcProvider(args.rpc);
     const wallet = new ethers_1.ethers.Wallet(args.privatekey, provider);
