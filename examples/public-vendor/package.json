@@ -3,8 +3,8 @@
   "version": "0.0.1",
   "main": "dist/index.js",
   "scripts": {
-    "typechain": "rimraf cli/generated/* && typechain --target ethers-v5 --out-dir cli/generated/ '../../out/PublicVendor.sol/PublicVendor.json'",
-    "build:contracts": "forge build --contracts ./examples",
+    "typechain": "rimraf cli/generated/* && typechain --target ethers-v5 --out-dir cli/generated/ './out/PublicVendor.sol/PublicVendor.json'",
+    "build:contracts": "forge build --contracts ./examples/public-vendor -o ./examples/public-vendor/out",
     "build": "rimraf dist/* && tsc -p tsconfig.json",
     "cli": "node ./dist/index.js"
   },
