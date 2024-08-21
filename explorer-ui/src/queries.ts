@@ -178,7 +178,7 @@ export async function getDevice(gqlClient: GraphQLClient, chainId = 97, address:
   return await gqlClient.request(query, variables)
 }
 
-export async function getProductFactory(gqlClient: GraphQLClient) {
+export async function getProductFactory(gqlClient: GraphQLClient, chainId = 97) {
   const query: TypedDocumentNode<GetProductFactoryQuery> = parse(gql`
     query getProductFactory($chainId: Bigint, $limit: Int, $offset: String) {
       ProductFactory(filter: {chain: {chainId: {eq: $chainId}}}, first: $limit, after: $offset) {
@@ -201,7 +201,9 @@ export async function getProductFactory(gqlClient: GraphQLClient) {
     }
   `)
 
-  const variables = {}
+  const variables = {
+    chainId
+  }
 
   return await gqlClient.request(query, variables)
 }

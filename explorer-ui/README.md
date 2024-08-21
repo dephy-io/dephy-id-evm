@@ -12,6 +12,6 @@ Next, in the [Cloudflare Dashboard](https://dash.cloudflare.com/?to=/:account/pa
   | ---------------------- | ---------------------------------- |
   | Build command | `pnpm dlx @cloudflare/next-on-pages@1` |
   | Build output directory | `.vercel/output/static` |
-- In the _Environment variables (advanced)_ section, add a new variable named `NODE_VERSION` set to `20` or greater, add a new variable named `NEXT_PUBLIC_ENV` set to `production`.
+- In the _Environment variables (advanced)_ section, add a new variable named `NODE_VERSION` set to `20` or greater, add a new variable named `NEXT_PUBLIC_GRAPHQL_URI` set to the indexer api uri.
 - Click on _Save and Deploy_ to start the deployment (this first deployment won't be fully functional as the next step is also necessary).
 - Go to the Pages project settings page (_Settings_ > _Functions_ > _Compatibility Flags_), **add the `nodejs_compat` flag** for both production and preview, and make sure that the **Compatibility Date** for both production and preview is set to at least `2022-11-30`.
