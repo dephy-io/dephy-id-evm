@@ -33,9 +33,9 @@ export interface ApplicationInterface extends utils.Interface {
     "balanceOf(address)": FunctionFragment;
     "burn(address,uint256)": FunctionFragment;
     "getApproved(uint256)": FunctionFragment;
+    "getAuthorizationsByDevice(address)": FunctionFragment;
     "getDeviceBinding(address)": FunctionFragment;
-    "getDeviceByInstanceId(uint256)": FunctionFragment;
-    "getInstancesByDevice(address)": FunctionFragment;
+    "getDeviceByAuthorizationId(uint256)": FunctionFragment;
     "initialize(address,string,string)": FunctionFragment;
     "isAccessible(address,address)": FunctionFragment;
     "isApprovedForAll(address,address)": FunctionFragment;
@@ -47,7 +47,10 @@ export interface ApplicationInterface extends utils.Interface {
     "setApprovalForAll(address,bool)": FunctionFragment;
     "supportsInterface(bytes4)": FunctionFragment;
     "symbol()": FunctionFragment;
+    "tokenByIndex(uint256)": FunctionFragment;
+    "tokenOfOwnerByIndex(address,uint256)": FunctionFragment;
     "tokenURI(uint256)": FunctionFragment;
+    "totalSupply()": FunctionFragment;
     "transferFrom(address,address,uint256)": FunctionFragment;
   };
 
@@ -58,9 +61,9 @@ export interface ApplicationInterface extends utils.Interface {
       | "balanceOf"
       | "burn"
       | "getApproved"
+      | "getAuthorizationsByDevice"
       | "getDeviceBinding"
-      | "getDeviceByInstanceId"
-      | "getInstancesByDevice"
+      | "getDeviceByAuthorizationId"
       | "initialize"
       | "isAccessible"
       | "isApprovedForAll"
@@ -72,7 +75,10 @@ export interface ApplicationInterface extends utils.Interface {
       | "setApprovalForAll"
       | "supportsInterface"
       | "symbol"
+      | "tokenByIndex"
+      | "tokenOfOwnerByIndex"
       | "tokenURI"
+      | "totalSupply"
       | "transferFrom"
   ): FunctionFragment;
 
@@ -94,16 +100,16 @@ export interface ApplicationInterface extends utils.Interface {
     values: [BigNumberish]
   ): string;
   encodeFunctionData(
+    functionFragment: "getAuthorizationsByDevice",
+    values: [string]
+  ): string;
+  encodeFunctionData(
     functionFragment: "getDeviceBinding",
     values: [string]
   ): string;
   encodeFunctionData(
-    functionFragment: "getDeviceByInstanceId",
+    functionFragment: "getDeviceByAuthorizationId",
     values: [BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "getInstancesByDevice",
-    values: [string]
   ): string;
   encodeFunctionData(
     functionFragment: "initialize",
@@ -144,8 +150,20 @@ export interface ApplicationInterface extends utils.Interface {
   ): string;
   encodeFunctionData(functionFragment: "symbol", values?: undefined): string;
   encodeFunctionData(
+    functionFragment: "tokenByIndex",
+    values: [BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "tokenOfOwnerByIndex",
+    values: [string, BigNumberish]
+  ): string;
+  encodeFunctionData(
     functionFragment: "tokenURI",
     values: [BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "totalSupply",
+    values?: undefined
   ): string;
   encodeFunctionData(
     functionFragment: "transferFrom",
@@ -164,15 +182,15 @@ export interface ApplicationInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "getAuthorizationsByDevice",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "getDeviceBinding",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "getDeviceByInstanceId",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "getInstancesByDevice",
+    functionFragment: "getDeviceByAuthorizationId",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "initialize", data: BytesLike): Result;
@@ -204,7 +222,19 @@ export interface ApplicationInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "symbol", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "tokenByIndex",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "tokenOfOwnerByIndex",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "tokenURI", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "totalSupply",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(
     functionFragment: "transferFrom",
     data: BytesLike
@@ -305,7 +335,7 @@ export interface Application extends BaseContract {
 
     burn(
       device: string,
-      instanceId: BigNumberish,
+      authorizationId: BigNumberish,
       overrides?: Overrides & { from?: string }
     ): Promise<ContractTransaction>;
 
@@ -314,20 +344,20 @@ export interface Application extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[string]>;
 
+    getAuthorizationsByDevice(
+      device: string,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber[]]>;
+
     getDeviceBinding(
       device: string,
       overrides?: CallOverrides
     ): Promise<[string, BigNumber] & { product: string; tokenId: BigNumber }>;
 
-    getDeviceByInstanceId(
-      instanceId: BigNumberish,
+    getDeviceByAuthorizationId(
+      authorizationId: BigNumberish,
       overrides?: CallOverrides
     ): Promise<[string]>;
-
-    getInstancesByDevice(
-      device: string,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber[]]>;
 
     initialize(
       productFactory: string,
@@ -389,10 +419,23 @@ export interface Application extends BaseContract {
 
     symbol(overrides?: CallOverrides): Promise<[string]>;
 
+    tokenByIndex(
+      index: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber]>;
+
+    tokenOfOwnerByIndex(
+      owner: string,
+      index: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber]>;
+
     tokenURI(
       tokenId: BigNumberish,
       overrides?: CallOverrides
     ): Promise<[string]>;
+
+    totalSupply(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     transferFrom(
       from: string,
@@ -414,7 +457,7 @@ export interface Application extends BaseContract {
 
   burn(
     device: string,
-    instanceId: BigNumberish,
+    authorizationId: BigNumberish,
     overrides?: Overrides & { from?: string }
   ): Promise<ContractTransaction>;
 
@@ -423,20 +466,20 @@ export interface Application extends BaseContract {
     overrides?: CallOverrides
   ): Promise<string>;
 
+  getAuthorizationsByDevice(
+    device: string,
+    overrides?: CallOverrides
+  ): Promise<BigNumber[]>;
+
   getDeviceBinding(
     device: string,
     overrides?: CallOverrides
   ): Promise<[string, BigNumber] & { product: string; tokenId: BigNumber }>;
 
-  getDeviceByInstanceId(
-    instanceId: BigNumberish,
+  getDeviceByAuthorizationId(
+    authorizationId: BigNumberish,
     overrides?: CallOverrides
   ): Promise<string>;
-
-  getInstancesByDevice(
-    device: string,
-    overrides?: CallOverrides
-  ): Promise<BigNumber[]>;
 
   initialize(
     productFactory: string,
@@ -495,7 +538,20 @@ export interface Application extends BaseContract {
 
   symbol(overrides?: CallOverrides): Promise<string>;
 
+  tokenByIndex(
+    index: BigNumberish,
+    overrides?: CallOverrides
+  ): Promise<BigNumber>;
+
+  tokenOfOwnerByIndex(
+    owner: string,
+    index: BigNumberish,
+    overrides?: CallOverrides
+  ): Promise<BigNumber>;
+
   tokenURI(tokenId: BigNumberish, overrides?: CallOverrides): Promise<string>;
+
+  totalSupply(overrides?: CallOverrides): Promise<BigNumber>;
 
   transferFrom(
     from: string,
@@ -517,7 +573,7 @@ export interface Application extends BaseContract {
 
     burn(
       device: string,
-      instanceId: BigNumberish,
+      authorizationId: BigNumberish,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -526,20 +582,20 @@ export interface Application extends BaseContract {
       overrides?: CallOverrides
     ): Promise<string>;
 
+    getAuthorizationsByDevice(
+      device: string,
+      overrides?: CallOverrides
+    ): Promise<BigNumber[]>;
+
     getDeviceBinding(
       device: string,
       overrides?: CallOverrides
     ): Promise<[string, BigNumber] & { product: string; tokenId: BigNumber }>;
 
-    getDeviceByInstanceId(
-      instanceId: BigNumberish,
+    getDeviceByAuthorizationId(
+      authorizationId: BigNumberish,
       overrides?: CallOverrides
     ): Promise<string>;
-
-    getInstancesByDevice(
-      device: string,
-      overrides?: CallOverrides
-    ): Promise<BigNumber[]>;
 
     initialize(
       productFactory: string,
@@ -598,7 +654,20 @@ export interface Application extends BaseContract {
 
     symbol(overrides?: CallOverrides): Promise<string>;
 
+    tokenByIndex(
+      index: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    tokenOfOwnerByIndex(
+      owner: string,
+      index: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     tokenURI(tokenId: BigNumberish, overrides?: CallOverrides): Promise<string>;
+
+    totalSupply(overrides?: CallOverrides): Promise<BigNumber>;
 
     transferFrom(
       from: string,
@@ -659,7 +728,7 @@ export interface Application extends BaseContract {
 
     burn(
       device: string,
-      instanceId: BigNumberish,
+      authorizationId: BigNumberish,
       overrides?: Overrides & { from?: string }
     ): Promise<BigNumber>;
 
@@ -668,18 +737,18 @@ export interface Application extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
+    getAuthorizationsByDevice(
+      device: string,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     getDeviceBinding(
       device: string,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    getDeviceByInstanceId(
-      instanceId: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    getInstancesByDevice(
-      device: string,
+    getDeviceByAuthorizationId(
+      authorizationId: BigNumberish,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
@@ -743,10 +812,23 @@ export interface Application extends BaseContract {
 
     symbol(overrides?: CallOverrides): Promise<BigNumber>;
 
+    tokenByIndex(
+      index: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    tokenOfOwnerByIndex(
+      owner: string,
+      index: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     tokenURI(
       tokenId: BigNumberish,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
+
+    totalSupply(overrides?: CallOverrides): Promise<BigNumber>;
 
     transferFrom(
       from: string,
@@ -772,7 +854,7 @@ export interface Application extends BaseContract {
 
     burn(
       device: string,
-      instanceId: BigNumberish,
+      authorizationId: BigNumberish,
       overrides?: Overrides & { from?: string }
     ): Promise<PopulatedTransaction>;
 
@@ -781,18 +863,18 @@ export interface Application extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
+    getAuthorizationsByDevice(
+      device: string,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
     getDeviceBinding(
       device: string,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    getDeviceByInstanceId(
-      instanceId: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    getInstancesByDevice(
-      device: string,
+    getDeviceByAuthorizationId(
+      authorizationId: BigNumberish,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
@@ -856,10 +938,23 @@ export interface Application extends BaseContract {
 
     symbol(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
+    tokenByIndex(
+      index: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    tokenOfOwnerByIndex(
+      owner: string,
+      index: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
     tokenURI(
       tokenId: BigNumberish,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
+
+    totalSupply(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     transferFrom(
       from: string,

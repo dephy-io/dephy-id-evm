@@ -2,19 +2,20 @@
 pragma solidity ^0.8.24;
 
 import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
-import {ERC721Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC721/ERC721Upgradeable.sol";
+import {ERC721EnumerableUpgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721EnumerableUpgradeable.sol";
 import {IERC165} from "@openzeppelin/contracts/utils/introspection/IERC165.sol";
 import {IProductFactory} from "../../../contracts/IProductFactory.sol";
 import {IProduct} from "../../../contracts/IProduct.sol";
 import {IApplication} from "./IApplication.sol";
 
-contract Application is Initializable, ERC721Upgradeable, IApplication {
+contract Application is Initializable, ERC721EnumerableUpgradeable, IApplication {
     error NotProductDeviceOwner();
+    error AlreadyAuthorized();
 
     IProductFactory public PRODUCT_FACTORY;
-    uint256 private _instanceIdCount;
-    mapping(address => uint256[]) internal _instancesByDevice;
-    mapping(uint256 => address) internal _deviceByInstanceId;
+    uint256 private _authorizationIdCount;
+    mapping(address => uint256[]) internal _authorizationsByDevice;
+    mapping(uint256 => address) internal _deviceByAuthorizationId;
 
     constructor() {
         _disableInitializers();
@@ -38,21 +39,21 @@ contract Application is Initializable, ERC721Upgradeable, IApplication {
     ) external initializer {
         PRODUCT_FACTORY = IProductFactory(productFactory);
         __ERC721_init(name, symbol);
-        _instanceIdCount = 1;
+        _authorizationIdCount = 1;
     }
 
     /**
      * @inheritdoc IApplication
      */
-    function getInstancesByDevice(address device) public view returns (uint256[] memory) {
-        return _instancesByDevice[device];
+    function getAuthorizationsByDevice(address device) public view returns (uint256[] memory) {
+        return _authorizationsByDevice[device];
     }
 
     /**
      * @inheritdoc IApplication
      */
-    function getDeviceByInstanceId(uint256 instanceId) public view returns (address) {
-        return _deviceByInstanceId[instanceId];
+    function getDeviceByAuthorizationId(uint256 authorizationId) public view returns (address) {
+        return _deviceByAuthorizationId[authorizationId];
     }
 
     /**
@@ -73,8 +74,8 @@ contract Application is Initializable, ERC721Upgradeable, IApplication {
         address device,
         address user
     ) external view returns (bool) {
-        for(uint256 i = 0; i < _instancesByDevice[device].length; ++i) {
-            if(_ownerOf(_instancesByDevice[device][i]) == user) {
+        for(uint256 i = 0; i < _authorizationsByDevice[device].length; ++i) {
+            if(_ownerOf(_authorizationsByDevice[device][i]) == user) {
                 return true;
             }
         }
@@ -88,27 +89,33 @@ contract Application is Initializable, ERC721Upgradeable, IApplication {
         address to,
         address device
     ) external onlyProductDeviceOwner(device) returns (uint256) {
-        uint256 instanceId = _instanceIdCount++;
-        _mint(to, instanceId);
-        _instancesByDevice[device].push(instanceId);
-        _deviceByInstanceId[instanceId] = device;
-        return instanceId;
+        uint256 balance = balanceOf(to);
+        for(uint256 i = 0; i < balance; ++i) {
+            if(_deviceByAuthorizationId[tokenByIndex(i)] == device) {
+                revert AlreadyAuthorized();
+            }
+        }
+        uint256 authorizationId = _authorizationIdCount++;
+        _mint(to, authorizationId);
+        _authorizationsByDevice[device].push(authorizationId);
+        _deviceByAuthorizationId[authorizationId] = device;
+        return authorizationId;
     }
 
     /**
      * @inheritdoc IApplication
      */
-    function burn(address device, uint256 instanceId) external onlyProductDeviceOwner(device) {
-        _burn(instanceId);
-        uint256[] storage instances = _instancesByDevice[device];
-        for(uint256 i = 0; i < instances.length; ++i) {
-            if(instances[i] == instanceId) {
-                instances[i] = instances[instances.length - 1];
-                instances.pop();
+    function burn(address device, uint256 authorizationId) external onlyProductDeviceOwner(device) {
+        _burn(authorizationId);
+        uint256[] storage authorizations = _authorizationsByDevice[device];
+        for(uint256 i = 0; i < authorizations.length; ++i) {
+            if(authorizations[i] == authorizationId) {
+                authorizations[i] = authorizations[authorizations.length - 1];
+                authorizations.pop();
                 break;
             }
         }
-        delete _deviceByInstanceId[instanceId];  
+        delete _deviceByAuthorizationId[authorizationId];  
     }
 
     /**
@@ -116,7 +123,7 @@ contract Application is Initializable, ERC721Upgradeable, IApplication {
      */
     function supportsInterface(
         bytes4 interfaceId
-    ) public view virtual override(ERC721Upgradeable, IERC165) returns (bool) {
+    ) public view virtual override(ERC721EnumerableUpgradeable, IERC165) returns (bool) {
         return
             interfaceId == type(IApplication).interfaceId ||
             super.supportsInterface(interfaceId);
