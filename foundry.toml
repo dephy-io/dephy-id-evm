@@ -3,7 +3,7 @@
 [profile.default]
 script = "script"
 solc = "0.8.26"
-src = "."
+src = "contracts"
 test = "test"
 libs = ["dependencies"]
 auto_detect_remappings = true
