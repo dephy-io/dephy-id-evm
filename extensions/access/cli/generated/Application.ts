@@ -31,13 +31,11 @@ export interface ApplicationInterface extends utils.Interface {
     "PRODUCT_FACTORY()": FunctionFragment;
     "approve(address,uint256)": FunctionFragment;
     "balanceOf(address)": FunctionFragment;
-    "burn(uint256)": FunctionFragment;
-    "burn(address)": FunctionFragment;
-    "getAppDeviceOwner(address)": FunctionFragment;
+    "burn(address,uint256)": FunctionFragment;
     "getApproved(uint256)": FunctionFragment;
     "getDeviceBinding(address)": FunctionFragment;
     "getDeviceByInstanceId(uint256)": FunctionFragment;
-    "getInstanceIdByDevice(address)": FunctionFragment;
+    "getInstancesByDevice(address)": FunctionFragment;
     "initialize(address,string,string)": FunctionFragment;
     "isAccessible(address,address)": FunctionFragment;
     "isApprovedForAll(address,address)": FunctionFragment;
@@ -58,13 +56,11 @@ export interface ApplicationInterface extends utils.Interface {
       | "PRODUCT_FACTORY"
       | "approve"
       | "balanceOf"
-      | "burn(uint256)"
-      | "burn(address)"
-      | "getAppDeviceOwner"
+      | "burn"
       | "getApproved"
       | "getDeviceBinding"
       | "getDeviceByInstanceId"
-      | "getInstanceIdByDevice"
+      | "getInstancesByDevice"
       | "initialize"
       | "isAccessible"
       | "isApprovedForAll"
@@ -90,16 +86,8 @@ export interface ApplicationInterface extends utils.Interface {
   ): string;
   encodeFunctionData(functionFragment: "balanceOf", values: [string]): string;
   encodeFunctionData(
-    functionFragment: "burn(uint256)",
-    values: [BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "burn(address)",
-    values: [string]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "getAppDeviceOwner",
-    values: [string]
+    functionFragment: "burn",
+    values: [string, BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "getApproved",
@@ -114,7 +102,7 @@ export interface ApplicationInterface extends utils.Interface {
     values: [BigNumberish]
   ): string;
   encodeFunctionData(
-    functionFragment: "getInstanceIdByDevice",
+    functionFragment: "getInstancesByDevice",
     values: [string]
   ): string;
   encodeFunctionData(
@@ -170,18 +158,7 @@ export interface ApplicationInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(functionFragment: "approve", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "balanceOf", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "burn(uint256)",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "burn(address)",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "getAppDeviceOwner",
-    data: BytesLike
-  ): Result;
+  decodeFunctionResult(functionFragment: "burn", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "getApproved",
     data: BytesLike
@@ -195,7 +172,7 @@ export interface ApplicationInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "getInstanceIdByDevice",
+    functionFragment: "getInstancesByDevice",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "initialize", data: BytesLike): Result;
@@ -326,20 +303,11 @@ export interface Application extends BaseContract {
 
     balanceOf(owner: string, overrides?: CallOverrides): Promise<[BigNumber]>;
 
-    "burn(uint256)"(
+    burn(
+      device: string,
       instanceId: BigNumberish,
       overrides?: Overrides & { from?: string }
     ): Promise<ContractTransaction>;
-
-    "burn(address)"(
-      device: string,
-      overrides?: Overrides & { from?: string }
-    ): Promise<ContractTransaction>;
-
-    getAppDeviceOwner(
-      device: string,
-      overrides?: CallOverrides
-    ): Promise<[string]>;
 
     getApproved(
       tokenId: BigNumberish,
@@ -352,14 +320,14 @@ export interface Application extends BaseContract {
     ): Promise<[string, BigNumber] & { product: string; tokenId: BigNumber }>;
 
     getDeviceByInstanceId(
-      arg0: BigNumberish,
+      instanceId: BigNumberish,
       overrides?: CallOverrides
     ): Promise<[string]>;
 
-    getInstanceIdByDevice(
-      arg0: string,
+    getInstancesByDevice(
+      device: string,
       overrides?: CallOverrides
-    ): Promise<[BigNumber]>;
+    ): Promise<[BigNumber[]]>;
 
     initialize(
       productFactory: string,
@@ -444,17 +412,11 @@ export interface Application extends BaseContract {
 
   balanceOf(owner: string, overrides?: CallOverrides): Promise<BigNumber>;
 
-  "burn(uint256)"(
+  burn(
+    device: string,
     instanceId: BigNumberish,
     overrides?: Overrides & { from?: string }
   ): Promise<ContractTransaction>;
-
-  "burn(address)"(
-    device: string,
-    overrides?: Overrides & { from?: string }
-  ): Promise<ContractTransaction>;
-
-  getAppDeviceOwner(device: string, overrides?: CallOverrides): Promise<string>;
 
   getApproved(
     tokenId: BigNumberish,
@@ -467,14 +429,14 @@ export interface Application extends BaseContract {
   ): Promise<[string, BigNumber] & { product: string; tokenId: BigNumber }>;
 
   getDeviceByInstanceId(
-    arg0: BigNumberish,
+    instanceId: BigNumberish,
     overrides?: CallOverrides
   ): Promise<string>;
 
-  getInstanceIdByDevice(
-    arg0: string,
+  getInstancesByDevice(
+    device: string,
     overrides?: CallOverrides
-  ): Promise<BigNumber>;
+  ): Promise<BigNumber[]>;
 
   initialize(
     productFactory: string,
@@ -553,17 +515,11 @@ export interface Application extends BaseContract {
 
     balanceOf(owner: string, overrides?: CallOverrides): Promise<BigNumber>;
 
-    "burn(uint256)"(
+    burn(
+      device: string,
       instanceId: BigNumberish,
       overrides?: CallOverrides
     ): Promise<void>;
-
-    "burn(address)"(device: string, overrides?: CallOverrides): Promise<void>;
-
-    getAppDeviceOwner(
-      device: string,
-      overrides?: CallOverrides
-    ): Promise<string>;
 
     getApproved(
       tokenId: BigNumberish,
@@ -576,14 +532,14 @@ export interface Application extends BaseContract {
     ): Promise<[string, BigNumber] & { product: string; tokenId: BigNumber }>;
 
     getDeviceByInstanceId(
-      arg0: BigNumberish,
+      instanceId: BigNumberish,
       overrides?: CallOverrides
     ): Promise<string>;
 
-    getInstanceIdByDevice(
-      arg0: string,
+    getInstancesByDevice(
+      device: string,
       overrides?: CallOverrides
-    ): Promise<BigNumber>;
+    ): Promise<BigNumber[]>;
 
     initialize(
       productFactory: string,
@@ -701,19 +657,10 @@ export interface Application extends BaseContract {
 
     balanceOf(owner: string, overrides?: CallOverrides): Promise<BigNumber>;
 
-    "burn(uint256)"(
+    burn(
+      device: string,
       instanceId: BigNumberish,
       overrides?: Overrides & { from?: string }
-    ): Promise<BigNumber>;
-
-    "burn(address)"(
-      device: string,
-      overrides?: Overrides & { from?: string }
-    ): Promise<BigNumber>;
-
-    getAppDeviceOwner(
-      device: string,
-      overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     getApproved(
@@ -727,12 +674,12 @@ export interface Application extends BaseContract {
     ): Promise<BigNumber>;
 
     getDeviceByInstanceId(
-      arg0: BigNumberish,
+      instanceId: BigNumberish,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    getInstanceIdByDevice(
-      arg0: string,
+    getInstancesByDevice(
+      device: string,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
@@ -823,19 +770,10 @@ export interface Application extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    "burn(uint256)"(
+    burn(
+      device: string,
       instanceId: BigNumberish,
       overrides?: Overrides & { from?: string }
-    ): Promise<PopulatedTransaction>;
-
-    "burn(address)"(
-      device: string,
-      overrides?: Overrides & { from?: string }
-    ): Promise<PopulatedTransaction>;
-
-    getAppDeviceOwner(
-      device: string,
-      overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     getApproved(
@@ -849,12 +787,12 @@ export interface Application extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     getDeviceByInstanceId(
-      arg0: BigNumberish,
+      instanceId: BigNumberish,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    getInstanceIdByDevice(
-      arg0: string,
+    getInstancesByDevice(
+      device: string,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 

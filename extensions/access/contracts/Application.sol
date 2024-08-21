@@ -13,14 +13,8 @@ contract Application is Initializable, ERC721Upgradeable, IApplication {
 
     IProductFactory public PRODUCT_FACTORY;
     uint256 private _instanceIdCount;
-    /**
-     * @inheritdoc IApplication
-     */
-    mapping(address => uint256) public getInstanceIdByDevice;
-    /**
-     * @inheritdoc IApplication
-     */
-    mapping(uint256 => address) public getDeviceByInstanceId;
+    mapping(address => uint256[]) internal _instancesByDevice;
+    mapping(uint256 => address) internal _deviceByInstanceId;
 
     constructor() {
         _disableInitializers();
@@ -50,6 +44,20 @@ contract Application is Initializable, ERC721Upgradeable, IApplication {
     /**
      * @inheritdoc IApplication
      */
+    function getInstancesByDevice(address device) public view returns (uint256[] memory) {
+        return _instancesByDevice[device];
+    }
+
+    /**
+     * @inheritdoc IApplication
+     */
+    function getDeviceByInstanceId(uint256 instanceId) public view returns (address) {
+        return _deviceByInstanceId[instanceId];
+    }
+
+    /**
+     * @inheritdoc IApplication
+     */
     function getDeviceBinding(
         address device
     ) public view returns (address product, uint256 tokenId) {
@@ -61,19 +69,16 @@ contract Application is Initializable, ERC721Upgradeable, IApplication {
     /**
      * @inheritdoc IApplication
      */
-    function getAppDeviceOwner(address device) public view returns (address) {
-        uint256 instanceId = getInstanceIdByDevice[device];
-        return _ownerOf(instanceId);
-    }
-
-    /**
-     * @inheritdoc IApplication
-     */
     function isAccessible(
         address device,
         address user
     ) external view returns (bool) {
-        return getAppDeviceOwner(device) == user;
+        for(uint256 i = 0; i < _instancesByDevice[device].length; ++i) {
+            if(_ownerOf(_instancesByDevice[device][i]) == user) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
@@ -85,27 +90,25 @@ contract Application is Initializable, ERC721Upgradeable, IApplication {
     ) external onlyProductDeviceOwner(device) returns (uint256) {
         uint256 instanceId = _instanceIdCount++;
         _mint(to, instanceId);
-        getInstanceIdByDevice[device] = instanceId;
-        getDeviceByInstanceId[instanceId] = device;
+        _instancesByDevice[device].push(instanceId);
+        _deviceByInstanceId[instanceId] = device;
         return instanceId;
     }
 
     /**
      * @inheritdoc IApplication
      */
-    function burn(address device) public onlyProductDeviceOwner(device) {
-        uint256 instanceId = getInstanceIdByDevice[device];
+    function burn(address device, uint256 instanceId) external onlyProductDeviceOwner(device) {
         _burn(instanceId);
-        delete getInstanceIdByDevice[device];
-        delete getDeviceByInstanceId[instanceId];
-    }
-
-    /**
-     * @inheritdoc IApplication
-     */
-    function burn(uint256 instanceId) external {
-        address device = getDeviceByInstanceId[instanceId];
-        burn(device);
+        uint256[] storage instances = _instancesByDevice[device];
+        for(uint256 i = 0; i < instances.length; ++i) {
+            if(instances[i] == instanceId) {
+                instances[i] = instances[instances.length - 1];
+                instances.pop();
+                break;
+            }
+        }
+        delete _deviceByInstanceId[instanceId];  
     }
 
     /**
