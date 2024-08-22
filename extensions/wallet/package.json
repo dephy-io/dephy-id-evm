@@ -1,10 +1,10 @@
 {
-  "name": "dephy-id-evm-templates",
+  "name": "extensions-wallet",
   "version": "0.0.1",
   "main": "dist/index.js",
   "scripts": {
-    "typechain": "rimraf cli/generated/* && typechain --target ethers-v5 --out-dir cli/generated/ '../../out/Wallet.sol/Wallet.json'",
-    "build:contracts": "forge build --contracts ./extensions/wallet",
+    "typechain": "rimraf cli/generated/* && typechain --target ethers-v5 --out-dir cli/generated/ './out/Wallet.sol/Wallet.json'",
+    "build:contracts": "forge build --contracts ./extensions/wallet -o ./extensions/wallet/out",
     "build": "rimraf dist/* && tsc -p tsconfig.json",
     "cli": "node ./dist/index.js"
   },
@@ -15,9 +15,6 @@
     "@types/yargs": "^17.0.32",
     "rimraf": "^6.0.0",
     "typechain": "^8.3.1"
-  },
-  "bin": {
-    "dephy-id-evm-templates-cli": "./dist/index.js"
   },
   "peerDependencies": {
     "typescript": "^5.0.0"

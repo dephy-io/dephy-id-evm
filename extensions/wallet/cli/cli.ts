@@ -3,8 +3,7 @@ import yargs from "yargs";
 import { hideBin } from "yargs/helpers";
 import fs from "fs";
 import path from "path";
-// import Wallet from "./typechain/Wallet"; // 使用 Typechain 生成的类型定义
-import { Wallet__factory, Wallet } from "./generated";
+import { Wallet__factory } from "./generated";
 import { execSync } from "child_process";
 
 // Utility function to write JSON data to a file
@@ -32,13 +31,11 @@ yargs(hideBin(process.argv))
       device: { type: "string", demandOption: true },
     },
     async (args) => {
-      // Step 1: Run `forge build --contracts ./extensions/wallet`
-      execSync("forge build --contracts ./extensions/wallet");
+      execSync("forge build --contracts ./extensions/wallet -o ./extensions/wallet/out");
 
-      // Step 2: Read ABI and bytecode from `./out/Wallet.sol/Wallet.json`
       const walletArtifactPath = path.resolve(
         __dirname,
-        "../../../out/Wallet.sol/Wallet.json"
+        "../out/Wallet.sol/Wallet.json"
       );
       const walletArtifact = JSON.parse(
         fs.readFileSync(walletArtifactPath, "utf-8")

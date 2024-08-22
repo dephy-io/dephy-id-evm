@@ -1,10 +1,10 @@
 {
-  "name": "example-public-vendor",
+  "name": "extensions-access",
   "version": "0.0.1",
   "main": "dist/index.js",
   "scripts": {
-    "typechain": "rimraf cli/generated/* && typechain --target ethers-v5 --out-dir cli/generated/ './out/PublicVendor.sol/PublicVendor.json'",
-    "build:contracts": "forge build --contracts ./examples/public-vendor -o ./examples/public-vendor/out",
+    "typechain": "rimraf cli/generated/* && typechain --target ethers-v5 --out-dir cli/generated/ './out/Application.sol/Application.json' './out/ApplicationFactory.sol/ApplicationFactory.json'",
+    "build:contracts": "forge build --contracts ./extensions/access -o ./extensions/access/out",
     "build": "rimraf dist/* && tsc -p tsconfig.json",
     "cli": "node ./dist/index.js"
   },

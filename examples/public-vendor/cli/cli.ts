@@ -22,13 +22,13 @@ yargs(hideBin(process.argv))
       baseTokenURI: { type: "string", demandOption: true },
     },
     async (args) => {
-      // Step 1: Run `forge build --contracts ./examples/public-vendor`
-      execSync("forge build --contracts ./examples/public-vendor");
+      // Step 1: Run `forge build --contracts ./examples/public-vendor -o ./examples/public-vendor/out`
+      execSync("forge build --contracts ./examples/public-vendor -o ./examples/public-vendor/out");
 
       // Step 2: Read ABI and bytecode from `./out/PublicVendor.sol/PublicVendor.json`
       const vendorArtifactPath = path.resolve(
         __dirname,
-        "../../../out/PublicVendor.sol/PublicVendor.json"
+        "./out/PublicVendor.sol/PublicVendor.json"
       );
       const vendorArtifact = JSON.parse(
         fs.readFileSync(vendorArtifactPath, "utf-8")

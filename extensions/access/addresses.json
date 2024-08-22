@@ -1,0 +1,6 @@
+{
+    "BaseSepolia": {
+        "ApplicationFactory": "0xC721c6c0D9DAA7130d1b20d0B0f876278770EB03",
+        "ApplicationImpl": "0xb72d3E60A80112C6d81F13fAb01fA095FC874d85"
+    }
+}

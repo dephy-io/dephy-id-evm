@@ -22,7 +22,7 @@ pnpm run cli --help
 
 ```bash
 pnpm run cli deploy \
---rpc $BNB_TESTNET_RPC_URL \
+--rpc $BASE_SEPOLIA_RPC_URL \
 --privatekey $PRIVATE_KEY \
 --productFactory {productFactory address} \
 --productImpl {productImpl address} \
@@ -37,7 +37,7 @@ Deployed Vendor address will store in `examples/tmp/address.json`.
 
 ```bash
 pnpm run cli create-activated-device \
---rpc $BNB_TESTNET_RPC_URL \
+--rpc $BASE_SEPOLIA_RPC_URL \
 --privatekey $PRIVATE_KEY \
 --device {device address} \
 --receiver {receiver address}
@@ -53,7 +53,7 @@ If Vendor address not set in `examples/tmp/address.json`, you need to add
 
 ```bash
 pnpm run cli create-activated-devices \
---rpc $BNB_TESTNET_RPC_URL \
+--rpc $BASE_SEPOLIA_RPC_URL \
 --privatekey $PRIVATE_KEY \
 --devices  {device1 address},{device2 address},... \
 --receivers {receiver1 address},{receiver2 address},...
