@@ -10,9 +10,9 @@ interface IApplication is IERC721 {
         string memory symbol
     ) external;
 
-    function getAuthorizationsByDevice(address device) external returns (uint256[] memory);
+    function getAccessesByDevice(address device) external returns (uint256[] memory);
 
-    function getDeviceByAuthorizationId(uint256 authorizationId) external returns (address);
+    function getDeviceByAccessId(uint256 accessId) external returns (address);
 
     function getDeviceBinding(address device) external view returns (address product, uint256 tokenId);
 

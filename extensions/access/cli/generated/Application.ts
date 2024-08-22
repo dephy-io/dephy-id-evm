@@ -32,10 +32,10 @@ export interface ApplicationInterface extends utils.Interface {
     "approve(address,uint256)": FunctionFragment;
     "balanceOf(address)": FunctionFragment;
     "burn(address,uint256)": FunctionFragment;
+    "getAccessesByDevice(address)": FunctionFragment;
     "getApproved(uint256)": FunctionFragment;
-    "getAuthorizationsByDevice(address)": FunctionFragment;
     "getDeviceBinding(address)": FunctionFragment;
-    "getDeviceByAuthorizationId(uint256)": FunctionFragment;
+    "getDeviceByAccessId(uint256)": FunctionFragment;
     "initialize(address,string,string)": FunctionFragment;
     "isAccessible(address,address)": FunctionFragment;
     "isApprovedForAll(address,address)": FunctionFragment;
@@ -60,10 +60,10 @@ export interface ApplicationInterface extends utils.Interface {
       | "approve"
       | "balanceOf"
       | "burn"
+      | "getAccessesByDevice"
       | "getApproved"
-      | "getAuthorizationsByDevice"
       | "getDeviceBinding"
-      | "getDeviceByAuthorizationId"
+      | "getDeviceByAccessId"
       | "initialize"
       | "isAccessible"
       | "isApprovedForAll"
@@ -96,19 +96,19 @@ export interface ApplicationInterface extends utils.Interface {
     values: [string, BigNumberish]
   ): string;
   encodeFunctionData(
-    functionFragment: "getApproved",
-    values: [BigNumberish]
+    functionFragment: "getAccessesByDevice",
+    values: [string]
   ): string;
   encodeFunctionData(
-    functionFragment: "getAuthorizationsByDevice",
-    values: [string]
+    functionFragment: "getApproved",
+    values: [BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "getDeviceBinding",
     values: [string]
   ): string;
   encodeFunctionData(
-    functionFragment: "getDeviceByAuthorizationId",
+    functionFragment: "getDeviceByAccessId",
     values: [BigNumberish]
   ): string;
   encodeFunctionData(
@@ -178,11 +178,11 @@ export interface ApplicationInterface extends utils.Interface {
   decodeFunctionResult(functionFragment: "balanceOf", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "burn", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "getApproved",
+    functionFragment: "getAccessesByDevice",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "getAuthorizationsByDevice",
+    functionFragment: "getApproved",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -190,7 +190,7 @@ export interface ApplicationInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "getDeviceByAuthorizationId",
+    functionFragment: "getDeviceByAccessId",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "initialize", data: BytesLike): Result;
@@ -335,27 +335,27 @@ export interface Application extends BaseContract {
 
     burn(
       device: string,
-      authorizationId: BigNumberish,
+      accessId: BigNumberish,
       overrides?: Overrides & { from?: string }
     ): Promise<ContractTransaction>;
+
+    getAccessesByDevice(
+      device: string,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber[]]>;
 
     getApproved(
       tokenId: BigNumberish,
       overrides?: CallOverrides
     ): Promise<[string]>;
 
-    getAuthorizationsByDevice(
-      device: string,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber[]]>;
-
     getDeviceBinding(
       device: string,
       overrides?: CallOverrides
     ): Promise<[string, BigNumber] & { product: string; tokenId: BigNumber }>;
 
-    getDeviceByAuthorizationId(
-      authorizationId: BigNumberish,
+    getDeviceByAccessId(
+      accessId: BigNumberish,
       overrides?: CallOverrides
     ): Promise<[string]>;
 
@@ -457,27 +457,27 @@ export interface Application extends BaseContract {
 
   burn(
     device: string,
-    authorizationId: BigNumberish,
+    accessId: BigNumberish,
     overrides?: Overrides & { from?: string }
   ): Promise<ContractTransaction>;
+
+  getAccessesByDevice(
+    device: string,
+    overrides?: CallOverrides
+  ): Promise<BigNumber[]>;
 
   getApproved(
     tokenId: BigNumberish,
     overrides?: CallOverrides
   ): Promise<string>;
 
-  getAuthorizationsByDevice(
-    device: string,
-    overrides?: CallOverrides
-  ): Promise<BigNumber[]>;
-
   getDeviceBinding(
     device: string,
     overrides?: CallOverrides
   ): Promise<[string, BigNumber] & { product: string; tokenId: BigNumber }>;
 
-  getDeviceByAuthorizationId(
-    authorizationId: BigNumberish,
+  getDeviceByAccessId(
+    accessId: BigNumberish,
     overrides?: CallOverrides
   ): Promise<string>;
 
@@ -573,27 +573,27 @@ export interface Application extends BaseContract {
 
     burn(
       device: string,
-      authorizationId: BigNumberish,
+      accessId: BigNumberish,
       overrides?: CallOverrides
     ): Promise<void>;
+
+    getAccessesByDevice(
+      device: string,
+      overrides?: CallOverrides
+    ): Promise<BigNumber[]>;
 
     getApproved(
       tokenId: BigNumberish,
       overrides?: CallOverrides
     ): Promise<string>;
 
-    getAuthorizationsByDevice(
-      device: string,
-      overrides?: CallOverrides
-    ): Promise<BigNumber[]>;
-
     getDeviceBinding(
       device: string,
       overrides?: CallOverrides
     ): Promise<[string, BigNumber] & { product: string; tokenId: BigNumber }>;
 
-    getDeviceByAuthorizationId(
-      authorizationId: BigNumberish,
+    getDeviceByAccessId(
+      accessId: BigNumberish,
       overrides?: CallOverrides
     ): Promise<string>;
 
@@ -728,17 +728,17 @@ export interface Application extends BaseContract {
 
     burn(
       device: string,
-      authorizationId: BigNumberish,
+      accessId: BigNumberish,
       overrides?: Overrides & { from?: string }
+    ): Promise<BigNumber>;
+
+    getAccessesByDevice(
+      device: string,
+      overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     getApproved(
       tokenId: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    getAuthorizationsByDevice(
-      device: string,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
@@ -747,8 +747,8 @@ export interface Application extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    getDeviceByAuthorizationId(
-      authorizationId: BigNumberish,
+    getDeviceByAccessId(
+      accessId: BigNumberish,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
@@ -854,17 +854,17 @@ export interface Application extends BaseContract {
 
     burn(
       device: string,
-      authorizationId: BigNumberish,
+      accessId: BigNumberish,
       overrides?: Overrides & { from?: string }
+    ): Promise<PopulatedTransaction>;
+
+    getAccessesByDevice(
+      device: string,
+      overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     getApproved(
       tokenId: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    getAuthorizationsByDevice(
-      device: string,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
@@ -873,8 +873,8 @@ export interface Application extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    getDeviceByAuthorizationId(
-      authorizationId: BigNumberish,
+    getDeviceByAccessId(
+      accessId: BigNumberish,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 

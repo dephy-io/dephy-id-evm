@@ -13,8 +13,8 @@ contract Application is Initializable, ERC721EnumerableUpgradeable, IApplication
     error AlreadyAuthorized();
 
     IProductFactory public PRODUCT_FACTORY;
-    uint256 private _authorizationIdCount;
-    mapping(address => uint256[]) internal _authorizationsByDevice;
+    uint256 private _accessIdCount;
+    mapping(address => uint256[]) internal _accessesByDevice;
     mapping(uint256 => address) internal _deviceByAuthorizationId;
 
     constructor() {
@@ -39,21 +39,21 @@ contract Application is Initializable, ERC721EnumerableUpgradeable, IApplication
     ) external initializer {
         PRODUCT_FACTORY = IProductFactory(productFactory);
         __ERC721_init(name, symbol);
-        _authorizationIdCount = 1;
+        _accessIdCount = 1;
     }
 
     /**
      * @inheritdoc IApplication
      */
-    function getAuthorizationsByDevice(address device) public view returns (uint256[] memory) {
-        return _authorizationsByDevice[device];
+    function getAccessesByDevice(address device) public view returns (uint256[] memory) {
+        return _accessesByDevice[device];
     }
 
     /**
      * @inheritdoc IApplication
      */
-    function getDeviceByAuthorizationId(uint256 authorizationId) public view returns (address) {
-        return _deviceByAuthorizationId[authorizationId];
+    function getDeviceByAccessId(uint256 accessId) public view returns (address) {
+        return _deviceByAuthorizationId[accessId];
     }
 
     /**
@@ -74,8 +74,8 @@ contract Application is Initializable, ERC721EnumerableUpgradeable, IApplication
         address device,
         address user
     ) external view returns (bool) {
-        for(uint256 i = 0; i < _authorizationsByDevice[device].length; ++i) {
-            if(_ownerOf(_authorizationsByDevice[device][i]) == user) {
+        for(uint256 i = 0; i < _accessesByDevice[device].length; ++i) {
+            if(_ownerOf(_accessesByDevice[device][i]) == user) {
                 return true;
             }
         }
@@ -95,27 +95,27 @@ contract Application is Initializable, ERC721EnumerableUpgradeable, IApplication
                 revert AlreadyAuthorized();
             }
         }
-        uint256 authorizationId = _authorizationIdCount++;
-        _mint(to, authorizationId);
-        _authorizationsByDevice[device].push(authorizationId);
-        _deviceByAuthorizationId[authorizationId] = device;
-        return authorizationId;
+        uint256 accessId = _accessIdCount++;
+        _mint(to, accessId);
+        _accessesByDevice[device].push(accessId);
+        _deviceByAuthorizationId[accessId] = device;
+        return accessId;
     }
 
     /**
      * @inheritdoc IApplication
      */
-    function burn(address device, uint256 authorizationId) external onlyProductDeviceOwner(device) {
-        _burn(authorizationId);
-        uint256[] storage authorizations = _authorizationsByDevice[device];
+    function burn(address device, uint256 accessId) external onlyProductDeviceOwner(device) {
+        _burn(accessId);
+        uint256[] storage authorizations = _accessesByDevice[device];
         for(uint256 i = 0; i < authorizations.length; ++i) {
-            if(authorizations[i] == authorizationId) {
+            if(authorizations[i] == accessId) {
                 authorizations[i] = authorizations[authorizations.length - 1];
                 authorizations.pop();
                 break;
             }
         }
-        delete _deviceByAuthorizationId[authorizationId];  
+        delete _deviceByAuthorizationId[accessId];  
     }
 
     /**
