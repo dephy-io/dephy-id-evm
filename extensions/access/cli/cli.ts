@@ -19,6 +19,51 @@ function updateAddressFile(newData: Record<string, string>) {
 
 yargs(hideBin(process.argv))
   .command(
+    "deploy-connection-identities",
+    "Deploy ConnectionIdentities contract",
+    {
+      rpc: { type: "string", demandOption: true },
+      privatekey: { type: "string", demandOption: true },
+    },
+    async (args) => {
+      execSync(
+        "forge build --contracts ./extensions/access -o ./extensions/access/out"
+      );
+
+      console.log("contracts has been built, reading artifacts from out dir...");
+
+      const contractArtifactPath = path.resolve(
+        __dirname,
+        "../out/ConnectionIdentities.sol/ConnectionIdentities.json"
+      );
+      const contractArtifact = JSON.parse(
+        fs.readFileSync(contractArtifactPath, "utf-8")
+      );
+
+      const wallet = new ethers.Wallet(
+        args.privatekey,
+        new ethers.providers.JsonRpcProvider(args.rpc)
+      );
+      const factory = new ContractFactory(
+        contractArtifact.abi,
+        contractArtifact.bytecode.object,
+        wallet
+      );
+
+      const contract = await factory.deploy();
+      console.log("contract deploying...");
+      await contract.deployed();
+      console.log(
+        `ConnectionIdentities contract deployed at ${contract.address}`
+      );
+
+      updateAddressFile({ ConnectionIdentities: contract.address });
+      console.log(
+        `ConnectionIdentities contract address stored in ./tmp/address.json`
+      );
+    }
+  )
+  .command(
     "deploy-application-factory",
     "Deploy ApplicationFactory contract",
     {
@@ -30,6 +75,8 @@ yargs(hideBin(process.argv))
       execSync(
         "forge build --contracts ./extensions/access -o ./extensions/access/out"
       );
+
+      console.log("contracts has been built, reading artifacts from out dir...");
 
       const factoryArtifactPath = path.resolve(
         __dirname,
@@ -73,6 +120,8 @@ yargs(hideBin(process.argv))
       execSync(
         "forge build --contracts ./extensions/access -o ./extensions/access/out"
       );
+
+      console.log("contracts has been built, reading artifacts from out dir...");
 
       const implArtifactPath = path.resolve(
         __dirname,

@@ -26,6 +26,8 @@ yargs(hideBin(process.argv))
       // Step 1: Run `forge build --contracts ./examples/public-vendor -o ./examples/public-vendor/out`
       execSync("forge build --contracts ./examples/public-vendor -o ./examples/public-vendor/out");
 
+      console.log("contracts has been built, reading artifacts from out dir...");
+
       // Step 2: Read ABI and bytecode from `./out/PublicVendor.sol/PublicVendor.json`
       const vendorArtifactPath = path.resolve(
         __dirname,
