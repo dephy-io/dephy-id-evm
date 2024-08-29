@@ -2,7 +2,7 @@
   "name": "extensions-access",
   "version": "0.0.1",
   "scripts": {
-    "typechain": "rimraf cli/generated/* && typechain --target ethers-v5 --out-dir cli/generated/ './out/Application.sol/Application.json' './out/ApplicationFactory.sol/ApplicationFactory.json'",
+    "typechain": "rimraf cli/generated/* && typechain --target ethers-v5 --out-dir cli/generated/ './out/ConnectionIdentities.sol/ConnectionIdentities.json'",
     "build:contracts": "forge build --contracts ./extensions/access -o ./extensions/access/out",
     "build": "rimraf dist/* && tsc -p tsconfig.json",
     "cli": "ts-node ./cli/index.ts"

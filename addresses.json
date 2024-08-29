@@ -3,8 +3,6 @@
     "ProductFactory": "0x1dFC014B1852f0c81d11A3535335f1984cD4CE37",
     "ProductImpl": "0x647d77324E241709BaF63D7f96F0C19ecA06E2e0",
     "PublicVendor": "0xc1F4465a717e3694993d89ecbDBE52bB608FE155",
-    "ApplicationFactory": "0x1D169b9959E13F7e9b7Ac8341CaC10427dff5B5A",
-    "ApplicationImpl": "0x1ab1dB3dccE627F5dACe819Ea62c9E9cc803Cc18",
     "ConnectionIdentities": "0x086cb7c5Ba6Fc0a3949Cb16727Ff6AA807FF61d2"
   }
 }
