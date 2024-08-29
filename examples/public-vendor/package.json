@@ -1,12 +1,11 @@
 {
   "name": "example-public-vendor",
   "version": "0.0.1",
-  "main": "dist/index.js",
   "scripts": {
     "typechain": "rimraf cli/generated/* && typechain --target ethers-v5 --out-dir cli/generated/ './out/PublicVendor.sol/PublicVendor.json'",
     "build:contracts": "forge build --contracts ./examples/public-vendor -o ./examples/public-vendor/out",
     "build": "rimraf dist/* && tsc -p tsconfig.json",
-    "cli": "node ./dist/index.js"
+    "cli": "ts-node ./cli/index.ts"
   },
   "devDependencies": {
     "@ethersproject/abi": "^5.7.0",
@@ -14,10 +13,8 @@
     "@typechain/ethers-v5": "^11.1.1",
     "@types/yargs": "^17.0.32",
     "rimraf": "^6.0.0",
+    "ts-node": "^10.9.2",
     "typechain": "^8.3.1"
-  },
-  "bin": {
-    "public-vendor": "./dist/index.js"
   },
   "peerDependencies": {
     "typescript": "^5.0.0"

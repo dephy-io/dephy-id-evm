@@ -39,7 +39,7 @@ export interface ApplicationInterface extends utils.Interface {
     "initialize(address,string,string)": FunctionFragment;
     "isAccessible(address,address)": FunctionFragment;
     "isApprovedForAll(address,address)": FunctionFragment;
-    "mint(address,address)": FunctionFragment;
+    "mint(address,address,string)": FunctionFragment;
     "name()": FunctionFragment;
     "ownerOf(uint256)": FunctionFragment;
     "safeTransferFrom(address,address,uint256)": FunctionFragment;
@@ -125,7 +125,7 @@ export interface ApplicationInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "mint",
-    values: [string, string]
+    values: [string, string, string]
   ): string;
   encodeFunctionData(functionFragment: "name", values?: undefined): string;
   encodeFunctionData(
@@ -381,6 +381,7 @@ export interface Application extends BaseContract {
     mint(
       to: string,
       device: string,
+      accessURI: string,
       overrides?: Overrides & { from?: string }
     ): Promise<ContractTransaction>;
 
@@ -431,7 +432,7 @@ export interface Application extends BaseContract {
     ): Promise<[BigNumber]>;
 
     tokenURI(
-      tokenId: BigNumberish,
+      accessId: BigNumberish,
       overrides?: CallOverrides
     ): Promise<[string]>;
 
@@ -503,6 +504,7 @@ export interface Application extends BaseContract {
   mint(
     to: string,
     device: string,
+    accessURI: string,
     overrides?: Overrides & { from?: string }
   ): Promise<ContractTransaction>;
 
@@ -549,7 +551,7 @@ export interface Application extends BaseContract {
     overrides?: CallOverrides
   ): Promise<BigNumber>;
 
-  tokenURI(tokenId: BigNumberish, overrides?: CallOverrides): Promise<string>;
+  tokenURI(accessId: BigNumberish, overrides?: CallOverrides): Promise<string>;
 
   totalSupply(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -619,6 +621,7 @@ export interface Application extends BaseContract {
     mint(
       to: string,
       device: string,
+      accessURI: string,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
@@ -665,7 +668,10 @@ export interface Application extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    tokenURI(tokenId: BigNumberish, overrides?: CallOverrides): Promise<string>;
+    tokenURI(
+      accessId: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<string>;
 
     totalSupply(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -774,6 +780,7 @@ export interface Application extends BaseContract {
     mint(
       to: string,
       device: string,
+      accessURI: string,
       overrides?: Overrides & { from?: string }
     ): Promise<BigNumber>;
 
@@ -824,7 +831,7 @@ export interface Application extends BaseContract {
     ): Promise<BigNumber>;
 
     tokenURI(
-      tokenId: BigNumberish,
+      accessId: BigNumberish,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
@@ -900,6 +907,7 @@ export interface Application extends BaseContract {
     mint(
       to: string,
       device: string,
+      accessURI: string,
       overrides?: Overrides & { from?: string }
     ): Promise<PopulatedTransaction>;
 
@@ -950,7 +958,7 @@ export interface Application extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     tokenURI(
-      tokenId: BigNumberish,
+      accessId: BigNumberish,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 

@@ -64,3 +64,21 @@ If Vendor address not set in `examples/tmp/address.json`, you need to add
 ```bash
 --vendor {vendor address}
 ```
+
+### Auto Create
+
+```bash
+pnpm run cli auto-create \
+--rpc $BASE_SEPOLIA_RPC_URL \
+--privatekey $PRIVATE_KEY \
+--receiver {receiver address}
+```
+
+Auto created and activated 10 devices will store in `examples/tmp/auto-create.json`.
+
+If Vendor address not set in `examples/tmp/address.json`, you need to add
+
+```bash
+--vendor {vendor address}
+```
+
