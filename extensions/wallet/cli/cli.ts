@@ -33,6 +33,8 @@ yargs(hideBin(process.argv))
     async (args) => {
       execSync("forge build --contracts ./extensions/wallet -o ./extensions/wallet/out");
 
+      console.log("contracts has been built, reading artifacts from out dir...");
+
       const walletArtifactPath = path.resolve(
         __dirname,
         "../out/Wallet.sol/Wallet.json"
