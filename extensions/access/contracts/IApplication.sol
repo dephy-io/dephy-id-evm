@@ -18,7 +18,7 @@ interface IApplication is IERC721 {
 
     function isAccessible(address device, address user) external view returns (bool);
 
-    function mint(address to, address device) external returns (uint256);
+    function mint(address to, address device, string memory accessURI) external returns (uint256);
 
     function burn(address device, uint256 tokenId) external;
 }
