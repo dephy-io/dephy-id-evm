@@ -30,7 +30,7 @@
       "outputs": [
         { "name": "", "type": "uint256[]", "internalType": "uint256[]" }
       ],
-      "stateMutability": "nonpayable"
+      "stateMutability": "view"
     },
     {
       "type": "function",

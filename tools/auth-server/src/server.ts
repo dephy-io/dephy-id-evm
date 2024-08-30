@@ -7,8 +7,8 @@ import AccessIdentitiesJson from "./AccessIdentities.json";
 // const NOTIFY_API = process.env.NOTIFY_API || "https://localhost:1234/notify";
 const DEVICE = process.env.DEVICE;
 const PORT = process.env.PORT || 3155;
-const ACCESS_IDENTITIES =
-  process.env.ACCESS_IDENTITIES || "0x4Cd640e4177a5d86B06BDB147E7efECFf3E478b3";
+const CONNECTION_IDENTITIES =
+  process.env.CONNECTION_IDENTITIES;
 const APPLICATION =
   process.env.APPLICATION;
 const RPC =
@@ -23,6 +23,10 @@ if (!APPLICATION) {
   throw new Error("env variable `APPLICATION` undefined");
 }
 
+if (!CONNECTION_IDENTITIES) {
+  throw new Error("env variable `CONNECTION_IDENTITIES` undefined");
+}
+
 const provider = new ethers.providers.JsonRpcProvider(RPC);
 const applicationContract = new ethers.Contract(
   APPLICATION,
@@ -30,7 +34,7 @@ const applicationContract = new ethers.Contract(
   provider
 );
 const accessIdentitiesContract = new ethers.Contract(
-  ACCESS_IDENTITIES,
+  CONNECTION_IDENTITIES,
   AccessIdentitiesJson.abi,
   provider
 );

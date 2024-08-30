@@ -10,7 +10,7 @@ interface IApplication is IERC721 {
 
     function getAccessesByDevice(
         address device
-    ) external returns (uint256[] memory);
+    ) external view returns (uint256[] memory);
 
     function getDeviceByAccessId(uint256 accessId) external returns (address);
 
