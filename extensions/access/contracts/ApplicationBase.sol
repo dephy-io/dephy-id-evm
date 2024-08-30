@@ -18,7 +18,7 @@ abstract contract ApplicationBase is
     uint256 private _accessIdCount;
     mapping(address => uint256[]) internal _accessesByDevice;
     mapping(uint256 => address) internal _deviceByAccessId;
-    mapping(uint256 => string) internal _accessURIs;
+    mapping(address => string) internal _accessURIByDevice;
 
     constructor(
         address productFactory,
@@ -96,13 +96,17 @@ abstract contract ApplicationBase is
     function tokenURI(
         uint256 accessId
     ) public view override returns (string memory) {
-        return _accessURIs[accessId];
+        address device = _deviceByAccessId[accessId];
+        return _accessURIByDevice[device];
+    }
+
+    function _setAccessURI(address device, string memory accessURI) internal {
+        _accessURIByDevice[device] = accessURI;
     }
 
     function _grantAccess(
         address to,
-        address device,
-        string memory accessURI
+        address device
     ) internal returns (uint256) {
         uint256 balance = balanceOf(to);
         for (uint256 i = 0; i < balance; ++i) {
@@ -114,7 +118,6 @@ abstract contract ApplicationBase is
         _mint(to, accessId);
         _accessesByDevice[device].push(accessId);
         _deviceByAccessId[accessId] = device;
-        _accessURIs[accessId] = accessURI;
         return accessId;
     }
 
@@ -132,6 +135,5 @@ abstract contract ApplicationBase is
             }
         }
         delete _deviceByAccessId[accessId];
-        delete _accessURIs[accessId];
     }
 }
