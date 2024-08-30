@@ -3,6 +3,6 @@
 ## Run
 
 ```bash
-DEVICE={device address} APPLICATION={application address} pnpm run server
+DEVICE=$DEVICE APPLICATION=$APPLICATION CONNECTION_IDENTITIES=$CONNECTION_IDENTITIES pnpm run server
 ```
 
