@@ -143,7 +143,6 @@ try {
   const signature = await user.signTypedData({
     types: {
       ActivateDevice: [
-        { name: 'product', type: 'address' },
         { name: 'device', type: 'address' },
         { name: 'deviceSignature', type: 'bytes' },
         { name: 'deviceDeadline', type: 'uint256' },
@@ -158,7 +157,6 @@ try {
       verifyingContract: productFactoryProxyAddress!,
     },
     message: {
-      product: productAddress,
       device: device2.address,
       deviceSignature,
       deviceDeadline,
